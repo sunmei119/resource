@@ -1,0 +1,2151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>资源中心管理后台</title>
+  <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+  <style>
+    :root {
+      --shell-bg: #f5f6f8;
+      --shell-card: #ffffff;
+      --shell-line: #ebeef5;
+      --shell-text: #1f2329;
+      --shell-text-secondary: #4e5969;
+      --shell-primary: #1779F6;
+      --shell-header-height: 64px;
+      --shell-sidebar-width: 248px;
+      --shell-radius: 12px;
+      --shell-shadow: 0 2px 10px rgba(31, 35, 41, 0.06);
+      --el-color-primary: #1779F6;
+      --el-color-primary-light-3: #4b96f8;
+      --el-color-primary-light-5: #74aefa;
+      --el-color-primary-light-7: #9dc6fb;
+      --el-color-primary-light-8: #b1d1fc;
+      --el-color-primary-light-9: #e8f1fe;
+      --el-color-primary-dark-2: #1361c5;
+    }
+    * { box-sizing: border-box; }
+    html, body, #app {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--shell-bg);
+      color: var(--shell-text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    .shell-root { min-height: 100vh; background: var(--shell-bg); }
+    .shell-header {
+      height: var(--shell-header-height);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 28px; background: #fff; border-bottom: 1px solid #f0f0f0;
+    }
+    .shell-brand { display: flex; align-items: center; gap: 12px; min-width: 240px; }
+    .shell-brand-mark {
+      width: 30px; height: 30px; border-radius: 8px;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #1779F6 0%, #69b1ff 100%);
+      color: #fff; font-weight: 700; font-size: 13px;
+    }
+    .shell-brand-text { display: flex; flex-direction: column; gap: 2px; }
+    .shell-brand-title { font-size: 15px; font-weight: 700; line-height: 1.2; }
+    .shell-brand-subtitle { font-size: 11px; color: var(--shell-text-secondary); line-height: 1.2; }
+    .shell-header-center {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      padding: 0 24px; color: var(--shell-text-secondary); font-size: 14px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .shell-header-actions { display: flex; align-items: center; gap: 12px; }
+    .shell-body { min-height: calc(100vh - var(--shell-header-height)); }
+    .shell-sidebar {
+      width: var(--shell-sidebar-width);
+      background: #fff; border-right: 1px solid #f0f0f0;
+      padding: 18px 14px; overflow: auto;
+    }
+    .shell-nav-group + .shell-nav-group { margin-top: 18px; }
+    .shell-nav-group-title {
+      padding: 0 14px 8px; font-size: 12px; color: #86909c;
+      text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .shell-main { padding: 0; background: var(--shell-bg); }
+    .shell-tabbar {
+      min-height: 64px; display: flex; align-items: center; gap: 18px;
+      padding: 0 26px; background: #fff; border-bottom: 1px solid #f0f0f0;
+    }
+    .shell-tabbar-toggle {
+      width: 26px; height: 26px; display: inline-flex; align-items: center;
+      justify-content: center; color: #4e5969; border-radius: 6px; flex: 0 0 auto;
+    }
+    .shell-tabbar-tabs { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; overflow: hidden; }
+    .shell-tabbar-tab {
+      display: inline-flex; align-items: center; gap: 8px;
+      min-width: 148px; max-width: 260px; height: 32px; padding: 0 16px;
+      border: 1px solid #e7ebf2; border-radius: 8px;
+      background: #f7f8fa; color: #4e5969; cursor: pointer;
+    }
+    .shell-tabbar-tab.is-active {
+      background: #fff; color: var(--shell-text); border-color: #d7e4ff;
+      box-shadow: 0 2px 8px rgba(47, 125, 246, 0.08);
+    }
+    .shell-tabbar-label {
+      flex: 1; min-width: 0; white-space: nowrap; overflow: hidden;
+      text-overflow: ellipsis; font-size: 14px; font-weight: 500;
+    }
+    .shell-tabbar-close { color: #a1a7b3; font-size: 12px; line-height: 1; }
+    .shell-main-body { padding: 18px 22px 24px; }
+    .shell-workbench { display: flex; flex-direction: column; gap: 16px; }
+
+    /* 业务区 */
+    .biz-toolbar {
+      background: #fff; border-radius: var(--shell-radius);
+      box-shadow: var(--shell-shadow); padding: 16px 20px;
+      display: flex; flex-wrap: wrap; align-items: center; gap: 16px;
+    }
+    .biz-field { display: flex; flex-direction: row; align-items: center; gap: 8px; }
+    .biz-field-label { font-size: 13px; color: #4e5969; white-space: nowrap; }
+    .biz-field > input[type="text"], .biz-field > select {
+      height: 32px; padding: 0 10px; min-width: 180px;
+      border: 1px solid #dcdfe6; border-radius: 6px;
+      background: #fff; font-size: 14px; color: var(--shell-text);
+    }
+    .biz-toolbar-actions { display: flex; gap: 8px; margin-left: auto; }
+
+    /* toolbar 内嵌到卡片内部时，去掉独立卡片外观 */
+    .biz-card .biz-toolbar {
+      background: transparent; border-radius: 0; box-shadow: none;
+      padding: 0 0 16px; margin-bottom: 16px;
+      border-bottom: 1px solid #eef0f3;
+    }
+
+    .biz-card {
+      background: #fff; border-radius: var(--shell-radius);
+      box-shadow: var(--shell-shadow); padding: 16px 20px;
+    }
+    .biz-card-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .biz-card-title { font-size: 15px; font-weight: 600; }
+    .biz-card-actions { display: flex; gap: 8px; }
+
+    /* 原生 table */
+    .biz-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .biz-table thead th {
+      background: #f7f8fa; color: #4e5969; font-weight: 500;
+      text-align: left; padding: 10px 12px;
+      border-bottom: 1px solid var(--shell-line);
+      white-space: nowrap;
+    }
+    .biz-table tbody td {
+      padding: 12px; border-bottom: 1px solid var(--shell-line);
+      color: var(--shell-text); vertical-align: middle;
+      white-space: nowrap;
+    }
+    /* 允许换行的列（描述、简介等长文本）显式加 .col-wrap */
+    .biz-table th.col-wrap, .biz-table td.col-wrap { white-space: normal; }
+    .biz-table tbody tr:hover { background: #fafcff; }
+    .biz-table .col-check { width: 40px; }
+    .biz-table .col-actions { width: 320px; white-space: nowrap; }
+    .biz-icon-thumb {
+      width: 32px; height: 32px; border-radius: 6px;
+      background: linear-gradient(135deg, #dce7ff, #eef4ff);
+      display: inline-flex; align-items: center; justify-content: center;
+      color: #1779F6; font-size: 12px;
+    }
+    .biz-code { font-family: Consolas, Monaco, monospace; background: #f2f4f7; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+    .biz-desc-cell { max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .biz-tree-indent { display: inline-block; }
+    .biz-tree-toggle {
+      display: inline-block; width: 16px; text-align: center; cursor: pointer;
+      color: #86909c;
+    }
+
+    .biz-pagination {
+      display: flex; align-items: center; justify-content: flex-end;
+      gap: 12px; margin-top: 12px; color: #86909c; font-size: 13px;
+    }
+    .biz-pagination button {
+      height: 28px; padding: 0 10px; border: 1px solid #dcdfe6;
+      background: #fff; border-radius: 4px; cursor: pointer;
+    }
+
+    .biz-empty { padding: 40px; text-align: center; color: #a1a7b3; }
+
+    /* 表单弹窗 */
+    .biz-form-section-title {
+      font-size: 13px; color: #4e5969; font-weight: 600;
+      margin: 8px 0 12px; padding-left: 8px; border-left: 3px solid var(--shell-primary);
+    }
+
+    /* 侧边导航自定义 */
+    .el-menu { border-right: none !important; }
+
+    /* 资源三步式表单 */
+    .res-steps {
+      display: flex; align-items: center; gap: 12px;
+      padding: 16px 20px; margin: 8px 0 4px;
+      background: #f7f8fa; border-radius: 8px;
+    }
+    .res-step {
+      display: inline-flex; align-items: center; gap: 8px;
+      color: #86909c; font-size: 14px;
+    }
+    .res-step + .res-step::before {
+      content: ''; display: inline-block; width: 40px; height: 1px;
+      background: #dcdfe6; margin: 0 4px;
+    }
+    .res-step-no {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: #dcdfe6; color: #fff; display: inline-flex;
+      align-items: center; justify-content: center; font-size: 12px;
+    }
+    .res-step.is-active { color: var(--shell-primary); font-weight: 600; }
+    .res-step.is-active .res-step-no { background: var(--shell-primary); }
+    .res-step.is-done { color: #4e5969; }
+    .res-step.is-done .res-step-no { background: #67c23a; }
+    .res-step-body { padding: 20px 0 8px; }
+    .res-step-footer {
+      display: flex; justify-content: center; align-items: center; gap: 8px;
+      padding-top: 12px; border-top: 1px solid #eef0f3; margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .res-audit-tip {
+      flex-basis: 100%;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 13px;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .res-audit-tip.pass { background: #f0f9eb; color: #67c23a; border: 1px solid #e1f3d8; }
+    .res-audit-tip.fail { background: #fef0f0; color: #f56c6c; border: 1px solid #fbc4c4; }
+    /* 统一所有模态框（Dialog）底部按钮居中显示 */
+    .el-dialog__footer {
+      text-align: center !important;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+    }
+    .el-dialog__footer .el-button + .el-button { margin-left: 0; }
+    .res-richtext-mock {
+      width: 100%; min-height: 180px; border: 1px dashed #dcdfe6;
+      border-radius: 6px; background: #fafcff; color: #a1a7b3;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+    }
+    /* P11 表单统一输入框宽度 */
+    .res-input { width: 360px; }
+    select.res-input {
+      height: 32px; padding: 0 10px;
+      border: 1px solid #dcdfe6; border-radius: 6px;
+      background: #fff; font-size: 14px; color: var(--shell-text);
+    }
+    .res-input .el-textarea__inner { min-height: 84px; }
+
+    /* 资源文件树 */
+    .res-file-tree {
+      border: 1px solid #ebeef5; border-radius: 6px;
+      background: #fafcff; padding: 6px 10px;
+    }
+    .res-file-node {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 4px; font-size: 13px; color: #4e5969;
+      border-radius: 4px;
+    }
+    .res-file-node:hover { background: #f0f6ff; }
+    .res-file-node--section { font-weight: 600; color: #1f2329; }
+    .res-file-toggle {
+      display: inline-block; width: 14px; color: #86909c; text-align: center;
+    }
+    .res-file-icon { font-size: 14px; }
+    .res-file-name { flex: 1; }
+    .res-file-order { color: #86909c; font-size: 12px; margin-right: 8px; }
+    .res-file-children { padding-left: 22px; border-left: 1px dashed #dcdfe6; margin-left: 8px; }
+
+    /* 文件树形表格：章节行加浅色底 */
+    .res-file-table .res-file-row--section td { background: #f7faff; font-weight: 600; color: #1f2329; }
+    .res-file-table .res-file-toggle { margin-right: 6px; }
+    .res-file-table .res-file-icon { margin-right: 4px; }
+
+    /* 资源批量导入弹窗 */
+    .res-import-hero {
+      background: #f7faff; border: 1px solid #e6ecf5; border-radius: 8px;
+      padding: 18px 20px; display: flex; flex-direction: column; gap: 14px;
+    }
+    .res-import-step-title { font-weight: 600; color: #1f2329; margin-bottom: 8px; }
+    .res-import-step-body { display: flex; align-items: flex-start; gap: 16px; }
+    .res-import-btn-download {
+      background: #d9ecff; border-color: #d9ecff; color: #1779F6;
+    }
+    .res-import-btn-download:hover { background: #cfe4ff; }
+    .res-import-tip {
+      color: #4e5969; font-size: 12px; line-height: 1.6;
+      background: #fff; border: 1px solid #e6ecf5; border-radius: 6px;
+      padding: 8px 12px;
+    }
+    .res-import-btn-upload { min-width: 140px; }
+    .res-import-hint { color: #86909c; font-size: 12px; }
+    .res-import-status.is-done { color: #00b42a; }
+    .res-import-status.is-doing { color: #ff9500; }
+    .res-import-status.is-fail { color: #f56c6c; }
+
+    /* P08 条目树形列表（维度条目 → 子条目 → 子条目项） */
+    .biz-tree { border: 1px solid var(--shell-line); border-radius: 8px; overflow: hidden; }
+    .biz-tree-head, .biz-tree-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 12px; font-size: 14px;
+      border-bottom: 1px solid #f2f4f7;
+    }
+    .biz-tree-head { background: #f7f8fa; color: #4e5969; font-weight: 500; }
+    .biz-tree-row:hover { background: #fafcff; }
+    .biz-tree-row .c-toggle { width: 18px; text-align: center; color: #86909c; cursor: pointer; flex: 0 0 auto; }
+    .biz-tree-row .c-check { width: 36px; flex: 0 0 auto; }
+    .biz-tree-row .c-name { flex: 1 1 200px; min-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .biz-tree-row .c-order { width: 90px; flex: 0 0 auto; color: #4e5969; }
+    .biz-tree-row .c-status { width: 90px; flex: 0 0 auto; }
+    .biz-tree-row .c-time { width: 170px; flex: 0 0 auto; color: #86909c; }
+    .biz-tree-row .c-actions { width: 380px; flex: 0 0 auto; text-align: right; white-space: nowrap; }
+    .biz-tree-row--l2 { background: #fcfdff; }
+    .biz-tree-empty { padding: 8px 12px 8px 64px; color: #a1a7b3; font-size: 13px; }
+    .biz-subitems { padding: 8px 12px 12px 64px; background: #fbfcfe; border-bottom: 1px solid #f2f4f7; }
+    .biz-subitems-head { font-size: 12px; color: #86909c; margin-bottom: 6px; }
+    .biz-subitem-row { display: flex; align-items: center; gap: 16px; padding: 6px 10px; background: #fff; border: 1px solid #eef0f3; border-radius: 6px; margin-bottom: 6px; }
+    .biz-subitem-row .si-name { flex: 1; font-size: 13px; color: #1f2329; }
+    .biz-subitem-row .si-order { color: #86909c; font-size: 12px; white-space: nowrap; }
+    .biz-subitem-row .si-actions { margin-left: auto; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <el-container class="shell-root">
+      <el-header class="shell-header">
+        <div class="shell-brand">
+          <span class="shell-brand-mark">RC</span>
+          <div class="shell-brand-text">
+            <div class="shell-brand-title">资源中心管理后台</div>
+          </div>
+        </div>
+        <div class="shell-header-center"></div>
+        <div class="shell-header-actions">
+          <el-button text>帮助</el-button>
+          <el-avatar size="small">A</el-avatar>
+        </div>
+      </el-header>
+
+      <el-container class="shell-body">
+        <aside class="shell-sidebar">
+          <div class="shell-nav-group">
+            <div class="shell-nav-group-title">类目管理</div>
+            <el-menu :default-active="currentPage.id" @select="handleNavSelect">
+              <el-menu-item index="P01">频道管理</el-menu-item>
+              <el-menu-item index="P07">条目管理</el-menu-item>
+              <el-menu-item index="P03">分类管理</el-menu-item>
+            </el-menu>
+          </div>
+          <div class="shell-nav-group">
+            <div class="shell-nav-group-title">资源管理</div>
+            <el-menu :default-active="currentPage.id" @select="handleNavSelect">
+              <el-menu-item index="P10">资源列表</el-menu-item>
+            </el-menu>
+          </div>
+        </aside>
+
+        <el-main class="shell-main">
+          <div class="shell-tabbar">
+            <span class="shell-tabbar-toggle">
+              <el-icon><Operation /></el-icon>
+            </span>
+            <div class="shell-tabbar-tabs">
+              <div v-for="tab in openTabs" :key="tab.id"
+                   :class="['shell-tabbar-tab', { 'is-active': tab.id === currentPage.id }]"
+                   @click="switchTab(tab.id)">
+                <span class="shell-tabbar-label">{{ tab.label }}</span>
+                <span class="shell-tabbar-close" @click.stop="closeTab(tab.id)">
+                  <el-icon><Close /></el-icon>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="shell-main-body">
+            <div class="shell-workbench">
+
+              <!-- ============= P01 频道列表页 ============= -->
+              <template v-if="currentPage.id === 'P01'">
+                <div class="biz-toolbar">
+                  <div class="biz-field">
+                    <span class="biz-field-label">频道名称</span>
+                    <input type="text" v-model="channelFilter.name">
+                  </div>
+                  <div class="biz-field">
+                    <span class="biz-field-label">是否在资源中心展示</span>
+                    <select v-model="channelFilter.visible">
+                      <option value="">全部</option>
+                      <option value="是">是</option>
+                      <option value="否">否</option>
+                    </select>
+                  </div>
+                  <div class="biz-toolbar-actions">
+                    <el-button @click="resetChannelFilter">重置</el-button>
+                    <el-button type="primary">查询</el-button>
+                  </div>
+                </div>
+
+                <div class="biz-card">
+                  <div class="biz-card-head">
+                    <div class="biz-card-title">频道列表</div>
+                    <div class="biz-card-actions">
+                      <el-button @click="showConfirm('批量删除频道？', '已被分类引用的频道将不被删除')">批量删除</el-button>
+                      <el-button type="primary" @click="openChannelForm('create')">新增父频道</el-button>
+                    </div>
+                  </div>
+                  <table class="biz-table">
+                    <thead>
+                      <tr>
+                        <th class="col-check"><input type="checkbox"></th>
+                        <th>频道图标</th>
+                        <th>频道名称</th>
+                        <th>是否展示</th>
+                        <th>频道描述</th>
+                        <th>排序</th>
+                        <th>修改时间</th>
+                        <th class="col-actions">操作</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="row in channelTreeRows" :key="row.id">
+                        <td><input type="checkbox"></td>
+                        <td><span class="biz-icon-thumb">IMG</span></td>
+                        <td>
+                          <span class="biz-tree-indent" :style="{ width: (row.parentId ? 20 : 0) + 'px' }"></span>
+                          <span class="biz-tree-toggle" v-if="channelHasChildren(row.id)">▾</span>
+                          <span class="biz-tree-toggle" v-else>·</span>
+                          <span style="margin-left:6px;">{{ row.name }}</span>
+                        </td>
+                        <td>
+                          <el-tag v-if="row.visible === '是'" type="success">是</el-tag>
+                          <el-tag v-else type="info">否</el-tag>
+                        </td>
+                        <td class="biz-desc-cell" :title="row.desc">{{ row.desc }}</td>
+                        <td>{{ row.order }}</td>
+                        <td>{{ row.updatedAt }}</td>
+                        <td>
+                          <el-button size="small" text type="primary" @click="openChannelForm('edit', row)">编辑</el-button>
+                          <el-button v-if="!row.parentId" size="small" text type="primary" @click="openChannelForm('create', row)">添加子频道</el-button>
+                          <el-button size="small" text type="danger" @click="showConfirm('确认删除频道？', '删除后不可恢复。已被分类引用的频道不允许删除；父频道下存在子频道时不允许删除，请先删除全部子频道。')">删除</el-button>
+                        </td>
+                      </tr>
+                      <tr v-if="!channelTreeRows.length"><td colspan="8" class="biz-empty">暂无频道，请点击右上角新增</td></tr>
+                    </tbody>
+                  </table>
+                  <div class="biz-pagination">
+                    <span>共 {{ parentChannels.length }} 条父频道</span>
+                    <button>&lt;</button>
+                    <span>1</span>
+                    <button>&gt;</button>
+                    <span>20 条/页</span>
+                  </div>
+                </div>
+              </template>
+
+              <!-- ============= P03 分类列表页 ============= -->
+              <template v-if="currentPage.id === 'P03'">
+                <div class="biz-toolbar">
+                  <div class="biz-field">
+                    <span class="biz-field-label">所属频道</span>
+                    <el-cascader
+                      v-model="categoryFilter.subChannelId"
+                      :options="channelCascaderOptions"
+                      :props="{ emitPath: false, expandTrigger: 'hover' }"
+                      placeholder="请选择所属频道"
+                      clearable
+                      style="width:260px;"></el-cascader>
+                  </div>
+                  <div class="biz-field">
+                    <span class="biz-field-label">分类名称</span>
+                    <input type="text" v-model="categoryFilter.name">
+                  </div>
+                  <div class="biz-field">
+                    <span class="biz-field-label">上架状态</span>
+                    <select v-model="categoryFilter.status">
+                      <option value="">全部</option>
+                      <option value="未上架">未上架</option>
+                      <option value="已上架">已上架</option>
+                    </select>
+                  </div>
+                  <div class="biz-toolbar-actions">
+                    <el-button>重置</el-button>
+                    <el-button type="primary">查询</el-button>
+                  </div>
+                </div>
+
+                <div class="biz-card">
+                  <div class="biz-card-head">
+                    <div class="biz-card-title">分类列表（树形）</div>
+                    <div class="biz-card-actions">
+                      <el-button>批量删除</el-button>
+                      <el-button type="primary" @click="openCategoryForm('create')">新增一级分类</el-button>
+                    </div>
+                  </div>
+                  <table class="biz-table">
+                    <thead>
+                      <tr>
+                        <th class="col-check"><input type="checkbox"></th>
+                        <th>分类名称</th>
+                        <th>分类编码</th>
+                        <th>所属频道</th>
+                        <th>上架状态</th>
+                        <th>分类描述</th>
+                        <th>排序</th>
+                        <th>修改时间</th>
+                        <th class="col-actions">操作</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="row in categoryRows" :key="row.id">
+                        <td><input type="checkbox"></td>
+                        <td>
+                          <span class="biz-tree-indent" :style="{ width: (row.level * 20) + 'px' }"></span>
+                          <span class="biz-tree-toggle" v-if="row.hasChildren">{{ row.expanded ? '▾' : '▸' }}</span>
+                          <span class="biz-tree-toggle" v-else>·</span>
+                          <span class="biz-icon-thumb" style="margin: 0 6px;">IMG</span>
+                          {{ row.name }}
+                        </td>
+                        <td><span class="biz-code">{{ row.code }}</span></td>
+                        <td>{{ subChannelPathOf(row.subChannelId) }}</td>
+                        <td>
+                          <el-tag v-if="row.status === '已上架'" type="success">已上架</el-tag>
+                          <el-tag v-else type="info">未上架</el-tag>
+                        </td>
+                        <td class="biz-desc-cell" :title="row.desc">{{ row.desc }}</td>
+                        <td>{{ row.order }}</td>
+                        <td>{{ row.updatedAt }}</td>
+                        <td style="white-space: nowrap;">
+                          <el-button size="small" text type="primary" @click="openCategoryForm('edit', row)">编辑</el-button>
+                          <el-button size="small" text type="primary" @click="openCategoryForm('child', row)">添加子分类</el-button>
+                          <el-button v-if="row.status === '未上架'" size="small" text type="success" @click="showConfirm('确认上架分类？', '上架后应用端可获取该分类')">上架</el-button>
+                          <el-button v-else size="small" text type="warning" @click="showConfirm('确认下架分类？', '下架后应用端不可获取该分类')">下架</el-button>
+                          <el-button size="small" text type="danger" :disabled="row.status === '已上架'" @click="showConfirm('确认删除分类？', '删除后不可恢复。已上架分类不允许删除。')">删除</el-button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="biz-pagination">
+                    <span>共 {{ categoryRows.length }} 条一级分类</span>
+                    <button>&lt;</button><span>1</span><button>&gt;</button>
+                    <span>20 条/页</span>
+                  </div>
+                </div>
+              </template>
+
+              <!-- ============= P07/P08 条目管理（两 Tab） ============= -->
+              <template v-if="['P07','P08'].includes(currentPage.id)">
+                <el-tabs v-model="dimTab" class="biz-card" style="padding:8px 20px 16px;">
+                  <el-tab-pane label="类目管理" name="P07"></el-tab-pane>
+                  <el-tab-pane label="类目条目管理" name="P08"></el-tab-pane>
+                </el-tabs>
+
+                <!-- Tab1: P07 类目管理 -->
+                <template v-if="dimTab === 'P07'">
+                  <div class="biz-card">
+                    <div class="biz-toolbar">
+                      <div class="biz-field">
+                        <span class="biz-field-label">所属频道</span>
+                        <el-cascader
+                          v-model="dimFilter.subChannelId"
+                          :options="channelCascaderOptions"
+                          :props="{ emitPath: false, expandTrigger: 'hover' }"
+                          placeholder="请选择所属频道"
+                          clearable
+                          style="width:260px;"></el-cascader>
+                      </div>
+                      <div class="biz-field">
+                        <span class="biz-field-label">类目名称</span>
+                        <input type="text" v-model="dimFilter.name">
+                      </div>
+                      <div class="biz-field">
+                        <span class="biz-field-label">上架状态</span>
+                        <select v-model="dimFilter.status">
+                          <option value="">全部</option>
+                          <option value="上架">上架</option>
+                          <option value="下架">下架</option>
+                        </select>
+                      </div>
+                      <div class="biz-toolbar-actions">
+                        <el-button>重置</el-button>
+                        <el-button type="primary">查询</el-button>
+                      </div>
+                    </div>
+                    <div class="biz-card-head">
+                      <div class="biz-card-title">类目（左侧行标题，如 学段 / 年级 / 学科）</div>
+                      <div class="biz-card-actions">
+                        <el-button @click="showConfirm('批量上架所选类目？', '将把所选类目上架状态改为“上架”')">批量上架</el-button>
+                        <el-button @click="showConfirm('批量下架所选类目？', '下架后应用端不再渲染该类目筛选行')">批量下架</el-button>
+                        <el-button @click="showConfirm('批量删除所选类目？', '类目下存在类目条目时将不被删除')">批量删除</el-button>
+                        <el-button type="primary" @click="openDimForm('create')">新增类目</el-button>
+                      </div>
+                    </div>
+                    <table class="biz-table">
+                      <thead>
+                        <tr>
+                          <th class="col-check"><input type="checkbox"></th>
+                          <th>类目名称</th>
+                          <th>所属频道</th>
+                          <th>类目排序</th>
+                          <th>上架状态</th>
+                          <th>修改时间</th>
+                          <th class="col-actions">操作</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="row in dimRows" :key="row.id" :style="row.status === '下架' ? 'color:#a1a7b3;' : ''">
+                          <td><input type="checkbox"></td>
+                          <td>{{ row.name }}</td>
+                          <td>{{ subChannelPathOf(row.subChannelId) }}</td>
+                          <td>{{ row.order }}</td>
+                          <td>
+                            <el-tag v-if="row.status === '上架'" type="success">上架</el-tag>
+                            <el-tag v-else type="info">下架</el-tag>
+                          </td>
+                          <td>{{ row.updatedAt }}</td>
+                          <td>
+                            <el-button size="small" text type="primary" @click="openDimForm('edit', row)">编辑</el-button>
+                            <el-button size="small" text type="danger" :disabled="row.refCount > 0" @click="showConfirm('确认删除类目？', '删除后不可恢复。类目下存在类目条目时不允许删除，请先清空关联数据')">删除</el-button>
+                          </td>
+                        </tr>
+                        <tr v-if="!dimRows.length"><td colspan="7" class="biz-empty">暂无类目，请点击右上角新增</td></tr>
+                      </tbody>
+                    </table>
+                    <div class="biz-pagination">
+                      <span>共 {{ dimRows.length }} 条</span>
+                      <button>&lt;</button><span>1</span><button>&gt;</button>
+                      <span>20 条/页</span>
+                    </div>
+                  </div>
+                </template>
+
+                <!-- Tab2: P08 分类条目管理 -->
+                <template v-if="dimTab === 'P08'">
+                  <div class="biz-card">
+                    <div class="biz-toolbar">
+                      <div class="biz-field">
+                        <span class="biz-field-label">归属类目（必选）</span>
+                        <select v-model="dimItemFilter.dimId">
+                          <option value="">请选择归属类目</option>
+                          <option v-for="d in dimRows" :key="d.id" :value="d.id">{{ d.name }}</option>
+                        </select>
+                      </div>
+                      <div class="biz-field">
+                        <span class="biz-field-label">条目名称</span>
+                        <input type="text" v-model="dimItemFilter.name">
+                      </div>
+                      <div class="biz-field">
+                        <span class="biz-field-label">上架状态</span>
+                        <select v-model="dimItemFilter.status">
+                          <option value="">全部</option>
+                          <option value="未上架">未上架</option>
+                          <option value="已上架">已上架</option>
+                        </select>
+                      </div>
+                      <div class="biz-toolbar-actions">
+                        <el-button>重置</el-button>
+                        <el-button type="primary">查询</el-button>
+                      </div>
+                    </div>
+                    <div class="biz-card-head">
+                      <div class="biz-card-title">
+                        类目条目<span v-if="currentDimName" style="color:#86909c;font-weight:400;">（{{ currentDimName }}）</span>
+                      </div>
+                      <div class="biz-card-actions">
+                        <el-button @click="showConfirm('批量上架所选条目？', '上架后应用端筛选视图渲染这些条目')">批量上架</el-button>
+                        <el-button @click="showConfirm('批量下架所选条目？', '下架后应用端不再渲染这些条目')">批量下架</el-button>
+                        <el-button @click="showConfirm('批量删除所选条目？', '已上架条目将不被删除')">批量删除</el-button>
+                        <el-button type="primary" :disabled="!dimItemFilter.dimId" @click="openDimItemForm('create')">新增类目条目</el-button>
+                      </div>
+                    </div>
+                    <!-- 树形列表：维度条目(L1) → 子条目(L2) → 子条目项(叶子内容) -->
+                    <div class="biz-tree" v-if="dimItemFilter.dimId">
+                      <div class="biz-tree-head">
+                        <span class="c-toggle"></span>
+                        <span class="c-check"><input type="checkbox"></span>
+                        <span class="c-name">条目名称</span>
+                        <span class="c-order">条目排序</span>
+                        <span class="c-status">上架状态</span>
+                        <span class="c-time">创建时间</span>
+                        <span class="c-time">修改时间</span>
+                        <span class="c-actions">操作</span>
+                      </div>
+                      <template v-for="row in filteredDimItems" :key="row.id">
+                        <!-- L1 维度条目 -->
+                        <div class="biz-tree-row" :style="row.status === '已上架' ? '' : 'color:#a1a7b3;'">
+                          <span class="c-toggle" @click="row.children.length && (row.expanded = !row.expanded)">{{ row.children.length ? (row.expanded ? '▾' : '▸') : '' }}</span>
+                          <span class="c-check"><input type="checkbox"></span>
+                          <span class="c-name">{{ row.name }}</span>
+                          <span class="c-order">{{ row.order }}</span>
+                          <span class="c-status">
+                            <el-tag v-if="row.status === '已上架'" type="success">已上架</el-tag>
+                            <el-tag v-else type="info">未上架</el-tag>
+                          </span>
+                          <span class="c-time">{{ row.createdAt }}</span>
+                          <span class="c-time">{{ row.updatedAt }}</span>
+                          <span class="c-actions">
+                            <el-button size="small" text type="primary" @click="openDimItemForm('edit', row)">编辑</el-button>
+                            <el-button v-if="row.status === '未上架'" size="small" text type="success" @click="showConfirm('确认上架类目条目？', '上架后应用端筛选视图渲染该条目')">上架</el-button>
+                            <el-button v-else size="small" text type="warning" @click="showConfirm('确认下架类目条目？', '下架后应用端不再渲染该条目')">下架</el-button>
+                            <el-button size="small" text type="danger" :disabled="row.status === '已上架'" @click="showConfirm('确认删除类目条目？', '删除后不可恢复。已上架类目条目不允许删除，请先下架')">删除</el-button>
+                            <el-button size="small" text type="primary" @click="openSubItemForm(row)">新增子条目</el-button>
+                          </span>
+                        </div>
+                        <!-- L2 子条目 -->
+                        <template v-if="row.expanded">
+                          <template v-for="sub in row.children" :key="sub.id">
+                            <div class="biz-tree-row biz-tree-row--l2">
+                              <span class="c-toggle" @click="sub.items.length && (sub.expanded = !sub.expanded)">{{ sub.items.length ? (sub.expanded ? '▾' : '▸') : '' }}</span>
+                              <span class="c-check"></span>
+                              <span class="c-name" style="padding-left:24px;">{{ sub.name }}</span>
+                              <span class="c-order"></span>
+                              <span class="c-status">
+                                <el-tag v-if="sub.status === '已上架'" type="success">已上架</el-tag>
+                                <el-tag v-else type="info">未上架</el-tag>
+                              </span>
+                              <span class="c-time"></span>
+                              <span class="c-time"></span>
+                              <span class="c-actions">
+                                <el-button size="small" text type="primary" @click="openSubItemForm(row, sub)">编辑</el-button>
+                                <el-button v-if="sub.status === '未上架'" size="small" text type="success" @click="showConfirm('确认上架子条目？', '上架后该子条目在应用端筛选视图渲染', () => { sub.status = '已上架'; })">上架</el-button>
+                                <el-button v-else size="small" text type="warning" @click="showConfirm('确认下架子条目？', '下架后该子条目不再在应用端渲染', () => { sub.status = '未上架'; })">下架</el-button>
+                                <el-button size="small" text type="danger" :disabled="sub.status === '已上架'" @click="showConfirm('确认删除子条目？', '删除后该子条目及其下所有子条目项将一并移除', () => { row.children = row.children.filter(s => s.id !== sub.id); })">删除</el-button>
+                              </span>
+                            </div>
+                            <!-- 子条目项（叶子内容，非独立条目层级，子条目下不可再新增子条目） -->
+                            <div v-if="sub.expanded" class="biz-subitems">
+                              <div class="biz-subitems-head">子条目项</div>
+                              <div v-for="item in sub.items" :key="item.id" class="biz-subitem-row">
+                                <span class="si-name">{{ item.name }}</span>
+                                <span class="si-order">排序：{{ item.order }}</span>
+                                <span class="si-actions">
+                                  <el-button size="small" text type="danger" @click="showConfirm('确认删除该子条目项？', '删除后不可恢复', () => { sub.items = sub.items.filter(x => x.id !== item.id); })">删除</el-button>
+                                </span>
+                              </div>
+                              <div v-if="!sub.items.length" class="biz-empty" style="padding:8px 0;">暂无子条目项</div>
+                            </div>
+                          </template>
+                          <div v-if="!row.children.length" class="biz-tree-empty">暂无子条目，可点击右侧「新增子条目」</div>
+                        </template>
+                      </template>
+                      <div v-if="!filteredDimItems.length" class="biz-empty" style="padding:20px;">该类目下暂无条目，请点击右上角新增</div>
+                    </div>
+                    <div v-else class="biz-empty" style="padding:20px;">请先选择归属类目</div>
+                    <div class="biz-pagination">
+                      <span>共 {{ dimItemFilter.dimId ? filteredDimItems.length : 0 }} 条</span>
+                      <button>&lt;</button><span>1</span><button>&gt;</button>
+                      <span>20 条/页</span>
+                    </div>
+                  </div>
+                </template>
+
+              </template>
+
+              <!-- ============= P10 资源列表页 ============= -->
+              <template v-if="currentPage.id === 'P10'">
+                <div class="biz-toolbar">
+                  <div class="biz-field">
+                    <span class="biz-field-label">资源标题</span>
+                    <input type="text" v-model="resFilter.title">
+                  </div>
+                  <div class="biz-field">
+                    <span class="biz-field-label">所属频道</span>
+                    <el-cascader
+                      v-model="resFilter.subChannelId"
+                      :options="channelCascaderOptions"
+                      :props="{ emitPath: false, expandTrigger: 'hover' }"
+                      @change="resFilter.categoryId = ''"
+                      placeholder="请选择所属频道"
+                      clearable
+                      style="width:260px;"></el-cascader>
+                  </div>
+                  <div class="biz-field">
+                    <span class="biz-field-label">所属分类</span>
+                    <select v-model="resFilter.categoryId">
+                      <option value="">全部</option>
+                      <option v-for="c in categoriesOfSubChannel(resFilter.subChannelId)" :key="c.id" :value="c.id">{{ c.name }}</option>
+                    </select>
+                  </div>
+                  <div class="biz-field">
+                    <span class="biz-field-label">状态</span>
+                    <select v-model="resFilter.status">
+                      <option value="">全部</option>
+                      <option value="未发布">未发布</option>
+                      <option value="已发布">已发布</option>
+                    </select>
+                  </div>
+                  <div class="biz-toolbar-actions">
+                    <el-button>重置</el-button>
+                    <el-button type="primary">查询</el-button>
+                  </div>
+                </div>
+
+                <div class="biz-card">
+                  <div class="biz-card-head">
+                    <div class="biz-card-title">资源列表</div>
+                    <div class="biz-card-actions">
+                      <el-button @click="showConfirm('批量删除所选资源？', '已发布资源需先下架才能删除')">批量删除</el-button>
+                      <el-button @click="openResImportDialog">批量导入</el-button>
+                      <el-button type="primary" @click="openResForm('create')">新增资源</el-button>
+                    </div>
+                  </div>
+                  <table class="biz-table">
+                    <thead>
+                      <tr>
+                        <th class="col-check"><input type="checkbox"></th>
+                        <th>资源标题</th>
+                        <th>所属频道</th>
+                        <th>所属分类</th>
+                        <th>排序</th>
+                        <th>查看次数</th>
+                        <th>状态</th>
+                        <th>更新时间</th>
+                        <th class="col-actions">操作</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="row in resRows" :key="row.id">
+                        <td><input type="checkbox"></td>
+                        <td>{{ row.title }}</td>
+                        <td>{{ row.channelName }}</td>
+                        <td>{{ row.categoryName }}</td>
+                        <td>{{ row.order }}</td>
+                        <td>{{ row.viewCount }}</td>
+                        <td>
+                          <el-tag v-if="row.status === '已发布'" type="success">已发布</el-tag>
+                          <el-tag v-else type="info">未发布</el-tag>
+                        </td>
+                        <td>{{ row.updatedAt }}</td>
+                        <td style="white-space:nowrap;">
+                          <el-button size="small" text type="primary" @click="showConfirm('预览资源？', '模拟应用端详情展示：' + row.title)">预览</el-button>
+                          <el-button size="small" text type="primary" @click="openResForm('edit', row)">编辑</el-button>
+                          <el-button v-if="row.status === '未发布'" size="small" text type="success" @click="showConfirm('确认发布该资源？', '发布后应用端可获取')">发布</el-button>
+                          <el-button v-else size="small" text type="warning" @click="showConfirm('确认下架该资源？', '下架后应用端不再获取')">下架</el-button>
+                          <el-button size="small" text type="danger" :disabled="row.status === '已发布'" @click="showConfirm('确认删除该资源？', '删除后不可恢复')">删除</el-button>
+                        </td>
+                      </tr>
+                      <tr v-if="!resRows.length"><td colspan="9" class="biz-empty">暂无资源，请点击右上角新增</td></tr>
+                    </tbody>
+                  </table>
+                  <div class="biz-pagination">
+                    <span>共 {{ resRows.length }} 条</span>
+                    <button>&lt;</button><span>1</span><button>&gt;</button>
+                    <span>20 条/页</span>
+                  </div>
+                </div>
+              </template>
+
+              <!-- ============= P11 资源新增/编辑页 ============= -->
+              <template v-if="currentPage.id === 'P11'">
+                <div class="biz-card">
+                  <div class="biz-card-head">
+                    <div class="biz-card-title">{{ resForm.mode === 'create' ? '新增资源' : '编辑资源' }}</div>
+                    <div class="biz-card-actions">
+                      <el-button @click="goResList">返回列表</el-button>
+                    </div>
+                  </div>
+
+                  <!-- 步骤条 -->
+                  <div class="res-steps">
+                    <div v-for="(s, i) in resSteps" :key="i" :class="['res-step', { 'is-active': resForm.step === i, 'is-done': resForm.step > i }]">
+                      <span class="res-step-no">{{ i + 1 }}</span>
+                      <span class="res-step-label">{{ s }}</span>
+                    </div>
+                  </div>
+
+                  <!-- 步骤一：基本信息 -->
+                  <div v-show="resForm.step === 0" class="res-step-body">
+                    <el-form label-width="140px">
+                      <el-form-item label="所属频道" required>
+                        <el-cascader
+                          v-model="resForm.data.channelId"
+                          :options="channelCascaderOptions"
+                          :props="{ emitPath: false, expandTrigger: 'hover' }"
+                          @change="resForm.data.categoryId = ''"
+                          placeholder="请选择所属频道（级联到子频道）"
+                          clearable
+                          class="res-input"></el-cascader>
+                      </el-form-item>
+                      <el-form-item label="资源标题" required>
+                        <el-input v-model="resForm.data.title" maxlength="30" show-word-limit class="res-input"></el-input>
+                      </el-form-item>
+                      <el-form-item label="资源简介">
+                        <el-input v-model="resForm.data.intro" type="textarea" rows="3" maxlength="200" show-word-limit class="res-input"></el-input>
+                      </el-form-item>
+                      <el-form-item label="封面">
+                        <el-button>选择图片</el-button>
+                        <span style="margin-left:8px;color:#86909c;font-size:12px;">.jpg/.jpeg/.png，245×143，≤3MB</span>
+                      </el-form-item>
+                      <el-form-item label="所属分类" required>
+                        <el-cascader
+                          v-model="resForm.data.categoryId"
+                          :options="categoryCascaderOptions"
+                          :props="{ emitPath: false, expandTrigger: 'hover' }"
+                          :disabled="!resForm.data.channelId"
+                          :placeholder="resForm.data.channelId ? '请选择所属分类' : '请先选择所属频道'"
+                          clearable
+                          class="res-input"></el-cascader>
+                      </el-form-item>
+                      <el-form-item label="排序" required>
+                        <el-input v-model="resForm.data.order" class="res-input"></el-input>
+                      </el-form-item>
+                      <el-form-item label="是否在移动端展示" required>
+                        <el-switch v-model="resForm.data.showOnMobile" active-text="是" inactive-text="否"></el-switch>
+                        <span style="color:#86909c;font-size:12px;margin-left:12px;">控制该资源是否在移动端露出</span>
+                      </el-form-item>
+                    </el-form>
+                  </div>
+
+                  <!-- 步骤二：资源正文 -->
+                  <div v-show="resForm.step === 1" class="res-step-body">
+                    <el-form label-width="140px">
+                      <el-form-item label="内容展示方式" required>
+                        <el-radio-group v-model="resForm.data.contentType">
+                          <el-radio value="富文本">富文本</el-radio>
+                          <el-radio value="文件·视频">文件·视频</el-radio>
+                          <el-radio value="应用和链接">应用和链接</el-radio>
+                          <el-radio value="链接">链接</el-radio>
+                        </el-radio-group>
+                      </el-form-item>
+
+                      <!-- 富文本 -->
+                      <template v-if="resForm.data.contentType === '富文本'">
+                        <el-form-item label="内容详情" required>
+                          <div class="res-richtext-mock">富文本编辑器（加粗 / 斜体 / 图片 / 链接 …）</div>
+                          <el-input
+                            v-model="resForm.data.richText"
+                            type="textarea"
+                            :rows="3"
+                            maxlength="2000"
+                            show-word-limit
+                            placeholder="请输入正文内容（提交时将进行机器敏感词过滤）"
+                            style="margin-top:8px;"></el-input>
+                        </el-form-item>
+                        <el-form-item label="附件">
+                          <el-button @click="addResFile">添加附件</el-button>
+                        </el-form-item>
+                      </template>
+
+                      <!-- 应用和链接 -->
+                      <template v-if="resForm.data.contentType === '应用和链接'">
+                        <el-form-item label="应用" required>
+                          <el-input v-model="resForm.data.appName" placeholder="未选择" readonly class="res-input"></el-input>
+                          <el-button style="margin-left:8px;" @click="resForm.data.appName = '示例应用'">选择应用</el-button>
+                        </el-form-item>
+                        <el-form-item label="移动端链接">
+                          <el-input v-model="resForm.data.mobileUrl" maxlength="200" class="res-input"></el-input>
+                        </el-form-item>
+                        <el-form-item label="PC端链接">
+                          <el-input v-model="resForm.data.pcUrl" maxlength="200" class="res-input"></el-input>
+                        </el-form-item>
+                      </template>
+
+                      <!-- 链接 -->
+                      <template v-if="resForm.data.contentType === '链接'">
+                        <el-form-item label="移动端链接" required>
+                          <el-input v-model="resForm.data.mobileUrl" maxlength="200" class="res-input"></el-input>
+                        </el-form-item>
+                        <el-form-item label="PC端链接" required>
+                          <el-input v-model="resForm.data.pcUrl" maxlength="200" class="res-input"></el-input>
+                        </el-form-item>
+                      </template>
+
+                      <!-- 是否开启小节：文件·视频/应用和链接/链接 -->
+                      <el-form-item v-if="resForm.data.contentType !== '富文本'" label="是否开启小节" :required="resForm.data.contentType === '文件·视频'">
+                        <el-radio-group v-model="resForm.data.sectionOn">
+                          <el-radio value="是">是</el-radio>
+                          <el-radio value="否">否</el-radio>
+                        </el-radio-group>
+                      </el-form-item>
+
+                      <!-- 文件列表：文件·视频/应用和链接/链接 -->
+                      <el-form-item v-if="resForm.data.contentType !== '富文本'" label="文件列表">
+                        <div style="width:100%;">
+                          <div style="display:flex;gap:8px;margin-bottom:10px;">
+                            <el-button @click="openAddFileDialog">添加文件</el-button>
+                            <el-button @click="exportFileInfo" :disabled="!resForm.data.files.length">导出附件信息</el-button>
+                          </div>
+
+                          <!-- 统一的树形表格：章节行 + 文件行 -->
+                          <table class="biz-table res-file-table" v-if="fileTableRows.length">
+                            <thead>
+                              <tr>
+                                <th style="width:44%;">名称</th>
+                                <th style="width:16%;">类型</th>
+                                <th style="width:12%;">排序</th>
+                                <th style="width:12%;">大小</th>
+                                <th class="col-actions">操作</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr v-for="row in fileTableRows" :key="row._key" :class="{ 'res-file-row--section': row.type === 'section' }">
+                                <td>
+                                  <span :style="{ paddingLeft: (row.level * 20) + 'px' }"></span>
+                                  <span class="res-file-toggle">{{ row.type === 'section' ? '▾' : '·' }}</span>
+                                  <span class="res-file-icon">{{ row.type === 'section' ? '📁' : '📄' }}</span>
+                                  <span class="res-file-name">{{ row.name }}</span>
+                                </td>
+                                <td>
+                                  <span v-if="row.type === 'section'" style="color:#86909c;">章节</span>
+                                  <span v-else>{{ row.ext || '文件' }}</span>
+                                </td>
+                                <td>{{ row.order }}</td>
+                                <td>{{ row.type === 'section' ? '—' : (row.size || '—') }}</td>
+                                <td style="white-space:nowrap;">
+                                  <template v-if="row.type === 'section'">
+                                    <el-button size="small" text type="primary" @click="openEditSectionDialog(row.id)">编辑</el-button>
+                                    <el-button size="small" text type="danger" @click="removeSection(row.id)">删除</el-button>
+                                  </template>
+                                  <template v-else>
+                                    <el-button size="small" text type="primary" @click="openEditFileDialog(row._idx)">编辑</el-button>
+                                    <el-button size="small" text type="danger" @click="removeFileByIdx(row._idx)">删除</el-button>
+                                  </template>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          <div v-else style="color:#86909c;font-size:12px;margin-top:8px;">
+                            暂无{{ resForm.data.sectionOn === '是' ? '章节/文件' : '文件' }}，支持 .mp4/.doc/.docx/.xls/.xlsx/.ppt/.pptx/.pdf（文档 ≤50MB、视频 ≤500MB，最多 50 个）
+                          </div>
+                        </div>
+                      </el-form-item>
+                    </el-form>
+                  </div>
+
+                  <!-- 步骤三：发布设置 -->
+                  <div v-show="resForm.step === 2" class="res-step-body">
+                    <el-form label-width="140px">
+                      <el-form-item label="资源来源机构" required>
+                        <el-input v-model="resForm.data.org" maxlength="30" show-word-limit class="res-input"></el-input>
+                      </el-form-item>
+                      <el-form-item label="资源作者">
+                        <el-input v-model="resForm.data.author" maxlength="30" show-word-limit class="res-input"></el-input>
+                      </el-form-item>
+                    </el-form>
+                  </div>
+
+                  <!-- 步骤操作栏 -->
+                  <div class="res-step-footer">
+                    <div v-if="resForm.audit.checked" class="res-audit-tip" :class="resForm.audit.pass ? 'pass' : 'fail'">
+                      <span v-if="resForm.audit.pass">机器敏感词过滤通过，可发布。</span>
+                      <span v-else>机器敏感词过滤未通过，命中违规词：{{ resForm.audit.hits.join('、') }}；违规资源不可发布，请修改后重试。</span>
+                    </div>
+                    <el-button v-if="resForm.step > 0" @click="resForm.step--">上一步</el-button>
+                    <el-button v-if="resForm.step < 2" type="primary" @click="resForm.step++">下一步</el-button>
+                    <template v-if="resForm.step === 2">
+                      <el-button @click="submitResource(false)">提交</el-button>
+                      <el-button type="primary" @click="submitResource(true)">提交并发布</el-button>
+                    </template>
+                  </div>
+                </div>
+              </template>
+
+          </div>
+        </el-main>
+      </el-container>
+    </el-container>
+
+    <!-- ============= P02 频道新增/编辑弹窗 ============= -->
+    <el-dialog v-model="channelForm.visible" :title="channelFormTitle" width="640px">
+      <!-- <div class="biz-form-section-title">基本信息（必填）</div> -->
+      <el-form label-width="150px" label-position="right">
+        <el-form-item v-if="channelForm.data.parentId" label="父频道">
+          <el-input :model-value="channelForm.data.parentName" disabled></el-input>
+        </el-form-item>
+        <el-form-item label="频道名称" required>
+          <el-input v-model="channelForm.data.name" maxlength="20" show-word-limit></el-input>
+        </el-form-item>
+        <el-form-item label="频道图标" required>
+          <el-button>选择图片</el-button>
+          <span style="margin-left:8px;color:#86909c;font-size:12px;">尺寸 68×68，大小 ≤100KB</span>
+        </el-form-item>
+        <el-form-item label="频道图片" required>
+          <el-button>选择图片</el-button>
+          <span style="margin-left:8px;color:#86909c;font-size:12px;">大小 ≤300KB</span>
+        </el-form-item>
+        <el-form-item label="是否在资源中心展示" required>
+          <el-radio-group v-model="channelForm.data.visible">
+            <el-radio value="是">是</el-radio>
+            <el-radio value="否">否</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="排序" required>
+          <el-input v-model="channelForm.data.order"></el-input>
+        </el-form-item>
+      </el-form>
+      <!-- <div class="biz-form-section-title">补充信息（选填）</div> -->
+      <el-form label-width="130px">
+        <el-form-item label="频道描述">
+          <el-input v-model="channelForm.data.desc" type="textarea" maxlength="200" show-word-limit rows="3"></el-input>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="channelForm.visible = false">取消</el-button>
+        <el-button type="primary" @click="channelForm.visible = false">保存</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- ============= P04 分类新增/编辑弹窗 ============= -->
+    <el-dialog v-model="categoryForm.visible" :title="categoryFormTitle" width="640px">
+      <!-- <div class="biz-form-section-title">归属信息（必填）</div> -->
+      <el-form label-width="150px">
+        <el-form-item label="所属频道" required>
+          <el-cascader
+            v-model="categoryForm.data.subChannelId"
+            :options="channelCascaderOptions"
+            :props="{ emitPath: false, expandTrigger: 'hover' }"
+            :disabled="categoryForm.mode === 'child'"
+            placeholder="请选择所属频道（级联到子频道）"
+            clearable
+            style="width:100%;"></el-cascader>
+        </el-form-item>
+        <el-form-item v-if="categoryForm.mode === 'child'" label="父分类" required>
+          <el-input :model-value="categoryForm.data.parentName" disabled></el-input>
+        </el-form-item>
+      </el-form>
+      <!-- <div class="biz-form-section-title">基本信息（必填）</div> -->
+      <el-form label-width="150px">
+        <el-form-item label="分类名称" required>
+          <el-input v-model="categoryForm.data.name" maxlength="20" show-word-limit></el-input>
+        </el-form-item>
+        <el-form-item label="分类编码" required>
+          <el-input v-model="categoryForm.data.code" maxlength="10" show-word-limit></el-input>
+        </el-form-item>
+        <el-form-item label="分类图标" required>
+          <el-button>选择图片</el-button>
+          <span style="margin-left:8px;color:#86909c;font-size:12px;">尺寸 64×64，大小 ≤100KB</span>
+        </el-form-item>
+        <el-form-item label="分类图片" required>
+          <el-button>选择图片</el-button>
+          <span style="margin-left:8px;color:#86909c;font-size:12px;">大小 ≤300KB</span>
+        </el-form-item>
+        <el-form-item label="排序" required>
+          <el-input v-model="categoryForm.data.order"></el-input>
+        </el-form-item>
+      </el-form>
+      <!-- <div class="biz-form-section-title">补充信息（选填）</div> -->
+      <el-form label-width="150px">
+        <el-form-item label="分类描述">
+          <el-input v-model="categoryForm.data.desc" type="textarea" maxlength="200" show-word-limit rows="3"></el-input>
+        </el-form-item>
+        <el-form-item label="类目条目" required>
+          <div style="width:100%;">
+            <div v-if="!categoryForm.data.subChannelId" style="color:#a1a7b3;font-size:12px;">请先选择所属频道，再勾选类目及类目条目</div>
+            <template v-else>
+              <div v-for="dim in dimsOfSubChannel(categoryForm.data.subChannelId)" :key="dim.id" style="margin-bottom:8px;">
+                <div style="color:#4e5969;font-size:13px;margin-bottom:4px;">{{ dim.name }}</div>
+                <el-checkbox-group v-model="categoryForm.data.dimItemMap[dim.id]">
+                  <el-checkbox v-for="it in itemsOfDim(dim.id)" :key="it.id" :value="it.id">{{ it.name }}</el-checkbox>
+                </el-checkbox-group>
+                <span v-if="!itemsOfDim(dim.id).length" style="color:#a1a7b3;font-size:12px;">该类目下暂无已上架类目条目</span>
+              </div>
+              <div v-if="!dimsOfSubChannel(categoryForm.data.subChannelId).length" style="color:#a1a7b3;font-size:12px;">
+                当前所属频道下暂无已上架类目，可先在条目管理中维护
+              </div>
+            </template>
+            <div style="color:#86909c;font-size:12px;margin-top:4px;">展示所属频道下所有类目及类目条目，逐类目勾选；必填</div>
+          </div>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="categoryForm.visible = false">取消</el-button>
+        <el-button type="primary" @click="categoryForm.visible = false">保存</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- ============= P07 类目新增/编辑弹窗 ============= -->
+    <el-dialog v-model="dimForm.visible" :title="dimForm.mode === 'create' ? '新增类目' : '编辑类目'" width="520px">
+      <el-form label-width="100px">
+        <el-form-item label="类目名称" required>
+          <el-input v-model="dimForm.data.name" maxlength="20" show-word-limit></el-input>
+        </el-form-item>
+        <el-form-item label="所属频道" required>
+          <el-cascader
+            v-model="dimForm.data.subChannelId"
+            :options="channelCascaderOptions"
+            :props="{ emitPath: false, expandTrigger: 'hover' }"
+            placeholder="请选择所属频道（级联到子频道）"
+            clearable
+            style="width:100%;"></el-cascader>
+        </el-form-item>
+        <el-form-item label="类目排序" required>
+          <el-input v-model="dimForm.data.order" placeholder="非负整数"></el-input>
+        </el-form-item>
+        <el-form-item label="上架状态" required v-if="dimForm.mode === 'edit'">
+          <el-radio-group v-model="dimForm.data.status">
+            <el-radio value="上架">上架</el-radio>
+            <el-radio value="下架">下架</el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="dimForm.visible = false">取消</el-button>
+        <el-button type="primary" @click="dimForm.visible = false">保存</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- ============= P08 类目条目新增/编辑弹窗 ============= -->
+    <el-dialog v-model="dimItemForm.visible" :title="dimItemForm.mode === 'create' ? '新增类目条目' : '编辑类目条目'" width="520px">
+      <el-form label-width="100px">
+        <el-form-item label="归属类目" required>
+          <select v-model="dimItemForm.data.dimId" style="width:100%;height:32px;padding:0 10px;border:1px solid #dcdfe6;border-radius:6px;">
+            <option value="">请选择归属类目</option>
+            <option v-for="d in dimRows" :key="d.id" :value="d.id">{{ d.name }}</option>
+          </select>
+        </el-form-item>
+        <el-form-item label="条目名称" required>
+          <el-input v-model="dimItemForm.data.name" maxlength="20" show-word-limit></el-input>
+        </el-form-item>
+        <el-form-item label="条目排序" required>
+          <el-input v-model="dimItemForm.data.order" placeholder="非负整数"></el-input>
+        </el-form-item>
+        <el-form-item label="上架状态" required v-if="dimItemForm.mode === 'edit'">
+          <el-radio-group v-model="dimItemForm.data.status">
+            <el-radio value="未上架">未上架</el-radio>
+            <el-radio value="已上架">已上架</el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="dimItemForm.visible = false">取消</el-button>
+        <el-button type="primary" @click="dimItemForm.visible = false">保存</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- ============= P08 新增/编辑子条目弹窗 ============= -->
+    <el-dialog v-model="subItemForm.visible" :title="subItemForm.mode === 'create' ? '新增子条目' : '编辑子条目'" width="640px">
+      <el-form label-width="120px">
+        <el-form-item label="当前条目名称">
+          <el-input :model-value="subItemForm.parentName" disabled></el-input>
+        </el-form-item>
+        <el-form-item label="子条目名称" required>
+          <el-input v-model="subItemForm.data.name" maxlength="20" show-word-limit placeholder="请输入子条目名称"></el-input>
+        </el-form-item>
+        <el-form-item label="子条目项">
+          <div style="width:100%;">
+            <div v-for="(item, idx) in subItemForm.data.items" :key="item.id" style="display:flex;gap:10px;align-items:center;margin-bottom:10px;">
+              <span style="color:#86909c;font-size:12px;width:24px;">{{ idx + 1 }}</span>
+              <el-input v-model="item.name" maxlength="20" placeholder="条目名称（必填）" style="flex:1;"></el-input>
+              <el-input v-model="item.order" placeholder="排序（必填）" style="width:120px;"></el-input>
+              <el-button size="small" text type="danger" @click="removeSubItemEntry(item.id)">删除</el-button>
+            </div>
+            <el-button size="small" @click="addSubItemEntry">+ 新增子条目项</el-button>
+            <div v-if="!subItemForm.data.items.length" style="color:#a1a7b3;font-size:12px;margin-top:6px;">暂无子条目项，点击上方按钮添加</div>
+            <div style="color:#86909c;font-size:12px;margin-top:6px;">子条目下不可再新增子条目；每个子条目项需填写「条目名称」「排序」</div>
+          </div>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="subItemForm.visible = false">取消</el-button>
+        <el-button type="primary" @click="saveSubItemForm">保存</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- ============= P11-Dialog 文件/章节 添加/编辑弹窗 ============= -->
+    <el-dialog v-model="fileDialog.visible" :title="fileDialogTitle" width="560px">
+      <el-form label-width="100px">
+        <!-- 章节名称：
+             · 新增文件（add-file）：开启小节时显示且必填，否则不显示
+             · 编辑章节（edit-section）：始终显示且必填 -->
+        <el-form-item v-if="showSectionField" label="章节名称" required>
+          <el-input v-model="fileDialog.data.section" maxlength="30" show-word-limit class="res-input" placeholder="请输入章节名称"></el-input>
+        </el-form-item>
+
+        <!-- 文件上传：新增文件 / 编辑文件 时展示；上传描述文案放到按钮下方 -->
+        <el-form-item v-if="fileDialog.mode === 'add-file' || fileDialog.mode === 'edit-file'"
+                      label="文件上传" required>
+          <div style="width:100%;">
+            <el-button @click="mockPickFiles">选择文件</el-button>
+            <div style="color:#86909c;font-size:12px;margin-top:6px;">
+              {{ fileDialog.mode === 'add-file' ? '支持一次上传多个' : '仅可替换当前文件' }}
+              ；.mp4/.doc/.docx/.xls/.xlsx/.ppt/.pptx/.pdf；文档 ≤50MB、视频 ≤500MB；最多 50 个
+            </div>
+            <div v-if="fileDialog.data.pickedFiles.length" style="margin-top:8px;">
+              <div v-for="(f, fi) in fileDialog.data.pickedFiles" :key="fi"
+                   style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:#f7faff;border:1px solid #e6ecf5;border-radius:4px;margin-bottom:6px;">
+                <span>📄</span>
+                <span style="flex:1;font-size:13px;color:#1f2329;">{{ f.name }}</span>
+                <span style="color:#86909c;font-size:12px;">{{ f.size }}</span>
+                <el-button v-if="fileDialog.mode === 'add-file'" size="small" text type="danger" @click="fileDialog.data.pickedFiles.splice(fi, 1)">移除</el-button>
+              </div>
+            </div>
+          </div>
+        </el-form-item>
+
+        <!-- 排序：仅在编辑模式展示（新增时按创建时间系统默认生成） -->
+        <el-form-item v-if="fileDialog.mode === 'edit-section' || fileDialog.mode === 'edit-file'" label="排序">
+          <el-input v-model="fileDialog.data.order" placeholder="非负整数" class="res-input"></el-input>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="fileDialog.visible = false">取消</el-button>
+        <el-button type="primary" @click="submitFileDialog">{{ fileDialog.mode.startsWith('edit') ? '保存' : '确认' }}</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- ============= P10-Dialog 资源批量导入弹窗 ============= -->
+    <el-dialog v-model="resImportDialog.visible" title="批量导入资源" width="900px" top="6vh">
+      <div class="res-import-hero">
+        <div class="res-import-step">
+          <div class="res-import-step-title">1. 下载标准导入模板，填写模板信息</div>
+          <div class="res-import-step-body">
+            <el-button class="res-import-btn-download" @click="downloadResImportTemplate">下载导入模板</el-button>
+            <div class="res-import-tip">
+              导入内容有：所属频道、资源标题、资源简介、所属分类、类目及类目条目、排序、资源来源机构、资源作者。<br/>
+              模板下载时，将「所属频道」「所属分类」「类目及类目条目」按当前配置生成 Excel 下拉选择项。
+            </div>
+          </div>
+        </div>
+        <div class="res-import-step">
+          <div class="res-import-step-title">2. 上传文件，批量导入资源</div>
+          <div class="res-import-step-body">
+            <el-button type="primary" class="res-import-btn-upload" @click="mockUploadResImport">导入资源信息</el-button>
+          </div>
+        </div>
+        <div class="res-import-hint">（请按照标准模板填写信息，上传结果可在以下列表中查看，如果上传失败可通过导出源文件来定位问题，修改后可重新上传）</div>
+      </div>
+
+      <div class="biz-toolbar" style="margin-top:16px;">
+        <div class="biz-field">
+          <span class="biz-field-label">状态</span>
+          <select v-model="resImportDialog.filter.status">
+            <option value="">请选择状态</option>
+            <option value="上传中">上传中</option>
+            <option value="已完成">已完成</option>
+            <option value="失败">失败</option>
+          </select>
+        </div>
+        <div class="biz-field">
+          <span class="biz-field-label">操作时间</span>
+          <input type="text" placeholder="请选择操作时间" v-model="resImportDialog.filter.time">
+        </div>
+        <div class="biz-field">
+          <span class="biz-field-label">操作类型</span>
+          <select v-model="resImportDialog.filter.opType">
+            <option value="">请选择操作类型</option>
+            <option value="导入">导入</option>
+          </select>
+        </div>
+        <div class="biz-toolbar-actions">
+          <el-button type="primary">搜索</el-button>
+        </div>
+      </div>
+
+      <table class="biz-table" style="margin-top:12px;">
+        <thead>
+          <tr>
+            <th>文件名称</th>
+            <th>操作类型</th>
+            <th>状态</th>
+            <th>成功数</th>
+            <th>失败数</th>
+            <th>操作人</th>
+            <th>操作时间</th>
+            <th class="col-actions">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="row in resImportDialog.rows" :key="row.id">
+            <td>{{ row.fileName }}</td>
+            <td>{{ row.opType }}</td>
+            <td>
+              <span class="res-import-status" :class="'is-' + row.statusKey">● {{ row.status }}</span>
+            </td>
+            <td>{{ row.status === '上传中' ? '-' : row.success }}</td>
+            <td>{{ row.status === '上传中' ? '-' : row.fail }}</td>
+            <td>{{ row.operator }}</td>
+            <td>{{ row.operatedAt }}</td>
+            <td>
+              <el-button size="small" text type="danger" @click="showConfirm('确认是否删除', '数据删除后将无法恢复，请确认是否继续删除？')">删除</el-button>
+              <el-button size="small" text type="primary">导出源文件</el-button>
+            </td>
+          </tr>
+          <tr v-if="!resImportDialog.rows.length"><td colspan="8" class="biz-empty">暂无导入记录</td></tr>
+        </tbody>
+      </table>
+
+      <template #footer>
+        <el-button type="primary" @click="resImportDialog.visible = false">关闭</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 二次确认弹窗（统一） -->
+    <el-dialog v-model="confirm.visible" :title="confirm.title" width="420px">
+      <div style="color:#4e5969;font-size:14px;line-height:1.6;">{{ confirm.message }}</div>
+      <template #footer>
+        <el-button @click="confirm.visible = false">取消</el-button>
+        <el-button type="primary" @click="confirmOk">确认</el-button>
+      </template>
+    </el-dialog>
+  </div>
+
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script src="https://unpkg.com/element-plus/dist/index.full.min.js"></script>
+  <script src="https://unpkg.com/@element-plus/icons-vue/dist/index.iife.min.js"></script>
+  <script>
+    const { Operation, Close } = ElementPlusIconsVue;
+    const PAGE_MAP = {
+      P01: { id: 'P01', label: 'P01 频道列表页', moduleName: '频道管理', topModule: '类目管理' },
+      P02: { id: 'P02', label: 'P02 频道新增/编辑', moduleName: '频道管理', topModule: '类目管理' },
+      P03: { id: 'P03', label: 'P03 分类列表页', moduleName: '分类管理', topModule: '类目管理' },
+      P04: { id: 'P04', label: 'P04 分类新增/编辑', moduleName: '分类管理', topModule: '类目管理' },
+      P07: { id: 'P07', label: '条目管理', moduleName: '条目管理', topModule: '类目管理' },
+      P10: { id: 'P10', label: 'P10 资源列表页', moduleName: '资源列表', topModule: '资源管理' },
+      P11: { id: 'P11', label: 'P11 资源新增/编辑', moduleName: '资源列表', topModule: '资源管理' }
+    };
+
+    const app = Vue.createApp({
+      data() {
+        return {
+          currentPage: PAGE_MAP.P01,
+          openTabs: [PAGE_MAP.P01],
+          channelFilter: { name: '', visible: '' },
+          channelRows: [
+            { id: 'CH001', name: '教学资源', parentId: '', visible: '是', desc: '面向 K12 教学的资源频道（父频道）', order: 10, updatedAt: '2026-06-10 10:23:15' },
+            { id: 'CH001-1', name: '小学教学', parentId: 'CH001', visible: '是', desc: '小学阶段教学资源（子频道）', order: 10, updatedAt: '2026-06-10 10:25:00' },
+            { id: 'CH001-2', name: '初中教学', parentId: 'CH001', visible: '是', desc: '初中阶段教学资源（子频道）', order: 20, updatedAt: '2026-06-10 10:26:00' },
+            { id: 'CH002', name: '拓展阅读', parentId: '', visible: '是', desc: '课外阅读拓展类频道（父频道）', order: 20, updatedAt: '2026-06-11 14:02:41' },
+            { id: 'CH002-1', name: '经典诵读', parentId: 'CH002', visible: '是', desc: '经典诵读子频道', order: 10, updatedAt: '2026-06-11 14:10:00' },
+            { id: 'CH003', name: '教研素材', parentId: '', visible: '否', desc: '教研专用素材（父频道），暂不在应用端展示', order: 30, updatedAt: '2026-06-09 09:15:22' }
+          ],
+          categoryFilter: { parentChannelId: '', subChannelId: '', name: '', status: '' },
+          categoryRows: [
+            { id: 'CT001', name: '语文', code: 'CHINESE', subChannelId: 'CH001-1', status: '已上架', desc: '语文学科分类', order: 10, updatedAt: '2026-06-10 10:30:00', level: 0, parentId: '', hasChildren: true, expanded: true, dimItemMap: { DIM01: ['DI001'], DIM02: ['DI101', 'DI102'] } },
+            { id: 'CT002', name: '现代文', code: 'MODERN', subChannelId: 'CH001-1', status: '已上架', desc: '现代文子分类', order: 10, updatedAt: '2026-06-10 10:35:00', level: 1, parentId: 'CT001', hasChildren: false, expanded: false, dimItemMap: { DIM01: ['DI002'] } },
+            { id: 'CT003', name: '古诗文', code: 'ANCIENT', subChannelId: 'CH001-1', status: '未上架', desc: '古诗文子分类', order: 20, updatedAt: '2026-06-10 10:40:00', level: 1, parentId: 'CT001', hasChildren: false, expanded: false, dimItemMap: {} },
+            { id: 'CT004', name: '数学', code: 'MATH', subChannelId: 'CH001-2', status: '未上架', desc: '数学学科分类', order: 20, updatedAt: '2026-06-11 08:00:00', level: 0, parentId: '', hasChildren: false, expanded: false, dimItemMap: {} }
+          ],
+          channelForm: {
+            visible: false, mode: 'create',
+            data: { parentId: '', parentName: '', name: '', visible: '否', order: '', desc: '' }
+          },
+          categoryForm: {
+            visible: false, mode: 'create',
+            data: { parentChannelId: '', subChannelId: '', parentName: '', name: '', code: '', order: '', desc: '', dimItemMap: {} }
+          },
+          dimTab: 'P07',
+          dimFilter: { parentChannelId: '', subChannelId: '', name: '', status: '' },
+          dimRows: [
+            { id: 'DIM01', name: '学段', subChannelId: 'CH001-1', order: 10, status: '上架', updatedAt: '2026-06-12 09:00:00', refCount: 2 },
+            { id: 'DIM02', name: '年级', subChannelId: 'CH001-1', order: 20, status: '上架', updatedAt: '2026-06-12 09:05:00', refCount: 1 },
+            { id: 'DIM03', name: '学科', subChannelId: 'CH001-2', order: 30, status: '上架', updatedAt: '2026-06-12 09:10:00', refCount: 0 },
+            { id: 'DIM04', name: '难度', subChannelId: 'CH001-2', order: 40, status: '下架', updatedAt: '2026-06-12 09:15:00', refCount: 0 }
+          ],
+          dimItemFilter: { dimId: '', name: '', status: '' },
+          dimItemRows: [
+            { id: 'DI001', dimId: 'DIM01', name: '小学', order: 10, status: '已上架', createdAt: '2026-06-12 10:00:00', updatedAt: '2026-06-12 10:00:00', refCount: 1, expanded: true, children: [
+              { id: 'SUB001', name: '小学部', status: '已上架', expanded: true, items: [
+                { id: 'SI001', name: '一年级小学部', order: 1 },
+                { id: 'SI002', name: '二年级小学部', order: 2 }
+              ] },
+              { id: 'SUB002', name: '实验校区', status: '未上架', expanded: false, items: [
+                { id: 'SI003', name: '三年级实验班', order: 1 }
+              ] }
+            ] },
+            { id: 'DI002', dimId: 'DIM01', name: '初中', order: 20, status: '已上架', createdAt: '2026-06-12 10:01:00', updatedAt: '2026-06-12 10:01:00', refCount: 0, expanded: false, children: [] },
+            { id: 'DI003', dimId: 'DIM01', name: '五四制', order: 30, status: '未上架', createdAt: '2026-06-12 10:02:00', updatedAt: '2026-06-12 10:02:00', refCount: 0, expanded: false, children: [] },
+            { id: 'DI101', dimId: 'DIM02', name: '一年级', order: 10, status: '已上架', createdAt: '2026-06-12 10:10:00', updatedAt: '2026-06-12 10:10:00', refCount: 0, expanded: false, children: [] },
+            { id: 'DI102', dimId: 'DIM02', name: '二年级', order: 20, status: '已上架', createdAt: '2026-06-12 10:11:00', updatedAt: '2026-06-12 10:11:00', refCount: 0, expanded: false, children: [] },
+            { id: 'DI103', dimId: 'DIM02', name: '六年级', order: 60, status: '已上架', createdAt: '2026-06-12 10:12:00', updatedAt: '2026-06-12 10:12:00', refCount: 0, expanded: false, children: [] },
+            { id: 'DI104', dimId: 'DIM02', name: '七年级', order: 70, status: '已上架', createdAt: '2026-06-12 10:13:00', updatedAt: '2026-06-12 10:13:00', refCount: 0, expanded: false, children: [] },
+            { id: 'DI201', dimId: 'DIM03', name: '语文', order: 10, status: '已上架', createdAt: '2026-06-12 10:20:00', updatedAt: '2026-06-12 10:20:00', refCount: 0, expanded: false, children: [] },
+            { id: 'DI202', dimId: 'DIM03', name: '数学', order: 20, status: '已上架', createdAt: '2026-06-12 10:21:00', updatedAt: '2026-06-12 10:21:00', refCount: 0, expanded: false, children: [] }
+          ],
+          dimForm: {
+            visible: false, mode: 'create',
+            data: { name: '', parentChannelId: '', subChannelId: '', order: '', status: '上架' }
+          },
+          dimItemForm: {
+            visible: false, mode: 'create',
+            data: { dimId: '', name: '', order: '', status: '未上架' }
+          },
+          subItemForm: {
+            visible: false, mode: 'create',
+            parentId: '', parentName: '', editingSubId: '',
+            data: { name: '', items: [] }
+          },
+          confirm: { visible: false, title: '', message: '' },
+          resFilter: { title: '', parentChannelId: '', subChannelId: '', categoryId: '', status: '' },
+          resRows: [
+            { id: 'RES001', title: '小学一年级语文·汉语拼音教学课件', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 10, viewCount: 128, status: '已发布', updatedAt: '2026-06-20 09:12:00' },
+            { id: 'RES002', title: '初中语文·古诗词赏析合集', channelId: 'CH001-2', channelName: '教学资源 / 初中教学', categoryId: 'CT004', categoryName: '数学', order: 20, viewCount: 45, status: '未发布', updatedAt: '2026-06-21 15:08:00' },
+            { id: 'RES003', title: '数学思维训练营·PDF讲义', channelId: 'CH001-2', channelName: '教学资源 / 初中教学', categoryId: 'CT004', categoryName: '数学', order: 30, viewCount: 302, status: '已发布', updatedAt: '2026-06-22 11:44:00' }
+          ],
+          resSteps: ['基本信息', '资源正文', '发布设置'],
+          resForm: {
+            mode: 'create', step: 0,
+            audit: { checked: false, pass: false, hits: [] },
+            data: {
+              parentChannelId: '', channelId: '', title: '', intro: '', categoryId: '',
+              itemMap: {}, order: '', showOnMobile: true,
+              contentType: '富文本', richText: '',
+              appName: '', mobileUrl: '', pcUrl: '',
+              sectionOn: '否',
+              sections: [],
+              files: [],
+              org: '', author: ''
+            }
+          },
+          sensitiveWords: ['违规', '赌博', '诈骗', '暴力', '色情', '敏感词'],
+          fileDialog: {
+            visible: false,
+            mode: 'add-file',
+            data: {
+              editIdx: -1,
+              editingSectionId: '',
+              section: '',
+              pickedFiles: [],
+              order: ''
+            }
+          },
+          resImportDialog: {
+            visible: false,
+            filter: { status: '', time: '', opType: '' },
+            rows: [
+              { id: 1, fileName: 'batch_res_upload_19.xlsx', opType: '导入', status: '已完成', statusKey: 'done', success: 28, fail: 0, operator: '黄思思', operatedAt: '2026-01-09 16:06:46' },
+              { id: 2, fileName: 'batch_res_upload_18.xlsx', opType: '导入', status: '已完成', statusKey: 'done', success: 23, fail: 0, operator: '张丹丹', operatedAt: '2026-01-09 15:12:11' },
+              { id: 3, fileName: 'batch_res_upload_17.xlsx', opType: '导入', status: '上传中', statusKey: 'doing', success: '-', fail: '-', operator: '李梅梅', operatedAt: '2026-01-09 15:03:22' },
+              { id: 4, fileName: 'batch_res_upload_16.xlsx', opType: '导入', status: '已完成', statusKey: 'done', success: 22, fail: 3, operator: '李华', operatedAt: '2026-01-08 18:44:02' },
+              { id: 5, fileName: 'batch_res_upload_15.xlsx', opType: '导入', status: '已完成', statusKey: 'done', success: 34, fail: 0, operator: '韩梅梅', operatedAt: '2026-01-08 10:21:37' }
+            ]
+          }
+        };
+      },
+      computed: {
+        categoryFormTitle() {
+          const map = { create: '新增一级分类', child: '添加子分类', edit: '编辑分类' };
+          return map[this.categoryForm.mode] || '分类表单';
+        },
+        channelFormTitle() {
+          if (this.channelForm.mode === 'edit') return '编辑频道';
+          return this.channelForm.data.parentId ? '添加子频道' : '新增父频道';
+        },
+        parentChannels() {
+          return this.channelRows.filter(c => !c.parentId);
+        },
+        channelTreeRows() {
+          // 频道列表树形展示：父频道后紧跟其子频道（同分类列表树形结构）
+          const kw = (this.channelFilter.name || '').trim();
+          const vis = this.channelFilter.visible;
+          const match = (c) => (!kw || c.name.includes(kw)) && (!vis || c.visible === vis);
+          const rows = [];
+          this.channelRows.filter(c => !c.parentId).forEach(parent => {
+            const children = this.channelRows.filter(c => c.parentId === parent.id);
+            const hitChildren = children.filter(match);
+            // 父频道命中，或其子频道命中时展示父频道，保证树形完整
+            if (match(parent) || hitChildren.length) {
+              rows.push(parent);
+              (kw || vis ? hitChildren : children).forEach(ch => rows.push(ch));
+            }
+          });
+          return rows;
+        },
+        channelCascaderOptions() {
+          // 「父频道 → 子频道」级联树，末端（子频道）方可选中
+          return this.channelRows.filter(c => !c.parentId).map(parent => {
+            const children = this.channelRows.filter(c => c.parentId === parent.id);
+            const node = { value: parent.id, label: parent.name };
+            if (children.length) node.children = children.map(ch => ({ value: ch.id, label: ch.name }));
+            else node.disabled = true; // 无子频道的父频道不可作为最终归属
+            return node;
+          });
+        },
+        currentDimName() {
+          const d = this.dimRows.find(x => x.id === this.dimItemFilter.dimId);
+          return d ? d.name : '';
+        },
+        filteredDimItems() {
+          return this.dimItemRows.filter(x => x.dimId === this.dimItemFilter.dimId);
+        },
+        level0Categories() {
+          return this.categoryRows.filter(c => c.level === 0);
+        },
+        categoryCascaderOptions() {
+          // 构建「一级分类 → 二级分类」级联树；末端节点（无子分类）方可选中
+          // 候选一级分类按当前所属频道（子频道）过滤
+          const subChannelId = this.resForm.data.channelId;
+          const roots = this.categoryRows.filter(c => c.level === 0 && (!subChannelId || c.subChannelId === subChannelId));
+          return roots.map(root => {
+            const children = this.categoryRows.filter(c => c.parentId === root.id);
+            const node = { value: root.id, label: root.name };
+            if (children.length) {
+              node.children = children.map(ch => ({ value: ch.id, label: ch.name }));
+            }
+            return node;
+          });
+        },
+        dimsOfCurrentCategory() {
+          const cid = this.resForm.data.categoryId;
+          if (!cid) return [];
+          // 类目按分类所属「子频道」筛选：由所选分类回溯其所属子频道
+          const cat = this.categoryRows.find(c => c.id === cid);
+          const subChannelId = cat ? cat.subChannelId : '';
+          if (!subChannelId) return [];
+          return this.dimRows.filter(d => d.subChannelId === subChannelId && d.status === '上架');
+        },
+        sectionTree() {
+          // 只保留一层：章节 → 附件
+          return this.resForm.data.sections.slice().sort((a, b) => (a.order || 0) - (b.order || 0));
+        },
+        fileDialogTitle() {
+          const titleMap = {
+            'add-file': '添加文件', 'edit-file': '编辑文件',
+            'edit-section': '编辑章节'
+          };
+          return titleMap[this.fileDialog.mode] || '添加文件';
+        },
+        showSectionField() {
+          // 编辑章节始终显示；新增文件仅在开启小节时显示
+          if (this.fileDialog.mode === 'edit-section') return true;
+          if (this.fileDialog.mode === 'add-file') return this.resForm.data.sectionOn === '是';
+          return false;
+        },
+        fileTableRows() {
+          const rows = [];
+          const sections = this.resForm.data.sections;
+          const files = this.resForm.data.files;
+          const getExt = (name) => {
+            const m = /\.([a-zA-Z0-9]+)$/.exec(name || '');
+            return m ? m[1].toLowerCase() : '';
+          };
+          if (this.resForm.data.sectionOn === '是') {
+            // 只有两层：章节 → 附件
+            const sortedSecs = sections.slice().sort((a, b) => (a.order || 0) - (b.order || 0));
+            sortedSecs.forEach(sec => {
+              rows.push({
+                _key: 'sec-' + sec.id, type: 'section', level: 0,
+                id: sec.id, name: sec.name,
+                // 列表章节排序 = 新增章节时的排序字段
+                order: sec.order != null && sec.order !== '' ? sec.order : '—'
+              });
+              // 该章节下的附件，按 uploadIndex（上传成功顺序）排列
+              files
+                .map((f, i) => ({ ...f, _idx: i }))
+                .filter(f => f.sectionId === sec.id)
+                .sort((a, b) => (a.order || 0) - (b.order || 0) || a.uploadIndex - b.uploadIndex)
+                .forEach(f => {
+                  rows.push({
+                    _key: 'file-' + f._idx, type: 'file', level: 1, _idx: f._idx,
+                    name: f.name,
+                    // 章节内附件排序 = 附件自身 order（默认为上传成功顺序）
+                    order: f.order != null && f.order !== '' ? f.order : f.uploadIndex,
+                    size: f.size, ext: getExt(f.name)
+                  });
+                });
+            });
+          } else {
+            // 未开启小节：附件平铺，"排序"取表单新增时的资源排序字段
+            const formOrder = this.resForm.data.order;
+            files.forEach((f, idx) => {
+              rows.push({
+                _key: 'file-' + idx, type: 'file', level: 0, _idx: idx,
+                name: f.name,
+                order: formOrder !== '' && formOrder != null ? formOrder : (idx + 1),
+                size: f.size, ext: getExt(f.name)
+              });
+            });
+          }
+          return rows;
+        }
+      },
+      watch: {
+        'resForm.data.categoryId'() {
+          // 选定所属分类后：若该分类已关联对应类目条目则默认勾选，未关联则不勾选（R-CH-23）
+          const cat = this.categoryRows.find(c => c.id === this.resForm.data.categoryId);
+          const assoc = cat && cat.dimItemMap ? cat.dimItemMap : {};
+          const map = {};
+          this.dimsOfCurrentCategory.forEach(d => {
+            const preset = Array.isArray(assoc[d.id]) ? assoc[d.id].slice() : [];
+            // 仅保留当前类目下仍有效（已上架）的条目
+            const validIds = this.itemsOfDim(d.id).map(it => it.id);
+            map[d.id] = preset.filter(id => validIds.includes(id));
+          });
+          this.resForm.data.itemMap = map;
+        },
+        'categoryForm.data.subChannelId'() {
+          // 按当前所属频道下的类目重建条目多选槽位：
+          // 保留仍属于该子频道类目的已选条目，切换到其它子频道时旧选择自动失效
+          const dims = this.dimsOfSubChannel(this.categoryForm.data.subChannelId);
+          const validDimIds = dims.map(d => d.id);
+          const old = this.categoryForm.data.dimItemMap || {};
+          const next = {};
+          dims.forEach(d => {
+            next[d.id] = Array.isArray(old[d.id]) ? old[d.id].slice() : [];
+          });
+          // 丢弃不属于当前子频道的历史选择（validDimIds 用于语义标注）
+          void validDimIds;
+          this.categoryForm.data.dimItemMap = next;
+        }
+      },
+      methods: {
+        handleNavSelect(index) {
+          const target = PAGE_MAP[index];
+          if (!target) return;
+          this.currentPage = target;
+          if (!this.openTabs.find(t => t.id === index)) {
+            this.openTabs.push(target);
+          }
+        },
+        switchTab(id) {
+          const target = PAGE_MAP[id];
+          if (target) this.currentPage = target;
+        },
+        closeTab(id) {
+          const idx = this.openTabs.findIndex(t => t.id === id);
+          if (idx === -1) return;
+          this.openTabs.splice(idx, 1);
+          if (this.currentPage.id === id) {
+            this.currentPage = this.openTabs[0] || PAGE_MAP.P01;
+            if (!this.openTabs.length) this.openTabs.push(PAGE_MAP.P01);
+          }
+        },
+        resetChannelFilter() { this.channelFilter = { name: '', visible: '' }; },
+        showConfirm(title, message, onOk) { this.confirm = { visible: true, title, message, onOk: onOk || null }; },
+        confirmOk() {
+          const cb = this.confirm.onOk;
+          this.confirm.visible = false;
+          if (typeof cb === 'function') cb();
+        },
+        subChannelsOf(parentId) {
+          if (!parentId) return [];
+          return this.channelRows.filter(c => c.parentId === parentId);
+        },
+        channelHasChildren(channelId) {
+          return this.channelRows.some(c => c.parentId === channelId);
+        },
+        subChannelPathOf(subChannelId) {
+          if (!subChannelId) return '—';
+          const sub = this.channelRows.find(c => c.id === subChannelId);
+          if (!sub) return '—';
+          const parent = sub.parentId ? this.channelRows.find(c => c.id === sub.parentId) : null;
+          return parent ? (parent.name + ' / ' + sub.name) : sub.name;
+        },
+        categoriesOfSubChannel(subChannelId) {
+          // 按子频道过滤一级分类；未选子频道时返回全部一级分类
+          if (!subChannelId) return this.categoryRows.filter(c => c.level === 0);
+          return this.categoryRows.filter(c => c.level === 0 && c.subChannelId === subChannelId);
+        },
+        dimsOfSubChannel(subChannelId) {
+          // 按子频道过滤已上架的类目（分类维度）
+          if (!subChannelId) return [];
+          return this.dimRows.filter(d => d.subChannelId === subChannelId && d.status === '上架');
+        },
+        openChannelForm(mode, row) {
+          this.channelForm.mode = mode;
+          if (mode === 'edit' && row) {
+            // 编辑：若为子频道则回填 parentId + parentName（只读展示）
+            const parent = row.parentId ? this.channelRows.find(c => c.id === row.parentId) : null;
+            this.channelForm.data = {
+              parentId: row.parentId || '',
+              parentName: parent ? parent.name : '',
+              name: row.name, visible: row.visible, order: row.order, desc: row.desc
+            };
+          } else if (mode === 'create' && row) {
+            // 添加子频道：row 为父频道
+            this.channelForm.data = {
+              parentId: row.id, parentName: row.name,
+              name: '', visible: '否', order: '', desc: ''
+            };
+          } else {
+            // 新增父频道
+            this.channelForm.data = { parentId: '', parentName: '', name: '', visible: '否', order: '', desc: '' };
+          }
+          this.channelForm.visible = true;
+        },
+        openCategoryForm(mode, row) {
+          this.categoryForm.mode = mode;
+          const resolveParent = (subChannelId) => {
+            if (!subChannelId) return '';
+            const sub = this.channelRows.find(c => c.id === subChannelId);
+            return sub ? (sub.parentId || '') : '';
+          };
+          if (mode === 'edit' && row) {
+            this.categoryForm.data = {
+              parentChannelId: resolveParent(row.subChannelId), subChannelId: row.subChannelId || '',
+              parentName: '', name: row.name, code: row.code, order: row.order, desc: row.desc,
+              dimItemMap: row.dimItemMap ? { ...row.dimItemMap } : {}
+            };
+          } else if (mode === 'child' && row) {
+            // 添加子分类：继承父节点的所属频道并只读
+            this.categoryForm.data = {
+              parentChannelId: resolveParent(row.subChannelId), subChannelId: row.subChannelId || '',
+              parentName: row.name, name: '', code: '', order: '', desc: '', dimItemMap: {}
+            };
+          } else {
+            this.categoryForm.data = { parentChannelId: '', subChannelId: '', parentName: '', name: '', code: '', order: '', desc: '', dimItemMap: {} };
+          }
+          this.categoryForm.visible = true;
+        },
+        itemsOfDim(dimId) {
+          return this.dimItemRows.filter(x => x.dimId === dimId && x.status === '已上架');
+        },
+        rootCategoryId(categoryId) {
+          // 回溯到一级分类：若有 parentId 则取父，否则自身即为根
+          const c = this.categoryRows.find(x => x.id === categoryId);
+          if (!c) return categoryId;
+          return c.parentId ? c.parentId : c.id;
+        },
+        isItemLockedByCategory(dimId, itemId) {
+          // 所属分类已关联的类目条目在资源表单中默认勾选且只读（R-CH-23）
+          const cat = this.categoryRows.find(c => c.id === this.resForm.data.categoryId);
+          if (!cat || !cat.dimItemMap) return false;
+          const assoc = cat.dimItemMap[dimId] || [];
+          return assoc.includes(itemId);
+        },
+        categoryNameOf(categoryId) {
+          const c = this.categoryRows.find(x => x.id === categoryId);
+          return c ? (this.subChannelPathOf(c.subChannelId) + ' / ' + c.name) : '—';
+        },
+        openDimForm(mode, row) {
+          this.dimForm.mode = mode;
+          const resolveParent = (subChannelId) => {
+            if (!subChannelId) return '';
+            const sub = this.channelRows.find(c => c.id === subChannelId);
+            return sub ? (sub.parentId || '') : '';
+          };
+          this.dimForm.data = (mode === 'edit' && row)
+            ? { name: row.name, parentChannelId: resolveParent(row.subChannelId), subChannelId: row.subChannelId || '', order: row.order, status: row.status }
+            : { name: '', parentChannelId: '', subChannelId: '', order: '', status: '下架' };
+          this.dimForm.visible = true;
+        },
+        openDimItemForm(mode, row) {
+          this.dimItemForm.mode = mode;
+          if (mode === 'edit' && row) {
+            this.dimItemForm.data = { dimId: row.dimId, name: row.name, order: row.order, status: row.status };
+          } else {
+            this.dimItemForm.data = { dimId: this.dimItemFilter.dimId, name: '', order: '', status: '未上架' };
+          }
+          this.dimItemForm.visible = true;
+        },
+        // —— 子条目：新增 / 编辑（树形，最多两层：维度条目 → 子条目） ——
+        openSubItemForm(parentRow, sub) {
+          this.subItemForm.parentId = parentRow.id;
+          this.subItemForm.parentName = parentRow.name;
+          if (sub) {
+            this.subItemForm.mode = 'edit';
+            this.subItemForm.editingSubId = sub.id;
+            this.subItemForm.data = { name: sub.name, items: sub.items.map(it => ({ ...it })) };
+          } else {
+            this.subItemForm.mode = 'create';
+            this.subItemForm.editingSubId = '';
+            this.subItemForm.data = { name: '', items: [] };
+          }
+          this.subItemForm.visible = true;
+        },
+        addSubItemEntry() {
+          this.subItemForm.data.items.push({ id: 'SI' + Date.now() + Math.floor(Math.random() * 100), name: '', order: '' });
+        },
+        removeSubItemEntry(itemId) {
+          this.subItemForm.data.items = this.subItemForm.data.items.filter(it => it.id !== itemId);
+        },
+        saveSubItemForm() {
+          const parent = this.dimItemRows.find(r => r.id === this.subItemForm.parentId);
+          if (!parent) return;
+          if (!this.subItemForm.data.name || !this.subItemForm.data.name.trim()) {
+            this.showConfirm('提示', '子条目名称为必填项');
+            return;
+          }
+          for (const it of this.subItemForm.data.items) {
+            if (!it.name || !it.name.trim()) { this.showConfirm('提示', '子条目项中「条目名称」为必填项'); return; }
+            if (it.order === '' || it.order === null || it.order === undefined) { this.showConfirm('提示', '子条目项中「排序」为必填项'); return; }
+          }
+          const items = this.subItemForm.data.items.map(it => ({ id: it.id, name: it.name, order: it.order }));
+          if (this.subItemForm.mode === 'edit') {
+            const target = parent.children.find(s => s.id === this.subItemForm.editingSubId);
+            if (target) { target.name = this.subItemForm.data.name; target.items = items; }
+          } else {
+            parent.children.push({ id: 'SUB' + Date.now(), name: this.subItemForm.data.name, status: '未上架', expanded: false, items });
+            parent.expanded = true;
+          }
+          this.subItemForm.visible = false;
+        },
+        openResForm(mode, row) {
+          this.resForm.mode = mode;
+          this.resForm.step = 0;
+          if (mode === 'edit' && row) {
+            const sub = this.channelRows.find(c => c.id === row.channelId);
+            this.resForm.data = {
+              parentChannelId: sub ? (sub.parentId || '') : '',
+              channelId: row.channelId, title: row.title, intro: row.intro || '',
+              categoryId: row.categoryId, itemMap: row.itemMap ? { ...row.itemMap } : {},
+              order: row.order,
+              showOnMobile: row.showOnMobile !== undefined ? row.showOnMobile : true,
+              contentType: row.contentType || '富文本', richText: row.richText || '',
+              appName: row.appName || '', mobileUrl: row.mobileUrl || '', pcUrl: row.pcUrl || '',
+              sectionOn: row.sectionOn || '否',
+              sections: row.sections ? [...row.sections] : [],
+              files: row.files ? [...row.files] : [],
+              org: row.org || '', author: row.author || ''
+            };
+          } else {
+            this.resForm.data = {
+              parentChannelId: '', channelId: '', title: '', intro: '', categoryId: '',
+              itemMap: {}, order: '', showOnMobile: true,
+              contentType: '富文本', richText: '',
+              appName: '', mobileUrl: '', pcUrl: '',
+              sectionOn: '否',
+              sections: [],
+              files: [],
+              org: '', author: ''
+            };
+          }
+          this.resForm.audit = { checked: false, pass: false, hits: [] };
+          this.ensureItemMapSlots();
+          this.currentPage = PAGE_MAP.P11;
+          if (!this.openTabs.find(t => t.id === 'P11')) this.openTabs.push(PAGE_MAP.P11);
+        },
+        auditResourceContent() {
+          // 机器敏感词过滤：对标题、简介、正文做敏感词匹配
+          const d = this.resForm.data;
+          const text = [d.title, d.intro, d.richText].filter(Boolean).join(' ');
+          const hits = this.sensitiveWords.filter(w => text.indexOf(w) !== -1);
+          this.resForm.audit = { checked: true, pass: hits.length === 0, hits };
+          return this.resForm.audit;
+        },
+        submitResource(publish) {
+          const audit = this.auditResourceContent();
+          if (!publish) {
+            // 仅提交为"未发布"：不受敏感词过滤限制，正常保存
+            this.showConfirm('提交资源？', '提交后资源状态为“未发布”' + (audit.pass ? '' : '（内容命中敏感词，需修改并通过机器审核后方可发布）'));
+            return;
+          }
+          // 提交并发布：必须先通过机器敏感词过滤
+          if (!audit.pass) {
+            this.showConfirm('无法发布：机器敏感词过滤未通过', '内容命中违规词「' + audit.hits.join('、') + '」，违规资源不可发布。请修改内容后重试，或先“提交”保存为未发布。');
+            return;
+          }
+          this.showConfirm('提交并发布资源？', '机器敏感词过滤已通过，发布后应用端可获取');
+        },
+        ensureItemMapSlots() {
+          const dims = this.dimsOfCurrentCategory;
+          dims.forEach(d => {
+            if (!Array.isArray(this.resForm.data.itemMap[d.id])) {
+              this.resForm.data.itemMap[d.id] = [];
+            }
+          });
+        },
+        goResList() {
+          this.currentPage = PAGE_MAP.P10;
+          if (!this.openTabs.find(t => t.id === 'P10')) this.openTabs.push(PAGE_MAP.P10);
+        },
+        addResFile() {
+          this.openAddFileDialog();
+        },
+        // —— 章节：编辑（章节名 + 排序） ——
+        openEditSectionDialog(sectionId) {
+          const sec = this.resForm.data.sections.find(s => s.id === sectionId);
+          if (!sec) return;
+          this.fileDialog.mode = 'edit-section';
+          this.fileDialog.data = {
+            editIdx: -1,
+            editingSectionId: sec.id,
+            section: sec.name,
+            pickedFiles: [],
+            order: sec.order != null ? sec.order : ''
+          };
+          this.fileDialog.visible = true;
+        },
+        // —— 文件：新增（在同一弹窗内维护章节 + 附件） ——
+        openAddFileDialog() {
+          this.fileDialog.mode = 'add-file';
+          this.fileDialog.data = { editIdx: -1, editingSectionId: '', section: '', pickedFiles: [], order: '' };
+          this.fileDialog.visible = true;
+        },
+        // —— 文件：编辑（可改附件 + 排序） ——
+        openEditFileDialog(editIdx) {
+          const f = this.resForm.data.files[editIdx];
+          if (!f) return;
+          this.fileDialog.mode = 'edit-file';
+          this.fileDialog.data = {
+            editIdx: editIdx,
+            editingSectionId: '',
+            section: '',
+            pickedFiles: [{ name: f.name, size: f.size || '' }],
+            order: f.order != null ? f.order : ''
+          };
+          this.fileDialog.visible = true;
+        },
+        // 模拟选择文件：add-file 支持多个；edit-file 只保留 1 个
+        mockPickFiles() {
+          const count = this.fileDialog.mode === 'add-file' ? (Math.floor(Math.random() * 3) + 1) : 1;
+          const picks = [];
+          for (let i = 0; i < count; i++) {
+            picks.push({
+              name: '示例文件_' + Date.now() + '_' + i + '.pdf',
+              size: (Math.floor(Math.random() * 40) + 1) + 'MB'
+            });
+          }
+          if (this.fileDialog.mode === 'add-file') {
+            this.fileDialog.data.pickedFiles.push(...picks);
+          } else {
+            this.fileDialog.data.pickedFiles = picks;
+          }
+        },
+        submitFileDialog() {
+          const d = this.fileDialog.data;
+          const mode = this.fileDialog.mode;
+
+          // 1. 编辑章节：章节名 + 排序
+          if (mode === 'edit-section') {
+            if (!d.section) { this.showConfirm('请填写章节名称', '章节名称为必填项'); return; }
+            const sec = this.resForm.data.sections.find(s => s.id === d.editingSectionId);
+            if (sec) {
+              sec.name = d.section;
+              if (d.order !== '' && d.order != null) sec.order = Number(d.order);
+            }
+            this.fileDialog.visible = false;
+            return;
+          }
+
+          // 2. 新增文件（章节与附件同弹窗维护，排序由系统按创建时间生成）
+          if (mode === 'add-file') {
+            if (!d.pickedFiles.length) {
+              this.showConfirm('请选择要上传的文件', '请点击"选择文件"完成附件选择后再确认');
+              return;
+            }
+            let sectionId = '';
+            if (this.resForm.data.sectionOn === '是') {
+              if (!d.section) { this.showConfirm('请填写章节名称', '开启小节时，章节名称为必填项'); return; }
+              // 同名章节复用，否则新建（排序按创建顺序自增，编辑时展示为友好序号）
+              const existing = this.resForm.data.sections.find(s => s.name === d.section);
+              if (existing) {
+                sectionId = existing.id;
+              } else {
+                sectionId = 'SEC' + Date.now();
+                this.resForm.data.sections.push({
+                  id: sectionId,
+                  name: d.section,
+                  order: this.resForm.data.sections.length + 1   // 系统默认按创建顺序递增
+                });
+              }
+            }
+            // 附件排序：在当前章节内按创建顺序递增
+            const sameSecCount = this.resForm.data.files.filter(f => f.sectionId === sectionId).length;
+            d.pickedFiles.forEach((pf, i) => {
+              const uploadIndex = this.resForm.data.files.length + 1;
+              this.resForm.data.files.push({
+                name: pf.name,
+                sectionId: sectionId,
+                size: pf.size || '',
+                uploadIndex: uploadIndex,
+                order: sameSecCount + i + 1   // 系统默认按创建顺序递增
+              });
+            });
+            this.fileDialog.visible = false;
+            return;
+          }
+
+          // 3. 编辑文件（附件可替换 + 排序）
+          if (mode === 'edit-file') {
+            const target = this.resForm.data.files[d.editIdx];
+            if (!target) { this.fileDialog.visible = false; return; }
+            if (d.pickedFiles.length && d.pickedFiles[0].name !== target.name) {
+              target.name = d.pickedFiles[0].name;
+              if (d.pickedFiles[0].size) target.size = d.pickedFiles[0].size;
+            }
+            if (d.order !== '' && d.order != null) target.order = Number(d.order);
+            this.fileDialog.visible = false;
+            return;
+          }
+        },
+        filesOfSection(sectionId) {
+          return this.resForm.data.files
+            .map((f, i) => ({ ...f, _idx: i }))
+            .filter(f => f.sectionId === sectionId);
+        },
+        removeSection(sectionId) {
+          this.resForm.data.sections = this.resForm.data.sections.filter(s => s.id !== sectionId);
+          this.resForm.data.files = this.resForm.data.files.filter(f => f.sectionId !== sectionId);
+        },
+        removeFileByIdx(idx) {
+          this.resForm.data.files.splice(idx, 1);
+        },
+        exportFileInfo() {
+          const secMap = {};
+          this.resForm.data.sections.forEach(s => { secMap[s.id] = s; });
+          const sectionPath = (sid) => (sid && secMap[sid]) ? secMap[sid].name : '';
+          const header = ['序号', '章节', '文件名', '扩展名', '大小', '排序'];
+          const rows = this.resForm.data.files.map((f, i) => {
+            const ext = (/\.([a-zA-Z0-9]+)$/.exec(f.name || '') || [,''])[1];
+            return [i + 1, sectionPath(f.sectionId), f.name, ext, f.size || '', f.order];
+          });
+          const csv = [header, ...rows]
+            .map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(','))
+            .join('\r\n');
+          const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = '附件信息_' + (this.resForm.data.title || '未命名') + '.csv';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        },
+        openResImportDialog() {
+          this.resImportDialog.visible = true;
+        },
+        downloadResImportTemplate() {
+          // 生成含下拉选项说明的 CSV 模板；表头即新增资源的基本信息字段
+          const header = ['所属频道', '资源标题', '资源简介', '所属分类', '类目及类目条目', '排序', '资源来源机构', '资源作者'];
+          const channelOpts = this.channelRows.filter(c => c.parentId).map(c => this.subChannelPathOf(c.id)).join(' / ');
+          const categoryOpts = this.categoryRows.filter(c => c.level === 0).map(c => c.name).join(' / ');
+          const dimItemHint = this.dimRows.filter(d => d.status === '上架').map(d => {
+            const items = this.dimItemRows.filter(i => i.dimId === d.id && i.status === '已上架').map(i => i.name).join('/');
+            return d.name + ':' + items;
+          }).join('；');
+          const sampleRow = [
+            '【下拉】' + channelOpts,
+            '示例：初中数学·函数专题',
+            '示例：函数专题精讲',
+            '【下拉】' + categoryOpts,
+            '【下拉·多类目多选】' + dimItemHint,
+            '10',
+            '示例机构',
+            '示例作者'
+          ];
+          const csv = [header, sampleRow]
+            .map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(','))
+            .join('\r\n');
+          const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = '资源批量导入模板.csv';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        },
+        mockUploadResImport() {
+          const now = new Date();
+          const pad = n => String(n).padStart(2, '0');
+          const stamp = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) + ' '
+                      + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+          this.resImportDialog.rows.unshift({
+            id: Date.now(),
+            fileName: 'batch_res_upload_' + Math.floor(Math.random() * 90 + 10) + '.xlsx',
+            opType: '导入',
+            status: '上传中',
+            statusKey: 'doing',
+            success: '-',
+            fail: '-',
+            operator: '当前用户',
+            operatedAt: stamp
+          });
+        }
+      }
+    });
+
+    app.use(ElementPlus);
+    app.component('Operation', Operation);
+    app.component('Close', Close);
+    app.mount('#app');
+  </script>
+</body>
+</html>
