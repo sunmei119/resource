@@ -49,30 +49,55 @@
     background:rgba(255,255,255,.18); backdrop-filter:blur(4px);
   }
 
-  /* ---- Layout ---- */
-  .doc-body { max-width:960px; margin:-24px auto 60px; padding:0 20px; position:relative; z-index:1; }
+  /* ---- Layout: sidebar + content ---- */
+  .layout {
+    display:flex; align-items:flex-start; gap:24px; max-width:1240px;
+    margin:28px auto 60px; padding:0 24px; position:relative;
+  }
 
-  /* ---- TOC ---- */
-  .toc-card {
+  /* ---- Sidebar (TOC) ---- */
+  .sidebar {
+    width:264px; flex-shrink:0; position:sticky; top:24px; align-self:flex-start;
     background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow);
-    padding:24px 28px; margin-bottom:28px;
+    padding:18px 14px; max-height:calc(100vh - 48px); overflow-y:auto;
   }
-  .toc-card h2 { font-size:17px; margin-bottom:14px; color:var(--text-1); }
-  .toc-list { list-style:none; columns:2; column-gap:32px; }
-  .toc-list li { break-inside:avoid; margin-bottom:6px; }
-  .toc-list a {
-    text-decoration:none; color:var(--text-2); font-size:13.5px; transition:color .2s;
-    display:block; padding:3px 0 3px 14px; position:relative; border-left:2px solid transparent;
+  .sidebar-brand {
+    font-size:15px; font-weight:700; color:var(--text-1);
+    padding:4px 12px 14px; margin-bottom:8px; border-bottom:1px solid var(--border);
   }
-  .toc-list a:hover { color:var(--primary); border-left-color:var(--primary); }
-  .toc-list a.lvl2 { padding-left:28px; font-size:13px; color:var(--text-3); }
-  .toc-list a.lvl2:hover { color:var(--primary); }
+  .toc-nav { display:flex; flex-direction:column; gap:2px; }
+  .toc-link {
+    display:block; text-decoration:none; color:var(--text-2); font-size:14px;
+    padding:9px 12px; border-radius:6px; transition:all .2s; border-left:3px solid transparent;
+  }
+  .toc-link:hover { background:var(--primary-light); color:var(--primary); }
+  .toc-link.active {
+    background:var(--primary-light); color:var(--primary); font-weight:600; border-left-color:var(--primary);
+  }
+  .toc-sublink {
+    display:block; text-decoration:none; color:var(--text-3); font-size:13px;
+    padding:7px 12px 7px 28px; border-radius:6px; transition:all .2s;
+  }
+  .toc-sublink:hover { background:var(--primary-light); color:var(--primary); }
+  .toc-sublink.active { color:var(--primary); font-weight:600; background:var(--primary-light); }
 
   /* ---- Section Card ---- */
   .sec-card {
     background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow);
     padding:28px 32px; margin-bottom:24px;
   }
+  .view { display:none; }
+  .view.active { display:block; animation:fade .25s ease; }
+  @keyframes fade { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+
+  .content { flex:1; min-width:0; }
+  .content-head {
+    position:sticky; top:0; z-index:5; background:var(--bg); padding:10px 2px 14px;
+    font-size:15px; font-weight:700; color:var(--text-1);
+    border-bottom:1px solid var(--border); margin-bottom:22px;
+  }
+  .content-head .crumb { color:var(--primary); }
+
   .sec-card > h2 {
     font-size:19px; font-weight:700; color:var(--text-1);
     padding-bottom:12px; margin-bottom:18px; border-bottom:2px solid var(--bg);
@@ -85,7 +110,7 @@
   }
   .sec-card > h3 {
     font-size:16px; font-weight:600; color:var(--text-1); margin:22px 0 12px;
-    padding-left:14px; border-left:3px solid var(--primary);
+    padding-left:14px; border-left:3px solid var(--primary); scroll-margin-top:64px;
   }
   .sec-card > h4 {
     font-size:15px; font-weight:600; color:var(--text-2); margin:18px 0 10px;
@@ -161,12 +186,17 @@
     border-top:1px solid var(--border); margin-top:10px;
   }
 
-  @media(max-width:640px){
-    .doc-body { padding:0 12px; }
-    .toc-list { columns:1; }
+  @media(max-width:880px){
+    .layout { flex-direction:column; gap:14px; margin-top:16px; padding:0 14px; }
+    .sidebar { width:100%; position:static; max-height:none; }
+    .toc-nav { flex-direction:row; flex-wrap:wrap; gap:6px; }
+    .toc-link, .toc-sublink { padding:7px 12px; }
+    .toc-sublink { padding-left:12px; font-size:12.5px; }
+    .toc-link { border-left:none; }
+    .toc-link.active { border-left:none; }
+    .content-head { position:static; }
     .sec-card { padding:18px 18px; }
-    table { font-size:12px; }
-    table { display:block; overflow-x:auto; }
+    table { display:block; overflow-x:auto; font-size:12px; }
   }
 </style>
 </head>
@@ -183,34 +213,39 @@
   </div>
 </header>
 
-<div class="doc-body">
+<div class="layout">
 
-<!-- ===== TOC ===== -->
-<nav class="toc-card">
-  <h2>📑 目录</h2>
-  <ul class="toc-list">
-    <li><a href="#s1">一、文档概述</a></li>
-    <li><a href="#s2">二、范围</a></li>
-    <li><a href="#s3">三、业务流程</a></li>
-    <li><a href="#s4" class="lvl2">四、详细需求说明</a></li>
-    <li><a href="#s4-1" class="lvl2">　（一）频道管理模块</a></li>
-    <li><a href="#s4-2" class="lvl2">　（二）分类管理模块</a></li>
-    <li><a href="#s4-3" class="lvl2">　（三）条目管理模块</a></li>
-    <li><a href="#s4-4" class="lvl2">　（四）资源管理模块</a></li>
-    <li><a href="#s5">五、权限汇总</a></li>
-    <li><a href="#s6">六、数据字典</a></li>
-    <li><a href="#s7">七、状态机</a></li>
-  </ul>
-</nav>
+  <!-- ===== Sidebar / TOC ===== -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">📑 目录</div>
+    <nav class="toc-nav">
+      <a href="#s1"    class="toc-link"    data-view="s1">一、文档概述</a>
+      <a href="#s2"    class="toc-link"    data-view="s2">二、范围</a>
+      <a href="#s3"    class="toc-link"    data-view="s3">三、业务流程</a>
+      <a href="#s4"    class="toc-link"    data-view="s4">四、详细需求说明</a>
+      <a href="#s4-1"  class="toc-sublink" data-view="s4" data-anchor="s4-1">　（一）频道管理模块</a>
+      <a href="#s4-2"  class="toc-sublink" data-view="s4" data-anchor="s4-2">　（二）分类管理模块</a>
+      <a href="#s4-3"  class="toc-sublink" data-view="s4" data-anchor="s4-3">　（三）条目管理模块</a>
+      <a href="#s4-4"  class="toc-sublink" data-view="s4" data-anchor="s4-4">　（四）资源管理模块</a>
+      <a href="#s5"    class="toc-link"    data-view="s5">五、权限汇总</a>
+      <a href="#s6"    class="toc-link"    data-view="s6">六、数据字典</a>
+      <a href="#s7"    class="toc-link"    data-view="s7">七、状态机</a>
+      <a href="#s8"    class="toc-link"    data-view="s8">八、敏感字段</a>
+    </nav>
+  </aside>
+
+  <!-- ===== Content ===== -->
+  <main class="content">
+    <div class="content-head" id="contentHead"><span class="crumb">一、</span>文档概述</div>
 
 <!-- ===== 一、文档概述 ===== -->
-<section class="sec-card" id="s1">
+<section class="sec-card view active" id="s1">
   <h2><span class="num">一</span> 文档概述</h2>
   <p>本 PRD 基于 <a href="file:///d:/claudeCode/AIProject/ShitPM2/output/design/design.md"><code>design.md</code></a> 展开研发可评审的详细需求说明，覆盖资源中心管理后台一期<strong>"类目管理"</strong>下的频道管理、分类管理、条目管理三类子模块，以及<strong>"资源管理"</strong>下的资源列表子模块，共 9 个页面。字段、权限、状态以 design 为唯一事实源，本 PRD 只做交付镜像与规格展开。</p>
 </section>
 
 <!-- ===== 二、范围 ===== -->
-<section class="sec-card" id="s2">
+<section class="sec-card view" id="s2">
   <h2><span class="num">二</span> 范围</h2>
   <ul>
     <li><strong>一期页面：</strong>频道列表页、频道新增/编辑页、分类列表页、分类新增/编辑页、条目管理·分类管理 Tab、条目管理·分类条目管理 Tab、资源列表页、资源新增/编辑页</li>
@@ -220,12 +255,12 @@
 </section>
 
 <!-- ===== 三、业务流程 ===== -->
-<section class="sec-card" id="s3">
+<section class="sec-card view" id="s3">
   <h2><span class="num">三</span> 业务流程</h2>
   <p>管理员按"<strong>父频道 → 子频道 → 分类 → 维度配置</strong>"顺序搭建类目体系，最终通过上架把类目下发给已有应用端消费。</p>
 
   <div class="flow-step"><span class="step-num">1</span><div class="step-body">管理员创建父频道，通过"是否在资源中心展示"字段决定该父频道是否在资源中心露出；根据需要在父频道下新增子频道（层级最多两级，子频道不可再挂子频道）。</div></div>
-  <div class="flow-step"><span class="step-num">2</span><div class="step-body">管理员在子频道下创建一级分类与子分类，分类完成上架后应用端可获取；新增与编辑分类时均需按所属子频道列出的全部类目逐类目勾选类目条目（必填，该子频道下无类目时豁免）。</div></div>
+  <div class="flow-step"><span class="step-num">2</span><div class="step-body">管理员在子频道下创建一级分类与子分类，分类完成上架后应用端可获取；新增与编辑一级分类时按所属子频道列出的全部类目逐类目勾选类目条目（必填，该子频道下无类目时豁免）；新增/编辑子分类（二级）时仅挂靠父分类，无需关联类目条目。</div></div>
   <div class="flow-step"><span class="step-num">3</span><div class="step-body">管理员在"条目管理·维度配置"中按"所属频道"（级联到子频道）维护分类维度与维度条目，维度条目完成上架后应用端按配置动态渲染筛选视图。</div></div>
   <div class="flow-step"><span class="step-num">4</span><div class="step-body">管理员在"资源管理·资源列表"中通过三步式表单新增资源（基本信息 / 资源正文 / 发布设置），资源的"所属频道"通过级联父频道→子频道选择；可选择"提交"（未发布）或"提交并发布"（已发布）；提交时系统先对资源标题、简介、正文执行机器敏感词过滤，通过则允许发布、命中违规词则不可发布，仅可以"未发布"状态保存并提示修改；列表支持发布、下架、编辑、删除、预览。</div></div>
 
@@ -242,7 +277,7 @@
 </section>
 
 <!-- ===== 四、详细需求说明 ===== -->
-<section class="sec-card" id="s4">
+<section class="sec-card view" id="s4">
   <h2><span class="num">四</span> 详细需求说明</h2>
 
   <!-- （一）频道管理模块 -->
@@ -336,10 +371,10 @@
   <p>点击右上角"新增一级分类"按钮进入新增页，"所属频道"必选（单个级联输入框，父频道→子频道，仅二级子频道可选中），"父分类"字段不出现；选定所属频道后按该子频道列出所有类目及类目条目供勾选（必填）。保存成功后树刷新并定位到新增记录，行首图标为一级节点。</p>
 
   <p><strong>（3）添加子分类</strong></p>
-  <p>在某个一级分类或已展开的子分类行尾点击"添加子分类"按钮进入新增页，"父分类"字段自动填入当前节点并置为只读，"所属频道"自动继承父节点并置为只读；按该子频道列出所有类目及类目条目供勾选（必填）。保存成功后自动展开父节点并定位到新增子分类。</p>
+  <p>在某个一级分类或已展开的子分类行尾点击"添加子分类"按钮进入新增页，"父分类"字段自动填入当前节点并置为只读，"所属频道"自动继承父节点并置为只读；不展示类目及类目条目字段（子分类无需关联类目条目）。保存成功后自动展开父节点并定位到新增子分类。</p>
 
   <p><strong>（4）编辑分类</strong></p>
-  <p>点击行尾"编辑"按钮以该行数据初始化编辑页。"所属频道""父分类"允许编辑（编辑时若变更所属频道，需提示"变更所属频道将同时移动其子分类，是否继续？"）；展示"类目及类目条目"项并回填该分类已勾选的类目条目（可继续增删）。保存成功后按当前筛选条件刷新树。</p>
+  <p>点击行尾"编辑"按钮以该行数据初始化编辑页。"所属频道""父分类"允许编辑（编辑时若变更所属频道，需提示"变更所属频道将同时移动其子分类，是否继续？"）；一级分类展示"类目及类目条目"项并回填已勾选类目条目（可继续增删），子分类不展示此字段。保存成功后按当前筛选条件刷新树。</p>
 
   <p><strong>（5）上架分类</strong></p>
   <p>点击行尾"上架"按钮弹出二次确认框，标题为"确认上架分类？"，正文提示"上架后应用端可获取该分类"。确认后后端更新"上架状态"为"已上架"并同步至应用端。</p>
@@ -365,7 +400,7 @@
   </ul>
 
   <p><strong>（8）展示字段说明</strong></p>
-  <p>树形列表展示：分类图标（缩略图，48×48 显示，加载失败占位）、分类名称、分类编码（<code>code</code> 样式等宽字体展示）、所属频道（跨节点固定展示，展示为"父频道 / 子频道"两级名称）、上架状态（<span class="tag tag-gray">未上架</span>灰色标签、<span class="tag tag-green">已上架</span>绿色标签）、分类描述（末尾截断，悬停显示全文）、排序、修改时间、操作列。</p>
+  <p>树形列表展示：分类名称、分类编码（<code>code</code> 样式等宽字体展示）、所属频道（跨节点固定展示，展示为"父频道 / 子频道"两级名称）、上架状态（<span class="tag tag-gray">未上架</span>灰色标签、<span class="tag tag-green">已上架</span>绿色标签）、分类描述（末尾截断，悬停显示全文）、排序、修改时间、操作列。</p>
   <ul>
     <li>树形节点默认收起至一级分类；一级分类前的展开箭头在无子分类时隐藏。</li>
     <li>单次展开的子分类总数超过 200 时提示"子分类过多，建议使用筛选缩小范围"。</li>
@@ -377,8 +412,8 @@
   <p>表单按信息分组展示：</p>
   <ul>
     <li><strong>归属信息（必填）：</strong>所属频道（单个级联输入框，交互同资源"所属分类"：先选父频道再选子频道，最终存储二级子频道ID）、父分类（新增子分类和编辑子分类时展示为只读，新增一级分类时不出现）</li>
-    <li><strong>基本信息（必填）：</strong>分类名称、分类编码、分类图标（图片选择器，尺寸 64×64，大小 ≤100KB）、分类图片（图片选择器，大小 ≤300KB）、排序</li>
-    <li><strong>类目条目（必填）：</strong>类目及类目条目（新增与编辑均展示；按当前"所属频道"列出该子频道下所有类目及各类目条目，展示形态同资源表单——逐类目一行、条目为多选复选框；用户逐类目勾选；未选所属频道时提示"请先选择所属频道"）</li>
+    <li><strong>基本信息（必填）：</strong>分类名称、分类编码、排序</li>
+    <li><strong>类目条目（仅一级/顶级分类必填）：</strong>类目及类目条目（仅一级/顶级分类展示；按当前"所属频道"列出该子频道下所有类目及各类目条目，展示形态同资源表单——逐类目一行、条目为多选复选框；用户逐类目勾选；未选所属频道时提示"请先选择所属频道"。二级/子分类不展示此类目条目字段）</li>
     <li><strong>补充信息（选填）：</strong>分类描述</li>
   </ul>
   <p><strong>字段校验规则：</strong></p>
@@ -386,11 +421,9 @@
     <li>所属频道：必填，为空时提示"请选择所属频道"；级联选择时必须选到二级（子频道）后方可提交（R-CH-20）。</li>
     <li>分类名称：必填，最长 20 字符。</li>
     <li>分类编码：必填，最长 10 字符，不允许输入中文，实时过滤中文字符并提示"分类编码不支持中文"。</li>
-    <li>分类图标：必填，尺寸不满足 64×64 时提示"图标尺寸需为 64×64 像素"；超 100KB 时提示"图标大小不得超过 100KB"。</li>
-    <li>分类图片：必填，超 300KB 时提示"图片大小不得超过 300KB"。</li>
-    <li>排序：必填，非负整数。</li>
-    <li>分类描述：选填，最长 200 字符。</li>
-    <li>类目及类目条目：必填，新增与编辑分类均展示；按当前"所属频道"列出该子频道下全部类目与条目，须至少完成勾选后方可提交，为空时提示"请选择类目及类目条目"（该子频道下无任何类目时豁免必填）（R-CH-21）。</li>
+      <li>排序：必填，非负整数。</li>
+      <li>分类描述：选填，最长 200 字符。</li>
+      <li>类目及类目条目：必填，仅一级/顶级分类展示并须至少完成勾选后方可提交，为空时提示"请选择类目及类目条目"（该子频道下无任何类目时豁免必填；二级/子分类不展示此字段）（R-CH-21）。</li>
   </ul>
   <p><strong>（2）保存分类</strong></p>
   <p>校验时机与保存流程与频道保存一致。变更"所属频道"提交时后端可能返回"存在编码冲突"，此时在表单顶部展示后端错误并保留当前输入。新增子分类时"父分类"和"所属频道"为只读，保存时随请求一并提交。</p>
@@ -645,7 +678,7 @@
 </section><!-- end 四 -->
 
 <!-- ===== 五、权限汇总 ===== -->
-<section class="sec-card" id="s5">
+<section class="sec-card view" id="s5">
   <h2><span class="num">五</span> 权限汇总</h2>
   <p>本期只有"后台管理员"一个角色，且无字段级权限例外，权限口径按页面级和按钮级展开：</p>
   <table>
@@ -667,7 +700,7 @@
 </section>
 
 <!-- ===== 六、数据字典 ===== -->
-<section class="sec-card" id="s6">
+<section class="sec-card view" id="s6">
   <h2><span class="num">六</span> 数据字典</h2>
   <p>按实体分组，字段来源与语义以 design 为准，本节仅镜像研发需要的核心属性。</p>
 
@@ -697,10 +730,8 @@
       <tr><td>父分类</td><td>ref</td><td>否</td><td>引用分类ID；为空表示一级分类，非空为子分类</td></tr>
       <tr><td>分类名称</td><td>string</td><td>是</td><td>最长 20 字符</td></tr>
       <tr><td>分类编码</td><td>string</td><td>是</td><td>最长 10 字符，不允许中文</td></tr>
-      <tr><td>分类图标</td><td>image</td><td>是</td><td>尺寸 64×64 像素，大小 ≤100KB</td></tr>
-      <tr><td>分类图片</td><td>image</td><td>是</td><td>大小 ≤300KB</td></tr>
       <tr><td>分类描述</td><td>text</td><td>否</td><td>最长 200 字符</td></tr>
-      <tr><td>类目及类目条目</td><td>ref[]</td><td>是</td><td>引用维度条目ID 数组；新增与编辑分类均展示；按当前"所属频道"列出该子频道下所有类目及各类目条目；必填、多选（该子频道无类目时豁免）（R-CH-21）</td></tr>
+      <tr><td>类目及类目条目</td><td>ref[]</td><td>是</td><td>引用维度条目ID 数组；仅一级/顶级分类展示；按当前"所属频道"列出该子频道下所有类目及各类目条目；必填、多选（该子频道无类目时豁免；二级/子分类不展示此字段）（R-CH-21）</td></tr>
       <tr><td>排序</td><td>integer</td><td>是</td><td>非负整数</td></tr>
       <tr><td>上架状态</td><td>enum</td><td>是</td><td>枚举："未上架" / "已上架"，默认"未上架"；系统由上/下架动作驱动</td></tr>
       <tr><td>修改时间</td><td>datetime</td><td>是</td><td>ISO-8601；系统生成</td></tr>
@@ -780,7 +811,7 @@
 </section>
 
 <!-- ===== 七、状态机 ===== -->
-<section class="sec-card" id="s7">
+<section class="sec-card view" id="s7">
   <h2><span class="num">七</span> 状态机</h2>
 
   <h4>（一）分类状态机</h4>
@@ -831,12 +862,81 @@
     <li>限制：<span class="tag tag-red">"已发布"状态下禁止删除，需先下架为"未发布"</span>；"未发布"状态下可删除</li>
   </ul>
 </section>
+<section class="sec-card view" id="s8">
+  <h2><span class="num">八</span> 敏感字段</h2>
+  <p>本平台所有"用户输入类文本"在落库与对外发布前均需经机器敏感词过滤，监管与社区规范口径参考微博、小红书等主流内容平台。以下为受敏感词过滤约束的敏感字段清单，以及敏感内容的分类。</p>
+  <h4>敏感字段清单</h4>
+  <table>
+    <thead><tr><th>模块</th><th>敏感字段</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td>频道管理</td><td>频道名称、频道描述</td><td>保存与在资源中心展示前过滤</td></tr>
+      <tr><td>分类管理</td><td>分类名称、分类描述</td><td>一级/二级分类均过滤</td></tr>
+      <tr><td>条目管理</td><td>维度名称、维度条目名称</td><td>上架前过滤</td></tr>
+      <tr><td>资源管理</td><td>资源标题、资源简介、资源正文</td><td>提交时匹配敏感词库；机器审核结果=违规时不许发布</td></tr>
+    </tbody>
+  </table>
+  <h4>敏感内容分类（参考微博/小红书监管口径）</h4>
+  <table>
+    <thead><tr><th>分类</th><th>说明</th><th>典型示例</th></tr></thead>
+    <tbody>
+      <tr><td>涉政违规</td><td>国家领导人/党政军机关不当表述、分裂国家、反动言论</td><td>以监管最新清单为准，不在文档枚举具体词面</td></tr>
+      <tr><td>色情低俗</td><td>涉性暗示、淫秽描述、低俗诱导</td><td>涉黄代称、约炮、裸聊等</td></tr>
+      <tr><td>暴恐血腥</td><td>暴力、恐怖、自残、血腥描述</td><td>砍杀、自杀教程、血腥图等</td></tr>
+      <tr><td>赌博彩票</td><td>赌博、私彩、博彩平台</td><td>网络赌博、私彩、博彩 APP</td></tr>
+      <tr><td>诈骗与违禁广告</td><td>刷单兼职、贷款诈骗、假证、违禁品售卖、导流外链</td><td>刷单返利、办证、外链导流</td></tr>
+      <tr><td>侮辱谩骂</td><td>人身攻击、地域歧视、脏话</td><td>各类辱骂词、地域黑</td></tr>
+      <tr><td>隐私侵权（PII）</td><td>手机号、身份证号、银行卡号等明文</td><td>11 位手机号、18 位身份证号</td></tr>
+      <tr><td>虚假医疗健康</td><td>未经证实疗效、药品违规宣传</td><td>包治百病、偏方神药</td></tr>
+      <tr><td>未成年人保护</td><td>诱导未成年人不良信息</td><td>不良交友、危险挑战</td></tr>
+    </tbody>
+  </table>
+</section>
 
-</div><!-- end doc-body -->
+
+  </main>
+</div><!-- end layout -->
 
 <footer class="doc-footer">
   PRD 正文 · 资源中心管理后台 · V1.0
 </footer>
+
+<script>
+  (function () {
+    var tocLinks = document.querySelectorAll('.toc-link, .toc-sublink');
+    var views = document.querySelectorAll('.view');
+    var head = document.getElementById('contentHead');
+
+    function showView(viewId, anchor) {
+      views.forEach(function (v) { v.classList.toggle('active', v.id === viewId); });
+      tocLinks.forEach(function (l) { l.classList.remove('active'); });
+      var topLink = document.querySelector('.toc-link[data-view="' + viewId + '"]');
+      if (topLink) topLink.classList.add('active');
+      if (anchor) {
+        var a = document.getElementById(anchor);
+        if (a) a.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    tocLinks.forEach(function (link) {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        var viewId = link.getAttribute('data-view');
+        var anchor = link.getAttribute('data-anchor');
+        showView(viewId, anchor);
+        if (head) {
+          var txt = link.textContent.trim();
+          if (link.classList.contains('toc-sublink')) {
+            head.textContent = txt;
+          } else {
+            head.innerHTML = '<span class="crumb">' + txt.charAt(0) + '、</span>' + txt.slice(2);
+          }
+        }
+      });
+    });
+  })();
+</script>
 
 </body>
 </html>

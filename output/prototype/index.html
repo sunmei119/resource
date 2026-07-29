@@ -1116,14 +1116,6 @@
         <el-form-item label="分类编码" required>
           <el-input v-model="categoryForm.data.code" maxlength="10" show-word-limit></el-input>
         </el-form-item>
-        <el-form-item label="分类图标" required>
-          <el-button>选择图片</el-button>
-          <span style="margin-left:8px;color:#86909c;font-size:12px;">尺寸 64×64，大小 ≤100KB</span>
-        </el-form-item>
-        <el-form-item label="分类图片" required>
-          <el-button>选择图片</el-button>
-          <span style="margin-left:8px;color:#86909c;font-size:12px;">大小 ≤300KB</span>
-        </el-form-item>
         <el-form-item label="排序" required>
           <el-input v-model="categoryForm.data.order"></el-input>
         </el-form-item>
@@ -1133,7 +1125,7 @@
         <el-form-item label="分类描述">
           <el-input v-model="categoryForm.data.desc" type="textarea" maxlength="200" show-word-limit rows="3"></el-input>
         </el-form-item>
-        <el-form-item label="类目条目" required>
+        <el-form-item label="类目条目" required v-if="categoryForm.mode !== 'child'">
           <div style="width:100%;">
             <div v-if="!categoryForm.data.subChannelId" style="color:#a1a7b3;font-size:12px;">请先选择所属频道，再勾选类目及类目条目</div>
             <template v-else>
