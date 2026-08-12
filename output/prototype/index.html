@@ -659,7 +659,7 @@
                       <div class="biz-card-actions">
                         <el-button @click="showConfirm('批量上架所选条目？', '上架后应用端筛选视图渲染这些条目')">批量上架</el-button>
                         <el-button @click="showConfirm('批量下架所选条目？', '下架后应用端不再渲染这些条目')">批量下架</el-button>
-                        <el-button @click="showConfirm('批量删除所选条目？', '已上架条目将不被删除')">批量删除</el-button>
+                        <el-button @click="showConfirm('批量删除所选条目？', '已上架或存在子条目的条目将不被删除')">批量删除</el-button>
                         <el-button type="primary" :disabled="!dimItemFilter.dimId" @click="openDimItemForm('create')">新增类目条目</el-button>
                       </div>
                     </div>
@@ -692,7 +692,7 @@
                             <el-button size="small" text type="primary" @click="openDimItemForm('edit', row)">编辑</el-button>
                             <el-button v-if="row.status === '未上架'" size="small" text type="success" @click="showConfirm('确认上架类目条目？', '上架后应用端筛选视图渲染该条目')">上架</el-button>
                             <el-button v-else size="small" text type="warning" @click="showConfirm('确认下架类目条目？', '下架后应用端不再渲染该条目')">下架</el-button>
-                            <el-button size="small" text type="danger" :disabled="row.status === '已上架'" @click="showConfirm('确认删除类目条目？', '删除后不可恢复。已上架类目条目不允许删除，请先下架')">删除</el-button>
+                            <el-button size="small" text type="danger" :disabled="row.status === '已上架' || row.children.length" @click="showConfirm('确认删除条目？', '删除后不可恢复。若条目下存在子条目，则条目无法删除')">删除</el-button>
                             <el-button size="small" text type="primary" @click="openSubItemForm(row)">新增子条目</el-button>
                           </span>
                         </div>
