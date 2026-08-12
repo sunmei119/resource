@@ -1141,9 +1141,17 @@
               <el-checkbox-group v-model="categoryForm.data.dimItemMap[dim.id]">
                 <el-checkbox v-for="it in itemsOfDim(dim.id)" :key="it.id" :value="it.id">{{ it.name }}</el-checkbox>
               </el-checkbox-group>
+              <div v-for="it in itemsOfDim(dim.id)" :key="'s' + it.id">
+                <div v-if="categoryForm.data.dimItemMap[dim.id].includes(it.id) && subItemsOf(it).length" style="margin:2px 0 4px 24px;border-left:1px dashed #dcdcdc;padding-left:10px;">
+                  <div style="color:#86909c;font-size:12px;margin-bottom:2px;">{{ it.name }}的子条目（仅展示已上架）</div>
+                  <el-checkbox-group v-model="categoryForm.data.dimSubMap[dim.id][it.id]">
+                    <el-checkbox v-for="s in subItemsOf(it)" :key="s.id" :value="s.id">{{ s.name }}</el-checkbox>
+                  </el-checkbox-group>
+                </div>
+              </div>
               <span v-if="!itemsOfDim(dim.id).length" style="color:#a1a7b3;font-size:12px;">该类目下暂无已上架类目条目</span>
             </div>
-            <div style="color:#86909c;font-size:12px;margin-top:4px;">展示所属频道下所有类目及类目条目，逐类目勾选；该频道下存在已上架类目条目时为必填，无任何类目条目时非必填</div>
+            <div style="color:#86909c;font-size:12px;margin-top:4px;">展示所属频道下所有类目及类目条目，逐类目勾选；勾选条目后若存在已上架子条目，展示子条目并可继续勾选；该频道下存在已上架类目条目时为必填，无任何类目条目时非必填</div>
           </div>
         </el-form-item>
       </el-form>
@@ -1413,7 +1421,7 @@
           ],
           categoryFilter: { parentChannelId: '', subChannelId: '', name: '', status: '' },
           categoryRows: [
-            { id: 'CT001', name: '语文', code: 'CHINESE', subChannelId: 'CH001-1', status: '已上架', desc: '语文学科分类', order: 10, updatedAt: '2026-06-10 10:30:00', level: 0, parentId: '', hasChildren: true, expanded: true, dimItemMap: { DIM01: ['DI001'], DIM02: ['DI101', 'DI102'] } },
+            { id: 'CT001', name: '语文', code: 'CHINESE', subChannelId: 'CH001-1', status: '已上架', desc: '语文学科分类', order: 10, updatedAt: '2026-06-10 10:30:00', level: 0, parentId: '', hasChildren: true, expanded: true, dimItemMap: { DIM01: ['DI001'], DIM02: ['DI101', 'DI102'] }, dimSubMap: { DIM01: { DI001: ['SUB001'] } } },
             { id: 'CT002', name: '现代文', code: 'MODERN', subChannelId: 'CH001-1', status: '已上架', desc: '现代文子分类', order: 10, updatedAt: '2026-06-10 10:35:00', level: 1, parentId: 'CT001', hasChildren: false, expanded: false, dimItemMap: { DIM01: ['DI002'] } },
             { id: 'CT003', name: '古诗文', code: 'ANCIENT', subChannelId: 'CH001-1', status: '未上架', desc: '古诗文子分类', order: 20, updatedAt: '2026-06-10 10:40:00', level: 1, parentId: 'CT001', hasChildren: false, expanded: false, dimItemMap: {} },
             { id: 'CT004', name: '数学', code: 'MATH', subChannelId: 'CH001-2', status: '未上架', desc: '数学学科分类', order: 20, updatedAt: '2026-06-11 08:00:00', level: 0, parentId: '', hasChildren: false, expanded: false, dimItemMap: {} }
@@ -1424,7 +1432,7 @@
           },
           categoryForm: {
             visible: false, mode: 'create',
-            data: { parentChannelId: '', subChannelId: '', parentName: '', name: '', code: '', order: '', desc: '', dimItemMap: {} }
+            data: { parentChannelId: '', subChannelId: '', parentName: '', name: '', code: '', order: '', desc: '', dimItemMap: {}, dimSubMap: {} }
           },
           dimTab: 'P07',
           dimFilter: { parentChannelId: '', subChannelId: '', name: '', status: '' },
@@ -1666,18 +1674,9 @@
           this.resForm.data.itemMap = map;
         },
         'categoryForm.data.subChannelId'() {
-          // 按当前所属频道下的类目重建条目多选槽位：
-          // 保留仍属于该子频道类目的已选条目，切换到其它子频道时旧选择自动失效
-          const dims = this.dimsOfSubChannel(this.categoryForm.data.subChannelId);
-          const validDimIds = dims.map(d => d.id);
-          const old = this.categoryForm.data.dimItemMap || {};
-          const next = {};
-          dims.forEach(d => {
-            next[d.id] = Array.isArray(old[d.id]) ? old[d.id].slice() : [];
-          });
-          // 丢弃不属于当前子频道的历史选择（validDimIds 用于语义标注）
-          void validDimIds;
-          this.categoryForm.data.dimItemMap = next;
+          // 按当前所属频道下的类目重建条目/子条目多选槽位：
+          // 保留仍属于该子频道类目的已选条目与已选子条目，切换到其它子频道时旧选择自动失效
+          this.syncCategoryItemSlots();
         }
       },
       methods: {
@@ -1766,18 +1765,45 @@
             this.categoryForm.data = {
               parentChannelId: resolveParent(row.subChannelId), subChannelId: row.subChannelId || '',
               parentName: '', name: row.name, code: row.code, order: row.order, desc: row.desc,
-              dimItemMap: row.dimItemMap ? { ...row.dimItemMap } : {}
+              dimItemMap: row.dimItemMap ? { ...row.dimItemMap } : {},
+              dimSubMap: row.dimSubMap ? JSON.parse(JSON.stringify(row.dimSubMap)) : {}
             };
           } else if (mode === 'child' && row) {
             // 添加子分类：继承父节点的所属频道并只读
             this.categoryForm.data = {
               parentChannelId: resolveParent(row.subChannelId), subChannelId: row.subChannelId || '',
-              parentName: row.name, name: '', code: '', order: '', desc: '', dimItemMap: {}
+              parentName: row.name, name: '', code: '', order: '', desc: '', dimItemMap: {}, dimSubMap: {}
             };
           } else {
-            this.categoryForm.data = { parentChannelId: '', subChannelId: '', parentName: '', name: '', code: '', order: '', desc: '', dimItemMap: {} };
+            this.categoryForm.data = { parentChannelId: '', subChannelId: '', parentName: '', name: '', code: '', order: '', desc: '', dimItemMap: {}, dimSubMap: {} };
           }
+          // 按当前子频道重建条目/子条目多选槽位（编辑回填时仅保留已上架子条目）
+          this.syncCategoryItemSlots();
           this.categoryForm.visible = true;
+        },
+        syncCategoryItemSlots() {
+          const dims = this.dimsOfSubChannel(this.categoryForm.data.subChannelId);
+          const old = this.categoryForm.data.dimItemMap || {};
+          const oldSub = this.categoryForm.data.dimSubMap || {};
+          const next = {};
+          const nextSub = {};
+          dims.forEach(d => {
+            next[d.id] = Array.isArray(old[d.id]) ? old[d.id].slice() : [];
+            nextSub[d.id] = {};
+            this.itemsOfDim(d.id).forEach(it => {
+              const validSubIds = this.subItemsOf(it).map(s => s.id);
+              const m = oldSub[d.id];
+              const sel = (m && Array.isArray(m[it.id])) ? m[it.id] : [];
+              // 仅保留当前条目下已上架的子条目选择
+              nextSub[d.id][it.id] = sel.filter(id => validSubIds.includes(id));
+            });
+          });
+          this.categoryForm.data.dimItemMap = next;
+          this.categoryForm.data.dimSubMap = nextSub;
+        },
+        subItemsOf(item) {
+          // 仅返回已上架的子条目（分类弹窗按已上架子条目展示与勾选）
+          return item && Array.isArray(item.children) ? item.children.filter(s => s.status === '已上架') : [];
         },
         itemsOfDim(dimId) {
           return this.dimItemRows.filter(x => x.dimId === dimId && x.status === '已上架');
