@@ -1125,22 +1125,16 @@
         <el-form-item label="分类描述">
           <el-input v-model="categoryForm.data.desc" type="textarea" maxlength="200" show-word-limit rows="3"></el-input>
         </el-form-item>
-        <el-form-item label="类目条目" required v-if="categoryForm.mode !== 'child'">
+        <el-form-item label="类目条目" required v-if="categoryForm.mode !== 'child' && categoryForm.data.subChannelId && dimsOfSubChannel(categoryForm.data.subChannelId).length">
           <div style="width:100%;">
-            <div v-if="!categoryForm.data.subChannelId" style="color:#a1a7b3;font-size:12px;">请先选择所属频道，再勾选类目及类目条目</div>
-            <template v-else>
-              <div v-for="dim in dimsOfSubChannel(categoryForm.data.subChannelId)" :key="dim.id" style="margin-bottom:8px;">
-                <div style="color:#4e5969;font-size:13px;margin-bottom:4px;">{{ dim.name }}</div>
-                <el-checkbox-group v-model="categoryForm.data.dimItemMap[dim.id]">
-                  <el-checkbox v-for="it in itemsOfDim(dim.id)" :key="it.id" :value="it.id">{{ it.name }}</el-checkbox>
-                </el-checkbox-group>
-                <span v-if="!itemsOfDim(dim.id).length" style="color:#a1a7b3;font-size:12px;">该类目下暂无已上架类目条目</span>
-              </div>
-              <div v-if="!dimsOfSubChannel(categoryForm.data.subChannelId).length" style="color:#a1a7b3;font-size:12px;">
-                当前所属频道下暂无已上架类目，可先在条目管理中维护
-              </div>
-            </template>
-            <div style="color:#86909c;font-size:12px;margin-top:4px;">展示所属频道下所有类目及类目条目，逐类目勾选；必填</div>
+            <div v-for="dim in dimsOfSubChannel(categoryForm.data.subChannelId)" :key="dim.id" style="margin-bottom:8px;">
+              <div style="color:#4e5969;font-size:13px;margin-bottom:4px;">{{ dim.name }}</div>
+              <el-checkbox-group v-model="categoryForm.data.dimItemMap[dim.id]">
+                <el-checkbox v-for="it in itemsOfDim(dim.id)" :key="it.id" :value="it.id">{{ it.name }}</el-checkbox>
+              </el-checkbox-group>
+              <span v-if="!itemsOfDim(dim.id).length" style="color:#a1a7b3;font-size:12px;">该类目下暂无已上架类目条目</span>
+            </div>
+            <div style="color:#86909c;font-size:12px;margin-top:4px;">展示所属频道下所有类目及类目条目，逐类目勾选；该频道下存在已上架类目条目时为必填，无任何类目条目时非必填</div>
           </div>
         </el-form-item>
       </el-form>
