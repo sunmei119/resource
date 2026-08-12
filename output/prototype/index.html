@@ -703,7 +703,7 @@
                               <span class="c-toggle" @click="sub.items.length && (sub.expanded = !sub.expanded)">{{ sub.items.length ? (sub.expanded ? '▾' : '▸') : '' }}</span>
                               <span class="c-check"></span>
                               <span class="c-name" style="padding-left:24px;">{{ sub.name }}</span>
-                              <span class="c-order"></span>
+                              <span class="c-order">{{ sub.order }}</span>
                               <span class="c-status">
                                 <el-tag v-if="sub.status === '已上架'" type="success">已上架</el-tag>
                                 <el-tag v-else type="info">未上架</el-tag>
@@ -1212,6 +1212,9 @@
         <el-form-item label="子条目名称" required>
           <el-input v-model="subItemForm.data.name" maxlength="20" show-word-limit placeholder="请输入子条目名称"></el-input>
         </el-form-item>
+        <el-form-item label="子条目排序" required>
+          <el-input v-model="subItemForm.data.order" placeholder="请输入子条目排序（非负整数）" style="width:240px;"></el-input>
+        </el-form-item>
         <el-form-item label="子条目项">
           <div style="width:100%;">
             <div v-for="(item, idx) in subItemForm.data.items" :key="item.id" style="display:flex;gap:10px;align-items:center;margin-bottom:10px;">
@@ -1425,11 +1428,11 @@
           dimItemFilter: { dimId: '', name: '', status: '' },
           dimItemRows: [
             { id: 'DI001', dimId: 'DIM01', name: '小学', order: 10, status: '已上架', createdAt: '2026-06-12 10:00:00', updatedAt: '2026-06-12 10:00:00', refCount: 1, expanded: true, children: [
-              { id: 'SUB001', name: '小学部', status: '已上架', expanded: true, items: [
+              { id: 'SUB001', name: '小学部', order: 10, status: '已上架', expanded: true, items: [
                 { id: 'SI001', name: '一年级小学部', order: 1 },
                 { id: 'SI002', name: '二年级小学部', order: 2 }
               ] },
-              { id: 'SUB002', name: '实验校区', status: '未上架', expanded: false, items: [
+              { id: 'SUB002', name: '实验校区', order: 20, status: '未上架', expanded: false, items: [
                 { id: 'SI003', name: '三年级实验班', order: 1 }
               ] }
             ] },
@@ -1815,11 +1818,11 @@
           if (sub) {
             this.subItemForm.mode = 'edit';
             this.subItemForm.editingSubId = sub.id;
-            this.subItemForm.data = { name: sub.name, items: sub.items.map(it => ({ ...it })) };
+            this.subItemForm.data = { name: sub.name, order: sub.order, items: sub.items.map(it => ({ ...it })) };
           } else {
             this.subItemForm.mode = 'create';
             this.subItemForm.editingSubId = '';
-            this.subItemForm.data = { name: '', items: [] };
+            this.subItemForm.data = { name: '', order: '', items: [] };
           }
           this.subItemForm.visible = true;
         },
@@ -1836,6 +1839,15 @@
             this.showConfirm('提示', '子条目名称为必填项');
             return;
           }
+          const order = this.subItemForm.data.order;
+          if (order === '' || order === null || order === undefined) {
+            this.showConfirm('提示', '子条目排序为必填项');
+            return;
+          }
+          if (!/^\d+$/.test(String(order).trim())) {
+            this.showConfirm('提示', '子条目排序需为非负整数');
+            return;
+          }
           for (const it of this.subItemForm.data.items) {
             if (!it.name || !it.name.trim()) { this.showConfirm('提示', '子条目项中「条目名称」为必填项'); return; }
             if (it.order === '' || it.order === null || it.order === undefined) { this.showConfirm('提示', '子条目项中「排序」为必填项'); return; }
@@ -1843,9 +1855,9 @@
           const items = this.subItemForm.data.items.map(it => ({ id: it.id, name: it.name, order: it.order }));
           if (this.subItemForm.mode === 'edit') {
             const target = parent.children.find(s => s.id === this.subItemForm.editingSubId);
-            if (target) { target.name = this.subItemForm.data.name; target.items = items; }
+            if (target) { target.name = this.subItemForm.data.name; target.order = order; target.items = items; }
           } else {
-            parent.children.push({ id: 'SUB' + Date.now(), name: this.subItemForm.data.name, status: '未上架', expanded: false, items });
+            parent.children.push({ id: 'SUB' + Date.now(), name: this.subItemForm.data.name, order: order, status: '未上架', expanded: false, items });
             parent.expanded = true;
           }
           this.subItemForm.visible = false;
