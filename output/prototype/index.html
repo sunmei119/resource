@@ -315,6 +315,254 @@
     .biz-subitem-row .si-order { color: #86909c; font-size: 12px; white-space: nowrap; }
     .biz-subitem-row .si-status { white-space: nowrap; }
     .biz-subitem-row .si-actions { margin-left: auto; }
+
+    /* ===== P12 资源中心门户 ===== */
+    .portal { position: fixed; inset: 0; z-index: 2000; background: #f5f6f8; overflow-y: auto; }
+    .portal-nav { position: sticky; top: 0; z-index: 10; background: #fff; border-bottom: 1px solid #ebeef5; box-shadow: 0 2px 8px rgba(31,35,41,.05); }
+    .portal-nav-inner { max-width: 1200px; margin: 0 auto; height: 64px; display: flex; align-items: center; gap: 24px; padding: 0 20px; }
+    .portal-brand { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+    .portal-brand-mark { width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg,#1779F6,#4b96f8); color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .portal-brand-name { font-size: 17px; font-weight: 600; color: #1f2329; }
+    .portal-nav-links { display: flex; gap: 22px; flex: 1 1 auto; }
+    .portal-nav-link { font-size: 14px; color: #4e5969; cursor: pointer; padding: 4px 0; border-bottom: 2px solid transparent; }
+    .portal-nav-link:hover { color: #1779F6; }
+    .portal-nav-link.is-active { color: #1779F6; border-bottom-color: #1779F6; font-weight: 500; }
+    .portal-nav-right { display: flex; align-items: center; gap: 12px; flex: 0 0 auto; }
+    .portal-search { position: relative; }
+    .portal-search input { width: 220px; height: 34px; border: 1px solid #dcdfe6; border-radius: 17px; padding: 0 34px 0 14px; font-size: 13px; outline: none; }
+    .portal-search input:focus { border-color: #1779F6; }
+    .portal-search-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 13px; color: #a1a7b3; }
+    .portal-user-toggle { display: flex; align-items: center; gap: 6px; padding: 4px 10px; background: #f7f8fa; border: 1px dashed #d9dde3; border-radius: 16px; }
+    .portal-user-toggle-label { font-size: 12px; color: #86909c; }
+    .portal-login-btn { border-radius: 16px; }
+
+    .portal-body { max-width: 1200px; margin: 0 auto; padding: 0 20px 40px; }
+    .portal-banner { margin: 20px 0; border-radius: 14px; background: linear-gradient(120deg,#1779F6 0%,#4b96f8 55%,#74aefa 100%); padding: 46px 40px; color: #fff; }
+    .portal-banner-title { margin: 0 0 10px; font-size: 32px; font-weight: 600; }
+    .portal-banner-sub { margin: 0; font-size: 15px; opacity: .9; }
+
+    .portal-entries { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 32px; }
+    .portal-entry { background: #fff; border-radius: 12px; padding: 20px 12px; text-align: center; cursor: pointer; box-shadow: 0 2px 10px rgba(31,35,41,.06); transition: transform .15s, box-shadow .15s; }
+    .portal-entry:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(31,35,41,.12); }
+    .portal-entry-icon { width: 52px; height: 52px; margin: 0 auto 10px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 26px; }
+    .portal-entry-name { font-size: 14px; color: #1f2329; font-weight: 500; }
+
+    .portal-section { margin-bottom: 34px; }
+    .portal-section-head { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+    .portal-section-title { margin: 0; font-size: 20px; font-weight: 600; color: #1f2329; }
+    .portal-section-more { margin-left: auto; font-size: 13px; color: #1779F6; cursor: pointer; }
+    .portal-tags { display: flex; gap: 8px; }
+    .portal-tag { font-size: 13px; color: #4e5969; background: #f2f4f7; border-radius: 14px; padding: 4px 12px; cursor: pointer; }
+    .portal-tag.is-active { background: #e8f1fe; color: #1779F6; font-weight: 500; }
+    .portal-slide-arrows { margin-left: auto; display: flex; gap: 6px; }
+    .portal-arrow { width: 28px; height: 28px; border-radius: 50%; background: #f2f4f7; color: #4e5969; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; user-select: none; }
+    .portal-arrow:hover { background: #e8f1fe; color: #1779F6; }
+
+    .portal-card-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .portal-card { background: #fff; border-radius: 12px; overflow: hidden; cursor: pointer; box-shadow: 0 2px 10px rgba(31,35,41,.06); transition: transform .15s, box-shadow .15s; }
+    .portal-card:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(31,35,41,.12); }
+    .portal-card-cover { position: relative; height: 130px; display: flex; align-items: center; justify-content: center; }
+    .portal-card-icon { font-size: 42px; }
+    .portal-card-badge { position: absolute; top: 8px; right: 8px; font-size: 12px; padding: 2px 8px; border-radius: 10px; background: rgba(255,255,255,.92); color: #e6a23c; font-weight: 500; }
+    .portal-card-badge.is-free { color: #67c23a; }
+    .portal-card-body { padding: 12px; }
+    .portal-card-title { font-size: 14px; color: #1f2329; font-weight: 500; line-height: 1.4; height: 40px; overflow: hidden; }
+    .portal-card-meta { font-size: 12px; color: #86909c; margin-top: 6px; }
+    .portal-card-foot { display: flex; gap: 14px; font-size: 12px; color: #a1a7b3; margin-top: 8px; }
+
+    .portal-slide { overflow: hidden; }
+    .portal-slide-track { display: flex; gap: 16px; transition: transform .35s ease; }
+    .portal-slide-item { flex: 0 0 calc(33.3333% - 11px); }
+
+    /* 门户封面渐变（原型无真实图片，用图标+渐变占位） */
+    .pt-tone-1 { background: linear-gradient(135deg,#e8f1fe,#b1d1fc); }
+    .pt-tone-2 { background: linear-gradient(135deg,#fdf1e8,#f8d4b1); }
+    .pt-tone-3 { background: linear-gradient(135deg,#eaf7ee,#b7e4c7); }
+    .pt-tone-4 { background: linear-gradient(135deg,#f3ebfd,#d5c0f5); }
+    .pt-tone-5 { background: linear-gradient(135deg,#fdeaee,#f7bfcb); }
+    .pt-tone-6 { background: linear-gradient(135deg,#e6f7fb,#ade3ef); }
+
+    .portal-footer { border-top: 1px solid #ebeef5; background: #fff; padding: 32px 20px 20px; }
+    .portal-footer-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+    .portal-footer-title { font-size: 14px; font-weight: 600; color: #1f2329; margin-bottom: 8px; }
+    .portal-footer-text { font-size: 13px; color: #86909c; line-height: 1.7; }
+    .portal-footer-copy { max-width: 1200px; margin: 24px auto 0; text-align: center; font-size: 12px; color: #a1a7b3; }
+
+    .portal-toast { position: fixed; left: 50%; bottom: 60px; transform: translateX(-50%); background: rgba(31,35,41,.9); color: #fff; font-size: 13px; padding: 10px 18px; border-radius: 20px; z-index: 2100; }
+
+    /* 视频试看播放器 */
+    .player-stage { position: relative; }
+    .player-screen { height: 300px; border-radius: 10px; background: linear-gradient(135deg,#2b3238,#1f2329); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
+    .player-screen-icon { font-size: 56px; }
+    .player-screen-name { font-size: 15px; }
+    .player-screen-tip { font-size: 13px; color: #b8bfc7; }
+    .player-progress { height: 6px; background: #ebeef5; border-radius: 3px; margin-top: 12px; overflow: hidden; }
+    .player-progress-bar { height: 100%; background: linear-gradient(90deg,#1779F6,#4b96f8); transition: width .3s linear; }
+    .player-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .player-mask { position: absolute; inset: 0; background: rgba(20,24,28,.72); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .player-mask-box { background: #fff; border-radius: 12px; padding: 24px 28px; text-align: center; max-width: 400px; }
+    .player-mask-title { font-size: 17px; font-weight: 600; color: #1f2329; margin-bottom: 10px; }
+    .player-mask-text { font-size: 13px; color: #4e5969; line-height: 1.7; margin-bottom: 18px; }
+
+    @media (max-width: 900px) {
+      .portal-nav-links { display: none; }
+      .portal-entries { grid-template-columns: repeat(3, 1fr); }
+      .portal-card-grid { grid-template-columns: repeat(2, 1fr); }
+      .portal-slide-item { flex: 0 0 calc(50% - 8px); }
+      .portal-footer-inner { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* ===== 资源中心·应用购买页（独立页面） ===== */
+    .mall-page { position: fixed; inset: 0; z-index: 2050; background: #f5f6f8; overflow-y: auto; }
+    .mall-page-nav { position: sticky; top: 0; z-index: 10; background: #fff; border-bottom: 1px solid #ebeef5; box-shadow: 0 2px 8px rgba(31,35,41,.05); }
+    .mall-page-nav-inner { max-width: 1200px; margin: 0 auto; height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+    .mall-page-brand { display: flex; align-items: center; gap: 8px; }
+    .mall-page-nav-right { display: flex; align-items: center; gap: 12px; }
+    .mall-page-body { max-width: 1200px; margin: 0 auto; padding: 24px 20px 60px; }
+
+    /* 商品头部：左大图 + 右信息（与原图布局一致） */
+    .mall-page-header { display: flex; gap: 28px; align-items: flex-start; background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 2px 10px rgba(31,35,41,.06); }
+    .mall-page-main-img { flex: 0 0 380px; height: 380px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .mall-page-main-icon { font-size: 120px; }
+    .mall-page-info { flex: 1; min-width: 0; }
+    .mall-info-title { font-size: 20px; font-weight: 600; display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .mall-info-intro { font-size: 13px; color: #f56c6c; line-height: 1.7; margin-bottom: 16px; }
+    .mall-price-row { display: flex; align-items: baseline; gap: 16px; padding: 10px 0; border-bottom: 1px dashed #ebeef5; }
+    .mall-price-label { width: 80px; color: #86909c; font-size: 13px; }
+    .mall-price { color: #f56c6c; font-size: 26px; font-weight: 700; }
+    .mall-sku-row { display: flex; align-items: center; gap: 16px; padding: 14px 0 6px; }
+    .mall-sku-list { display: flex; gap: 10px; flex-wrap: wrap; }
+    .mall-sku { font-size: 13px; padding: 6px 18px; border: 1px solid #dcdfe6; border-radius: 4px; cursor: pointer; color: #4e5969; }
+    .mall-sku.is-active { border-color: #f56c6c; color: #f56c6c; }
+    .mall-sku-desc { font-size: 12px; color: #86909c; margin-bottom: 10px; }
+    .mall-field-row { display: flex; align-items: center; gap: 16px; padding: 6px 0; font-size: 13px; }
+    .mall-stock { color: #86909c; margin-left: 10px; }
+    .mall-validity { color: #4e5969; }
+    .mall-actions { margin-top: 18px; display: flex; gap: 12px; }
+
+    /* 下方 Tab + Tab 内容区 */
+    .mall-tabs { display: flex; gap: 28px; margin-top: 20px; background: #fff; border-radius: 12px 12px 0 0; padding: 0 24px; border-bottom: 1px solid #ebeef5; }
+    .mall-tab { font-size: 14px; color: #4e5969; padding: 14px 0; cursor: pointer; border-bottom: 2px solid transparent; }
+    .mall-tab.is-active { color: #f56c6c; border-bottom-color: #f56c6c; font-weight: 500; }
+    .mall-tab-body { background: #fff; border-radius: 0 0 12px 12px; padding: 24px; }
+    .mall-intro-rich { font-size: 14px; line-height: 1.8; color: #4e5969; }
+    .mall-intro-rich b { color: #1f2329; font-weight: 600; }
+    .mall-intro-rich ul { padding-left: 22px; }
+    .mall-video { display: flex; gap: 16px; }
+    .mall-video-stage { flex: 1; background: linear-gradient(135deg,#2b3238,#1f2329); color: #fff; border-radius: 10px; height: 360px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative; }
+    .mall-video-icon { font-size: 56px; }
+    .mall-video-name { font-size: 15px; }
+    .mall-video-tip { font-size: 12px; color: #b8bfc7; }
+    .mall-video-progress { position: absolute; left: 16px; right: 16px; bottom: 56px; height: 5px; background: rgba(255,255,255,.2); border-radius: 3px; overflow: hidden; }
+    .mall-video-progress-bar { height: 100%; background: #f56c6c; transition: width .3s linear; }
+    .mall-video-controls { position: absolute; left: 0; right: 0; bottom: 12px; display: flex; justify-content: center; gap: 10px; }
+    .mall-video-side { width: 240px; background: #fafbfc; border-radius: 10px; padding: 14px; }
+    .mall-video-side-title { font-size: 14px; font-weight: 600; margin-bottom: 10px; }
+    .mall-video-side-text { font-size: 13px; color: #4e5969; line-height: 1.7; margin-bottom: 14px; }
+    .mall-video-side-item { font-size: 12px; color: #86909c; margin-bottom: 4px; }
+    .mall-spec table { width: 100%; border-collapse: collapse; }
+    .mall-spec th, .mall-spec td { border: 1px solid #ebeef5; padding: 10px 14px; font-size: 13px; text-align: left; }
+    .mall-spec th { background: #fafbfc; color: #4e5969; width: 140px; }
+    .mall-spec td { color: #1f2329; }
+
+    @media (max-width: 900px) {
+      .mall-page-header { flex-direction: column; }
+      .mall-page-main-img { flex: 0 0 auto; width: 100%; height: 240px; }
+      .mall-page-main-icon { font-size: 84px; }
+      .mall-video { flex-direction: column; }
+      .mall-video-side { width: auto; }
+    }
+
+    /* ===== 资源查看页 viewer-page ===== */
+    .viewer-page { position: fixed; inset: 0; z-index: 2060; background: #f5f6f8; overflow-y: auto; }
+    .viewer-page-nav { position: sticky; top: 0; z-index: 10; background: #fff; border-bottom: 1px solid #ebeef5; box-shadow: 0 2px 8px rgba(31,35,41,.05); }
+    .viewer-page-nav-inner { max-width: 1200px; margin: 0 auto; height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+    .viewer-breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #4e5969; }
+    .viewer-breadcrumb-link { color: #1779F6; cursor: pointer; }
+    .viewer-breadcrumb-link:hover { text-decoration: underline; }
+    .viewer-breadcrumb-sep { color: #c9cdd4; }
+    .viewer-breadcrumb-current { color: #1f2329; font-weight: 500; }
+    .viewer-page-nav-right { display: flex; align-items: center; gap: 12px; }
+
+    .viewer-page-body { max-width: 1200px; margin: 0 auto; padding: 20px; display: flex; gap: 16px; align-items: flex-start; }
+
+    /* 左侧主区 */
+    .viewer-main-card { flex: 1; min-width: 0; background: #fff; border-radius: 12px; box-shadow: 0 2px 10px rgba(31,35,41,.06); padding: 18px; }
+
+    /* 视频主区 */
+    .viewer-video-stage { position: relative; }
+    .viewer-video-screen { height: 420px; border-radius: 10px; background: linear-gradient(135deg,#2b3238,#1f2329); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
+    .viewer-video-icon { font-size: 64px; }
+    .viewer-video-title { font-size: 18px; font-weight: 500; }
+    .viewer-video-sub { font-size: 13px; color: #b8bfc7; }
+    .viewer-video-progress { height: 6px; background: #ebeef5; border-radius: 3px; margin-top: 12px; overflow: hidden; }
+    .viewer-video-progress-bar { height: 100%; background: linear-gradient(90deg,#1779F6,#4b96f8); transition: width .3s linear; }
+    .viewer-video-controls { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+    .viewer-video-time { margin-left: auto; font-size: 13px; color: #4e5969; }
+    .viewer-trial-mask { position: absolute; inset: 0; background: rgba(20,24,28,.78); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .viewer-trial-box { background: #fff; border-radius: 12px; padding: 24px 28px; text-align: center; max-width: 440px; }
+    .viewer-trial-title { font-size: 18px; font-weight: 600; color: #1f2329; margin-bottom: 10px; }
+    .viewer-trial-text { font-size: 13px; color: #4e5969; line-height: 1.7; margin-bottom: 18px; }
+    .viewer-trial-actions { display: flex; justify-content: center; gap: 12px; }
+
+    /* 视频下方描述行 */
+    .viewer-video-desc { display: flex; align-items: center; gap: 12px; margin-top: 14px; padding: 12px 14px; background: #f7f8fa; border-radius: 8px; }
+    .viewer-video-desc-text { flex: 1; font-size: 13px; color: #4e5969; line-height: 1.7; }
+    .viewer-trial-tag { font-size: 12px; padding: 4px 12px; border-radius: 12px; background: #fef0f0; color: #f56c6c; border: 1px solid #fde2e2; }
+    .viewer-trial-tag.is-paid { background: #f0f9eb; color: #67c23a; border-color: #d9efcb; }
+    .viewer-trial-tag.is-free { background: #f4f4f5; color: #909399; border-color: #e9e9eb; }
+
+    /* 富文本：模拟 PDF 阅读器 */
+    .viewer-pdf { display: flex; flex-direction: column; gap: 12px; }
+    .viewer-pdf-toolbar { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #fafbfc; border-radius: 8px; }
+    .viewer-pdf-pages { font-size: 13px; color: #4e5969; min-width: 60px; text-align: center; }
+    .viewer-pdf-zoom { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+    .viewer-pdf-body { display: flex; gap: 16px; align-items: flex-start; }
+    .viewer-pdf-thumbs { display: flex; flex-direction: column; gap: 8px; }
+    .viewer-pdf-thumb { width: 80px; height: 110px; border-radius: 4px; border: 1px solid #ebeef5; padding: 6px; cursor: pointer; background: #fff; position: relative; }
+    .viewer-pdf-thumb.is-active { border-color: #1779F6; }
+    .viewer-pdf-thumb-inner { width: 100%; height: 80px; background: linear-gradient(180deg,#f7f8fa,#eceef3); border-radius: 2px; background-image: repeating-linear-gradient(180deg, transparent 0, transparent 8px, #dcdfe6 8px, #dcdfe6 9px); }
+    .viewer-pdf-thumb-page { position: absolute; bottom: 4px; left: 0; right: 0; text-align: center; font-size: 11px; color: #86909c; }
+    .viewer-pdf-doc { flex: 1; min-width: 0; padding: 24px 32px; background: #fff; border-radius: 6px; min-height: 520px; border: 1px solid #ebeef5; }
+    .viewer-pdf-doc-title { text-align: center; font-size: 22px; margin: 0 0 18px; }
+    .viewer-pdf-doc-section { margin: 14px 0 6px; font-size: 15px; color: #1f2329; }
+    .viewer-pdf-doc-list { margin: 8px 0; padding-left: 22px; color: #4e5969; line-height: 1.8; font-size: 14px; }
+    .viewer-pdf-doc-list li { margin-bottom: 4px; }
+    .viewer-pdf-doc-p { color: #86909c; font-size: 13px; }
+
+    /* 应用类型（已购买） */
+    .viewer-app-card { display: flex; align-items: center; gap: 18px; padding: 20px; background: #fafbfc; border-radius: 10px; }
+    .viewer-app-icon { flex: 0 0 96px; height: 96px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 46px; }
+    .viewer-app-info { flex: 1; min-width: 0; }
+    .viewer-app-title { font-size: 16px; font-weight: 600; color: #1f2329; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+    .viewer-app-overview { font-size: 13px; color: #4e5969; line-height: 1.7; margin-bottom: 10px; }
+    .viewer-app-meta { display: flex; gap: 18px; font-size: 12px; color: #86909c; flex-wrap: wrap; }
+    .viewer-app-actions { flex: 0 0 auto; }
+
+    /* 链接类型 */
+    .viewer-link-card { display: flex; align-items: center; gap: 16px; padding: 18px; background: #fafbfc; border-radius: 8px; }
+    .viewer-link-icon { width: 56px; height: 56px; border-radius: 12px; background: #fff; border: 1px solid #ebeef5; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+    .viewer-link-info { flex: 1; min-width: 0; }
+    .viewer-link-title { font-size: 15px; font-weight: 500; margin-bottom: 6px; }
+    .viewer-link-overview { font-size: 13px; color: #86909c; line-height: 1.6; }
+    .viewer-link-actions { display: flex; gap: 8px; }
+
+    /* 右侧附件 */
+    .viewer-side-card { flex: 0 0 280px; background: #fff; border-radius: 12px; box-shadow: 0 2px 10px rgba(31,35,41,.06); padding: 16px; }
+    .viewer-side-title { font-size: 14px; font-weight: 600; color: #1f2329; padding: 8px 10px; background: #f7f8fa; border-radius: 6px; margin-bottom: 10px; }
+    .viewer-side-item { display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 6px; cursor: pointer; font-size: 13px; color: #4e5969; }
+    .viewer-side-item:hover { background: #f7f8fa; }
+    .viewer-side-item.is-active { color: #1779F6; background: #e8f1fe; font-weight: 500; }
+    .viewer-side-dot { font-size: 11px; color: #1779F6; }
+    .viewer-side-name { word-break: break-all; }
+    .viewer-side-empty { padding: 16px; text-align: center; color: #a1a7b3; font-size: 13px; }
+
+    @media (max-width: 900px) {
+      .viewer-page-body { flex-direction: column; }
+      .viewer-side-card { flex: 0 0 auto; width: 100%; }
+      .viewer-pdf-body { flex-direction: column; }
+      .viewer-pdf-thumbs { flex-direction: row; overflow-x: auto; }
+    }
   </style>
 </head>
 <body>
@@ -329,6 +577,7 @@
         </div>
         <div class="shell-header-center"></div>
         <div class="shell-header-actions">
+          <el-button text @click="openPortal">门户预览</el-button>
           <el-button text>帮助</el-button>
           <el-avatar size="small">A</el-avatar>
         </div>
@@ -890,15 +1139,16 @@
                         <el-button>选择图片</el-button>
                         <span style="margin-left:8px;color:#86909c;font-size:12px;">.jpg/.jpeg/.png，245×143，≤3MB</span>
                       </el-form-item>
-                      <el-form-item label="所属分类" required>
+                      <el-form-item label="所属分类" :required="categoryRequired">
                         <el-cascader
                           v-model="resForm.data.categoryId"
                           :options="categoryCascaderOptions"
                           :props="{ emitPath: false, expandTrigger: 'hover' }"
                           :disabled="!resForm.data.channelId"
-                          :placeholder="resForm.data.channelId ? '请选择所属分类' : '请先选择所属频道'"
+                          :placeholder="resForm.data.channelId ? (categoryRequired ? '请选择所属分类' : '该频道下暂无分类，可选填') : '请先选择所属频道'"
                           clearable
                           class="res-input"></el-cascader>
+                        <span v-if="!categoryRequired" style="color:#86909c;font-size:12px;">该所属频道下暂无分类，此为非必填</span>
                       </el-form-item>
                       <el-form-item label="排序" required>
                         <el-input v-model="resForm.data.order" class="res-input"></el-input>
@@ -922,6 +1172,15 @@
                         </el-radio-group>
                       </el-form-item>
 
+                      <!-- 课时：非必填，数字输入支持小数，单位下拉 分钟/小时 -->
+                      <el-form-item label="课时">
+                        <el-input v-model="resForm.data.duration" placeholder="请输入课时，支持小数" class="res-input" style="width:220px;"></el-input>
+                        <el-select v-model="resForm.data.durationUnit" style="width:110px;margin-left:8px;">
+                          <el-option label="分钟" value="分钟"></el-option>
+                          <el-option label="小时" value="小时"></el-option>
+                        </el-select>
+                      </el-form-item>
+
                       <!-- 富文本 -->
                       <template v-if="resForm.data.contentType === '富文本'">
                         <el-form-item label="内容详情" required>
@@ -943,8 +1202,15 @@
                       <!-- 应用和链接 -->
                       <template v-if="resForm.data.contentType === '应用和链接'">
                         <el-form-item label="应用" required>
-                          <el-input v-model="resForm.data.appName" placeholder="未选择" readonly class="res-input"></el-input>
-                          <el-button style="margin-left:8px;" @click="resForm.data.appName = '示例应用'">选择应用</el-button>
+                          <el-select
+                            v-model="resForm.data.appName"
+                            filterable
+                            clearable
+                            placeholder="输入应用名称模糊查询（最多 50 条）"
+                            class="res-input"
+                            @change="onResAppChange">
+                            <el-option v-for="a in appLibrary" :key="a.id" :label="a.name + (a.paid ? '（收费）' : '（免费）')" :value="a.name"></el-option>
+                          </el-select>
                         </el-form-item>
                         <el-form-item label="移动端链接">
                           <el-input v-model="resForm.data.mobileUrl" maxlength="200" class="res-input"></el-input>
@@ -1059,12 +1325,497 @@
       </el-container>
     </el-container>
 
+    <!-- ============= P12 资源中心门户（前台展示层，全屏预览） ============= -->
+    <div v-if="portalVisible" class="portal">
+      <!-- 顶部导航 -->
+      <header class="portal-nav">
+        <div class="portal-nav-inner">
+          <div class="portal-brand">
+            <span class="portal-brand-mark">RC</span>
+            <span class="portal-brand-name">资源中心</span>
+          </div>
+          <nav class="portal-nav-links">
+            <span v-for="n in portalNavs" :key="n"
+                  :class="['portal-nav-link', { 'is-active': portalNavActive === n }]"
+                  @click="portalNavActive = n">{{ n }}</span>
+          </nav>
+          <div class="portal-nav-right">
+            <div class="portal-search">
+              <input type="text" v-model="portalKeyword" placeholder="搜索课程、资源、机构">
+              <span class="portal-search-icon">🔍</span>
+            </div>
+            <div class="portal-user-toggle" title="原型用：模拟当前用户是否已购买收费资源">
+              <span class="portal-user-toggle-label">模拟已购</span>
+              <el-switch v-model="portalUser.purchased" active-text="是" inactive-text="否"></el-switch>
+            </div>
+            <el-button size="small" class="portal-login-btn">登录</el-button>
+            <el-button size="small" text class="portal-exit-btn" @click="closePortal">退出预览</el-button>
+          </div>
+        </div>
+      </header>
+
+      <div class="portal-body">
+        <!-- Banner -->
+        <section class="portal-banner">
+          <div class="portal-banner-inner">
+            <h1 class="portal-banner-title">资源中心</h1>
+            <p class="portal-banner-sub">汇聚优质教学资源 · 支持课程、专题、教研、家校全场景学习</p>
+          </div>
+        </section>
+
+        <!-- 五个分类入口 -->
+        <section class="portal-entries">
+          <div v-for="e in portalEntries" :key="e.id" class="portal-entry" @click="showPortalToast('进入「' + e.name + '」分类（原型占位）')">
+            <div class="portal-entry-icon" :class="'pt-tone-' + e.tone">{{ e.icon }}</div>
+            <div class="portal-entry-name">{{ e.name }}</div>
+          </div>
+        </section>
+
+        <!-- AI建设者 -->
+        <section class="portal-section">
+          <div class="portal-section-head">
+            <h2 class="portal-section-title">AI建设者</h2>
+            <span class="portal-section-more" @click="showPortalToast('查看全部 AI建设者课程（原型占位）')">更多 →</span>
+          </div>
+          <div class="portal-card-grid">
+            <div v-for="r in portalCards('ai')" :key="r.id" class="portal-card" @click="openResource(r)">
+              <div class="portal-card-cover" :class="'pt-tone-' + r.tone">
+                <span class="portal-card-icon">{{ r.icon }}</span>
+                <span v-if="r.chargeType === '收费'" class="portal-card-badge">💰 收费</span>
+                <span v-else class="portal-card-badge is-free">免费</span>
+              </div>
+              <div class="portal-card-body">
+                <div class="portal-card-title">{{ r.title }}</div>
+                <div class="portal-card-meta">{{ r.org }}</div>
+                <div class="portal-card-foot">
+                  <span>👁 {{ r.viewCount }}</span>
+                  <span>👍 {{ r.likes }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 课程教学 -->
+        <section class="portal-section">
+          <div class="portal-section-head">
+            <h2 class="portal-section-title">课程教学</h2>
+            <div class="portal-tags">
+              <span v-for="t in teachingTags" :key="t"
+                    :class="['portal-tag', { 'is-active': teachingTagActive === t }]"
+                    @click="teachingTagActive = t">{{ t }}</span>
+            </div>
+          </div>
+          <div class="portal-card-grid">
+            <div v-for="r in portalCards('teaching')" :key="r.id" class="portal-card" @click="openResource(r)">
+              <div class="portal-card-cover" :class="'pt-tone-' + r.tone">
+                <span class="portal-card-icon">{{ r.icon }}</span>
+                <span v-if="r.chargeType === '收费'" class="portal-card-badge">💰 收费</span>
+                <span v-else class="portal-card-badge is-free">免费</span>
+              </div>
+              <div class="portal-card-body">
+                <div class="portal-card-title">{{ r.title }}</div>
+                <div class="portal-card-meta">{{ r.org }}</div>
+                <div class="portal-card-foot">
+                  <span>👁 {{ r.viewCount }}</span>
+                  <span>👍 {{ r.likes }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 专题资源 / 教师成长 / 家校学思（轮播板块） -->
+        <section v-for="z in portalZones" :key="z.key" class="portal-section">
+          <div class="portal-section-head">
+            <h2 class="portal-section-title">{{ z.title }}</h2>
+            <div class="portal-tags">
+              <span v-for="t in z.tags" :key="t" class="portal-tag">{{ t }}</span>
+            </div>
+            <div class="portal-slide-arrows">
+              <span class="portal-arrow" @click="portalPrev(z.key)">‹</span>
+              <span class="portal-arrow" @click="portalNext(z.key)">›</span>
+            </div>
+          </div>
+          <div class="portal-slide">
+            <div class="portal-slide-track" :style="{ transform: 'translateX(' + (-portalSlide[z.key] * 33.3333) + '%)' }">
+              <div v-for="r in portalCards(z.key)" :key="r.id" class="portal-card portal-slide-item" @click="openResource(r)">
+                <div class="portal-card-cover" :class="'pt-tone-' + r.tone">
+                  <span class="portal-card-icon">{{ r.icon }}</span>
+                  <span v-if="r.chargeType === '收费'" class="portal-card-badge">💰 收费</span>
+                  <span v-else class="portal-card-badge is-free">免费</span>
+                </div>
+                <div class="portal-card-body">
+                  <div class="portal-card-title">{{ r.title }}</div>
+                  <div class="portal-card-meta">{{ r.org }}</div>
+                  <div class="portal-card-foot">
+                    <span>👁 {{ r.viewCount }}</span>
+                    <span>👍 {{ r.likes }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- 页脚 -->
+      <footer class="portal-footer">
+        <div class="portal-footer-inner">
+          <div class="portal-footer-col">
+            <div class="portal-footer-title">资源中心</div>
+            <div class="portal-footer-text">汇聚优质教学资源的一站式学习平台</div>
+          </div>
+          <div class="portal-footer-col">
+            <div class="portal-footer-title">关于</div>
+            <div class="portal-footer-text">平台介绍 · 联系我们 · 加入我们</div>
+          </div>
+          <div class="portal-footer-col">
+            <div class="portal-footer-title">帮助</div>
+            <div class="portal-footer-text">使用指南 · 常见问题 · 意见反馈</div>
+          </div>
+          <div class="portal-footer-col">
+            <div class="portal-footer-title">联系方式</div>
+            <div class="portal-footer-text">客服电话 400-000-0000</div>
+          </div>
+        </div>
+        <div class="portal-footer-copy">© 2026 资源中心 · 原型演示数据</div>
+      </footer>
+
+      <!-- 轻量提示条 -->
+      <div v-if="portalToast.visible" class="portal-toast">{{ portalToast.text }}</div>
+    </div>
+
+    <!-- ============= 视频试看播放器（收费视频 30 秒试看） ============= -->
+    <el-dialog v-model="player.visible" :title="player.resource ? player.resource.title : '视频播放'" width="720px" @closed="stopTrial">
+      <template v-if="player.resource">
+        <div class="player-stage" :class="{ 'is-locked': player.trialEnd }">
+          <div class="player-screen">
+            <div class="player-screen-icon">{{ player.resource.icon }}</div>
+            <div class="player-screen-name">{{ player.resource.title }}</div>
+            <div v-if="player.resource.chargeType === '收费'" class="player-screen-tip">
+              已播放 {{ player.seconds }} 秒 / 可免费试看 30 秒
+            </div>
+            <div v-else class="player-screen-tip">免费资源 · 可完整观看</div>
+          </div>
+          <div class="player-progress">
+            <div class="player-progress-bar" :style="{ width: playerProgress + '%' }"></div>
+          </div>
+          <div class="player-actions">
+            <el-button size="small" @click="togglePlay">{{ player.playing ? '暂停' : '播放' }}</el-button>
+            <el-button size="small" @click="resetTrial">重新播放</el-button>
+          </div>
+          <!-- 试看结束遮罩：提示去购买 -->
+          <div v-if="player.trialEnd" class="player-mask">
+            <div class="player-mask-box">
+              <div class="player-mask-title">试看已结束</div>
+              <div class="player-mask-text">
+                本课程为收费资源（{{ player.resource.payType }}购买 · {{ player.resource.price }} 元），
+                免费试看 30 秒已用完。购买后可完整观看。
+              </div>
+              <div class="player-mask-actions">
+                <el-button @click="player.visible = false">返回</el-button>
+                <el-button type="primary" @click="gotoMall(player.resource)">去购买</el-button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </el-dialog>
+
+    <!-- ============= 资源中心·应用购买页（独立页面，点击"去购买"打开） ============= -->
+    <div v-if="mallPage.visible" class="mall-page">
+      <!-- 顶部导航（极简，仅品牌 + 返回门户 + 用户态 + 退出） -->
+      <header class="mall-page-nav">
+        <div class="mall-page-nav-inner">
+          <div class="mall-page-brand">
+            <span class="portal-brand-mark">RC</span>
+            <span class="portal-brand-name">资源中心 · 应用购买</span>
+          </div>
+          <div class="mall-page-nav-right">
+            <el-button size="small" @click="closeMallPage">← 返回门户</el-button>
+            <div class="portal-user-toggle">
+              <span class="portal-user-toggle-label">模拟已购</span>
+              <el-switch v-model="portalUser.purchased" active-text="是" inactive-text="否"></el-switch>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="mall-page-body" v-if="mallPage.resource">
+        <!-- 商品头部：左大图 + 右信息 -->
+        <div class="mall-page-header">
+          <div class="mall-page-main-img" :class="'pt-tone-' + (mallPage.resource.tone || 1)">
+            <span class="mall-page-main-icon">{{ mallPage.resource.icon }}</span>
+          </div>
+
+          <div class="mall-page-info">
+            <div class="mall-info-title">
+              {{ mallPage.resource.title }}
+              <el-tag size="small" type="info" effect="plain">数字应用</el-tag>
+            </div>
+            <div class="mall-info-intro">{{ mallPage.resource.mallIntro || (mallPage.resource.title + '，购买后可完整使用该应用的全部功能。') }}</div>
+
+            <div class="mall-price-row">
+              <span class="mall-price-label">价&emsp;格</span>
+              <span class="mall-price">¥ {{ mallSku(mallPage.activeSku).price }}</span>
+            </div>
+
+            <div class="mall-sku-row">
+              <span class="mall-price-label">{{ mallPage.resource.appName || '版本' }}</span>
+              <div class="mall-sku-list">
+                <div v-for="(sku, idx) in mallPage.resource.skuList" :key="idx"
+                     :class="['mall-sku', { 'is-active': mallPage.activeSku === idx }]"
+                     @click="mallPage.activeSku = idx">
+                  {{ sku.name }}
+                </div>
+              </div>
+            </div>
+
+            <div class="mall-sku-desc">{{ mallSku(mallPage.activeSku).desc }}</div>
+
+            <div class="mall-field-row">
+              <span class="mall-price-label">数&emsp;量</span>
+              <el-input-number v-model="mallPage.qty" :min="1" :max="999" size="small"></el-input-number>
+              <span class="mall-stock">库存 {{ mallStock }}</span>
+            </div>
+            <div class="mall-field-row">
+              <span class="mall-price-label">有&emsp;效&emsp;期</span>
+              <span class="mall-validity">{{ mallPage.resource.validity || '1 年' }}</span>
+            </div>
+
+            <div class="mall-actions">
+              <el-button type="danger" plain @click="addMallToCart">加入购物车</el-button>
+              <el-button type="warning" @click="mallBuyNow">立即购买</el-button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 下方 Tab -->
+        <div class="mall-tabs">
+          <span :class="['mall-tab', { 'is-active': mallPage.activeTab === 'intro' }]" @click="mallPage.activeTab = 'intro'">商品介绍</span>
+          <span :class="['mall-tab', { 'is-active': mallPage.activeTab === 'video' }]" @click="mallPage.activeTab = 'video'">视频介绍</span>
+          <span :class="['mall-tab', { 'is-active': mallPage.activeTab === 'spec' }]" @click="mallPage.activeTab = 'spec'">商品参数</span>
+        </div>
+
+        <div class="mall-tab-body">
+          <div v-show="mallPage.activeTab === 'intro'" class="mall-intro-rich" v-html="mallPage.resource.mallRichIntro || defaultMallIntro"></div>
+
+          <div v-show="mallPage.activeTab === 'video'" class="mall-video">
+            <div class="mall-video-stage">
+              <div class="mall-video-icon">{{ mallPage.resource.icon }}</div>
+              <div class="mall-video-name">{{ mallPage.resource.mallIntroVideoName || '课程简介' }}</div>
+              <div class="mall-video-tip">商城视频演示（原型占位，未对接真实视频源）</div>
+              <div class="mall-video-progress">
+                <div class="mall-video-progress-bar" :style="{ width: mallVideoProgress + '%' }"></div>
+              </div>
+              <div class="mall-video-controls">
+                <el-button size="small" @click="mallVideoToggle">{{ mallVideoPlaying ? '暂停' : '播放' }}</el-button>
+                <el-button size="small" @click="mallVideoRestart">重新播放</el-button>
+              </div>
+            </div>
+            <div class="mall-video-side">
+              <div class="mall-video-side-title">视频简介</div>
+              <div class="mall-video-side-text">{{ mallPage.resource.mallIntro || '本视频用于展示该应用的核心功能与适用场景。' }}</div>
+              <div class="mall-video-side-item">· 时长：约 3 分钟</div>
+              <div class="mall-video-side-item">· 分辨率：1080P</div>
+              <div class="mall-video-side-item">· 适用阶段：{{ mallPage.resource.appName || '全学段' }}</div>
+            </div>
+          </div>
+
+          <div v-show="mallPage.activeTab === 'spec'" class="mall-spec">
+            <table>
+              <tbody>
+                <tr><th>资源名称</th><td>{{ mallPage.resource.title }}</td></tr>
+                <tr><th>机构</th><td>{{ mallPage.resource.org || '——' }}</td></tr>
+                <tr><th>所属频道</th><td>{{ mallPage.resource.channelName }}</td></tr>
+                <tr><th>所属分类</th><td>{{ mallPage.resource.categoryName }}</td></tr>
+                <tr><th>付费方式</th><td>{{ mallPage.resource.payType }}</td></tr>
+                <tr><th>有效期</th><td>{{ mallPage.resource.validity || '1 年' }}</td></tr>
+                <tr><th>当前规格</th><td>{{ mallSku(mallPage.activeSku).name }}（¥ {{ mallSku(mallPage.activeSku).price }}）</td></tr>
+                <tr><th>课时</th><td>{{ mallPage.resource.duration || '——' }} {{ mallPage.resource.durationUnit || '' }}</td></tr>
+                <tr><th>状态</th><td>{{ mallPage.resource.status }}</td></tr>
+                <tr><th>更新时间</th><td>{{ mallPage.resource.updatedAt }}</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============= 资源查看页（富文本/视频/链接/应用；独立页面） ============= -->
+    <div v-if="viewerPage.visible" class="viewer-page">
+      <!-- 顶部面包屑 + 返回 + 用户态 -->
+      <header class="viewer-page-nav">
+        <div class="viewer-page-nav-inner">
+          <div class="viewer-breadcrumb">
+            <span class="viewer-breadcrumb-link" @click="closeViewerPage">资源中心首页</span>
+            <span class="viewer-breadcrumb-sep">›</span>
+            <span class="viewer-breadcrumb-current">资源详情</span>
+          </div>
+          <div class="viewer-page-nav-right">
+            <el-button size="small" @click="closeViewerPage">← 返回</el-button>
+            <div class="portal-user-toggle">
+              <span class="portal-user-toggle-label">模拟已购</span>
+              <el-switch v-model="portalUser.purchased" active-text="是" inactive-text="否"></el-switch>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="viewer-page-body" v-if="viewerPage.resource">
+        <!-- 左：内容主区（视频/富文本/链接） -->
+        <div class="viewer-main-card">
+          <!-- 视频主区：包含播放器 + 描述行 + 试看遮罩 -->
+          <template v-if="viewerPage.resource.contentType === '文件·视频'">
+            <div class="viewer-video-stage" :class="{ 'is-locked': viewerPage.trialEnd }">
+              <div class="viewer-video-screen">
+                <div class="viewer-video-icon">{{ viewerPage.resource.icon }}</div>
+                <div class="viewer-video-title">{{ viewerPage.resource.title }}</div>
+                <div class="viewer-video-sub">{{ viewerPage.resource.duration || '' }} {{ viewerPage.resource.durationUnit || '' }}</div>
+              </div>
+              <div class="viewer-video-progress">
+                <div class="viewer-video-progress-bar" :style="{ width: viewerVideoProgress + '%' }"></div>
+              </div>
+              <div class="viewer-video-controls">
+                <el-button size="small" @click="viewerVideoToggle" :disabled="viewerPage.trialEnd">{{ viewerPage.videoPlaying ? '暂停' : '播放' }}</el-button>
+                <el-button size="small" @click="viewerVideoRestart">重新播放</el-button>
+                <span class="viewer-video-time">{{ viewerPage.videoSeconds }}s</span>
+              </div>
+              <!-- 试看结束遮罩：覆盖在播放器之上 -->
+              <div v-if="viewerPage.trialEnd" class="viewer-trial-mask">
+                <div class="viewer-trial-box">
+                  <div class="viewer-trial-title">免费试看已结束</div>
+                  <div class="viewer-trial-text">本课程为收费资源（付费方式：{{ viewerPage.resource.payType }} · {{ viewerPage.resource.price }} 元），免费看 30 秒已用完。购买后可完整观看。</div>
+                  <div class="viewer-trial-actions">
+                    <el-button @click="closeViewerPage">返回</el-button>
+                    <el-button type="primary" @click="viewerBuyNow">去购买</el-button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- 视频播放器下方描述行：付费未购时显示"免费看 30 秒" -->
+            <div class="viewer-video-desc">
+              <span class="viewer-video-desc-text">{{ viewerPage.resource.overview || viewerPage.resource.title }}</span>
+              <span v-if="viewerPage.resource.chargeType === '收费' && !viewerPage.freeFull" class="viewer-trial-tag">免费看 30 秒</span>
+              <span v-else-if="viewerPage.resource.chargeType === '收费'" class="viewer-trial-tag is-paid">已购买 · 可完整观看</span>
+              <span v-else class="viewer-trial-tag is-free">免费资源</span>
+            </div>
+          </template>
+
+          <!-- 富文本主区：模拟 PDF 阅读器（与图片板式一致：左侧缩略图、中间文档主区） -->
+          <template v-else-if="viewerPage.resource.contentType === '富文本'">
+            <div class="viewer-pdf">
+              <div class="viewer-pdf-toolbar">
+                <el-button-group size="small">
+                  <el-button>📄</el-button>
+                  <el-button>🔍</el-button>
+                  <el-button>↑</el-button>
+                  <el-button>↓</el-button>
+                </el-button-group>
+                <span class="viewer-pdf-pages">{{ viewerPage.pageIndex }} / {{ viewerPage.pageTotal }}</span>
+                <div class="viewer-pdf-zoom">
+                  <el-button size="small" @click="viewerPageZoom('-')">−</el-button>
+                  <el-button size="small" @click="viewerPageZoom('+')">+</el-button>
+                  <el-select size="small" v-model="viewerPage.zoom" style="width:90px;">
+                    <el-option label="自动播放" value="auto"></el-option>
+                    <el-option label="适合宽度" value="width"></el-option>
+                    <el-option label="100%" value="100"></el-option>
+                  </el-select>
+                </div>
+                <el-button size="small">»</el-button>
+              </div>
+              <div class="viewer-pdf-body">
+                <div class="viewer-pdf-thumbs">
+                  <div v-for="i in viewerPage.pageTotal" :key="i" :class="['viewer-pdf-thumb', { 'is-active': viewerPage.pageIndex === i }]" @click="viewerPage.pageIndex = i">
+                    <div class="viewer-pdf-thumb-inner"></div>
+                    <span class="viewer-pdf-thumb-page">{{ i }}</span>
+                  </div>
+                </div>
+                <div class="viewer-pdf-doc">
+                  <h2 class="viewer-pdf-doc-title">第一课：初探人工智能</h2>
+                  <div class="viewer-pdf-doc-section"><b>一、课程基本信息</b></div>
+                  <ul class="viewer-pdf-doc-list">
+                    <li>课程名称：初探人工智能</li>
+                    <li>汇报人：彭派</li>
+                    <li>课程类型：通识课</li>
+                  </ul>
+                  <div class="viewer-pdf-doc-section"><b>二、教学目标</b></div>
+                  <ol class="viewer-pdf-doc-list">
+                    <li>帮助学生了解人工智能的基本概念、知识什么是人工智能。</li>
+                    <li>让学生知晓人工智能的多种用途，包括在科研、编辑、声音克隆、作画、制作电影等多个领域的应用。</li>
+                    <li>使学生对于计算机定有初步认识，了解其起源等相关知识。</li>
+                    <li>引导学生思考人工智能对未来生活的影响以及自身应如何适应人工智能的发展。</li>
+                  </ol>
+                  <div class="viewer-pdf-doc-section"><b>三、教学重点与难点</b></div>
+                  <p class="viewer-pdf-doc-p">（演示用 PDF 文档渲染区，正式环境对接真实 PDF 阅读器）</p>
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <!-- 应用类型（已购买）：展示应用卡片 + 打开应用按钮 -->
+          <template v-else-if="viewerPage.resource.contentType === '应用和链接'">
+            <div class="viewer-app-card">
+              <div class="viewer-app-icon" :class="'pt-tone-' + (viewerPage.resource.tone || 1)">
+                {{ viewerPage.resource.icon }}
+              </div>
+              <div class="viewer-app-info">
+                <div class="viewer-app-title">
+                  {{ viewerPage.resource.title }}
+                  <el-tag size="small" :type="viewerPage.resource.chargeType === '收费' ? 'success' : 'info'" effect="plain">{{ viewerPage.resource.chargeType === '收费' ? '已购买' : '免费' }}</el-tag>
+                </div>
+                <div class="viewer-app-overview">{{ viewerPage.resource.overview || (viewerPage.resource.mallIntro || '该资源为应用类内容，购买后可打开对应课程/应用。') }}</div>
+                <div class="viewer-app-meta">
+                  <span>所属应用：{{ viewerPage.resource.appName || '——' }}</span>
+                  <span>付费方式：{{ viewerPage.resource.payType }}</span>
+                  <span>有效期：{{ viewerPage.resource.validity || '1 年' }}</span>
+                </div>
+              </div>
+              <div class="viewer-app-actions">
+                <el-button type="primary" @click="viewerOpenApp">打开应用</el-button>
+              </div>
+            </div>
+          </template>
+
+          <!-- 链接类型：展示外链跳转 + 简介 -->
+          <template v-else-if="viewerPage.resource.contentType === '链接'">
+            <div class="viewer-link-card">
+              <div class="viewer-link-icon">{{ viewerPage.resource.icon }}</div>
+              <div class="viewer-link-info">
+                <div class="viewer-link-title">{{ viewerPage.resource.title }}</div>
+                <div class="viewer-link-overview">{{ viewerPage.resource.overview || '该资源以外部链接形式提供，点击下方按钮前往查看。' }}</div>
+              </div>
+              <div class="viewer-link-actions">
+                <el-button size="small">复制链接</el-button>
+                <el-button size="small" type="primary">前往查看</el-button>
+              </div>
+            </div>
+          </template>
+        </div>
+
+        <!-- 右：附件列表 -->
+        <div class="viewer-side-card">
+          <div class="viewer-side-title">{{ viewerPage.resource.title }}</div>
+          <div v-for="(a, idx) in (viewerPage.resource.attachments || [])" :key="a.id || idx"
+               :class="['viewer-side-item', { 'is-active': idx === 0 }]"
+               @click="viewerClickAttachment(a)">
+            <span class="viewer-side-dot" v-if="idx === 0">▶</span>
+            <span class="viewer-side-name">{{ a.name }}</span>
+          </div>
+          <div v-if="!(viewerPage.resource.attachments || []).length" class="viewer-side-empty">暂无附件</div>
+        </div>
+      </div>
+    </div>
+
     <!-- ============= P02 频道新增/编辑弹窗 ============= -->
     <el-dialog v-model="channelForm.visible" :title="channelFormTitle" width="640px">
       <!-- <div class="biz-form-section-title">基本信息（必填）</div> -->
       <el-form label-width="150px" label-position="right">
-        <el-form-item v-if="channelForm.data.parentId" label="父频道">
-          <el-input :model-value="channelForm.data.parentName" disabled></el-input>
+        <el-form-item v-if="channelForm.data.parentId || channelForm.mode === 'child'" label="所属父频道" required>
+          <el-select v-model="channelForm.data.parentId" placeholder="请选择所属父频道" style="width:100%;" @change="onChannelParentChange">
+            <el-option v-for="p in parentChannels" :key="p.id" :label="p.name" :value="p.id"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="频道名称" required>
           <el-input v-model="channelForm.data.name" maxlength="20" show-word-limit></el-input>
@@ -1073,9 +1824,9 @@
           <el-button>选择图片</el-button>
           <span style="margin-left:8px;color:#86909c;font-size:12px;">尺寸 68×68，大小 ≤100KB</span>
         </el-form-item>
-        <el-form-item label="频道图片" required>
+        <el-form-item label="频道图片" :required="!isSubChannelForm">
           <el-button>选择图片</el-button>
-          <span style="margin-left:8px;color:#86909c;font-size:12px;">大小 ≤300KB</span>
+          <span style="margin-left:8px;color:#86909c;font-size:12px;">{{ isSubChannelForm ? '子频道选填，大小 ≤5M' : '父频道必填，大小 ≤300KB' }}</span>
         </el-form-item>
         <el-form-item label="是否在资源中心展示" required>
           <el-radio-group v-model="channelForm.data.visible">
@@ -1086,6 +1837,60 @@
         <el-form-item label="排序" required>
           <el-input v-model="channelForm.data.order"></el-input>
         </el-form-item>
+        <!-- 跳转设置：仅子频道展示（添加子频道 / 编辑子频道） -->
+        <template v-if="isSubChannelForm">
+          <el-form-item label="跳转方式" required>
+            <el-radio-group v-model="channelForm.data.jumpMode">
+              <el-radio value="内部跳转">内部跳转</el-radio>
+              <el-radio value="应用">应用</el-radio>
+              <el-radio value="外部链接">外部链接</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item v-if="channelForm.data.jumpMode === '应用'" label="应用名称" required>
+            <el-select
+              v-model="channelForm.data.appName"
+              filterable
+              clearable
+              placeholder="输入应用名称模糊查询（最多 50 条）"
+              style="width:100%;">
+              <el-option v-for="a in appLibrary" :key="a.id" :label="a.name" :value="a.name"></el-option>
+            </el-select>
+          </el-form-item>
+          <!-- 内部跳转：地址非必填，不填默认跳转到该子频道界面 -->
+          <el-form-item v-if="channelForm.data.jumpMode === '内部跳转'" label="PC端跳转地址">
+            <el-input v-model="channelForm.data.pcUrl" placeholder="选填，不填则默认跳转到该子频道界面"></el-input>
+          </el-form-item>
+          <el-form-item v-if="channelForm.data.jumpMode === '内部跳转'" label="移动端跳转地址">
+            <el-input v-model="channelForm.data.mobileUrl" placeholder="选填，不填则默认跳转到该子频道界面"></el-input>
+          </el-form-item>
+          <!-- 应用 / 外部链接：目标地址需 http:// 或 https:// 前缀；外部链接必填 -->
+          <el-form-item
+            v-if="channelForm.data.jumpMode !== '内部跳转'"
+            label="PC端目标地址"
+            :required="channelForm.data.jumpMode === '外部链接'">
+            <el-input v-model="channelForm.data.pcUrl" placeholder="请输入目标地址">
+              <template #prepend>
+                <el-select v-model="channelForm.data.pcUrlProto" style="width:100px;">
+                  <el-option label="https://" value="https://"></el-option>
+                  <el-option label="http://" value="http://"></el-option>
+                </el-select>
+              </template>
+            </el-input>
+          </el-form-item>
+          <el-form-item
+            v-if="channelForm.data.jumpMode !== '内部跳转'"
+            label="移动端目标地址"
+            :required="channelForm.data.jumpMode === '外部链接'">
+            <el-input v-model="channelForm.data.mobileUrl" placeholder="请输入目标地址">
+              <template #prepend>
+                <el-select v-model="channelForm.data.mobileUrlProto" style="width:100px;">
+                  <el-option label="https://" value="https://"></el-option>
+                  <el-option label="http://" value="http://"></el-option>
+                </el-select>
+              </template>
+            </el-input>
+          </el-form-item>
+        </template>
       </el-form>
       <!-- <div class="biz-form-section-title">补充信息（选填）</div> -->
       <el-form label-width="130px">
@@ -1413,8 +2218,8 @@
           channelFilter: { name: '', visible: '' },
           channelRows: [
             { id: 'CH001', name: '教学资源', parentId: '', visible: '是', desc: '面向 K12 教学的资源频道（父频道）', order: 10, updatedAt: '2026-06-10 10:23:15' },
-            { id: 'CH001-1', name: '小学教学', parentId: 'CH001', visible: '是', desc: '小学阶段教学资源（子频道）', order: 10, updatedAt: '2026-06-10 10:25:00' },
-            { id: 'CH001-2', name: '初中教学', parentId: 'CH001', visible: '是', desc: '初中阶段教学资源（子频道）', order: 20, updatedAt: '2026-06-10 10:26:00' },
+            { id: 'CH001-1', name: '小学教学', parentId: 'CH001', visible: '是', desc: '小学阶段教学资源（子频道）', order: 10, updatedAt: '2026-06-10 10:25:00', jumpMode: '内部跳转', appName: '', pcUrlProto: 'https://', pcUrl: '', mobileUrlProto: 'https://', mobileUrl: '' },
+            { id: 'CH001-2', name: '初中教学', parentId: 'CH001', visible: '是', desc: '初中阶段教学资源（子频道）', order: 20, updatedAt: '2026-06-10 10:26:00', jumpMode: '应用', appName: '智慧课堂', pcUrlProto: 'https://', pcUrl: 'school.example.com/pc', mobileUrlProto: 'https://', mobileUrl: 'school.example.com/m' },
             { id: 'CH002', name: '拓展阅读', parentId: '', visible: '是', desc: '课外阅读拓展类频道（父频道）', order: 20, updatedAt: '2026-06-11 14:02:41' },
             { id: 'CH002-1', name: '经典诵读', parentId: 'CH002', visible: '是', desc: '经典诵读子频道', order: 10, updatedAt: '2026-06-11 14:10:00' },
             { id: 'CH003', name: '教研素材', parentId: '', visible: '否', desc: '教研专用素材（父频道），暂不在应用端展示', order: 30, updatedAt: '2026-06-09 09:15:22' }
@@ -1428,8 +2233,23 @@
           ],
           channelForm: {
             visible: false, mode: 'create',
-            data: { parentId: '', parentName: '', name: '', visible: '否', order: '', desc: '' }
+            data: {
+              parentId: '', parentName: '', name: '', visible: '是', order: '', desc: '',
+              // 跳转设置（仅子频道展示）：内部跳转 / 应用 / 外部链接
+              jumpMode: '内部跳转', appName: '',
+              pcUrlProto: 'https://', pcUrl: '',
+              mobileUrlProto: 'https://', mobileUrl: ''
+            }
           },
+          // 应用库（模拟）：按应用名称模糊查询，最多返回 50 条；paid=true 表示收费应用
+          appLibrary: [
+            { id: 'AP001', name: '智慧课堂', paid: true },
+            { id: 'AP002', name: '在线作业', paid: false },
+            { id: 'AP003', name: '学情分析', paid: true },
+            { id: 'AP004', name: '直播课堂', paid: false },
+            { id: 'AP005', name: '电子课本', paid: true },
+            { id: 'AP006', name: '错题本', paid: false }
+          ],
           categoryForm: {
             visible: false, mode: 'create',
             data: { parentChannelId: '', subChannelId: '', parentName: '', name: '', code: '', order: '', desc: '', dimItemMap: {}, dimSubMap: {} }
@@ -1477,12 +2297,131 @@
           },
           confirm: { visible: false, title: '', message: '' },
           resFilter: { title: '', parentChannelId: '', subChannelId: '', categoryId: '', status: '' },
+          // 资源数据：后台配置，门户（P12）与资源列表共用
+          // zone：门户板块（ai 建设者 / teaching 课程教学 / special 专题资源 / teacher 教师成长 / family 家校学思）
+          // icon、tone：门户卡片封面占位（原型无真实图片，用图标+渐变模拟）
+          // org、likes、tags：门户卡片展示的机构、点赞数、标签
+          // attachments：查看页右侧附件列表；overview：富文本/视频的简介
           resRows: [
-            { id: 'RES001', title: '小学一年级语文·汉语拼音教学课件', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 10, viewCount: 128, status: '已发布', updatedAt: '2026-06-20 09:12:00' },
-            { id: 'RES002', title: '初中语文·古诗词赏析合集', channelId: 'CH001-2', channelName: '教学资源 / 初中教学', categoryId: 'CT004', categoryName: '数学', order: 20, viewCount: 45, status: '未发布', updatedAt: '2026-06-21 15:08:00' },
-            { id: 'RES003', title: '数学思维训练营·PDF讲义', channelId: 'CH001-2', channelName: '教学资源 / 初中教学', categoryId: 'CT004', categoryName: '数学', order: 30, viewCount: 302, status: '已发布', updatedAt: '2026-06-22 11:44:00' }
+            { id: 'RES001', title: '小学一年级语文·汉语拼音教学课件', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 10, viewCount: 128, likes: 32, org: '实验小学', tags: ['语文', '一年级'], zone: 'ai', icon: '📘', tone: 1, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '45', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-20 09:12:00' },
+            { id: 'RES002', title: '初中语文·古诗词赏析合集', channelId: 'CH001-2', channelName: '教学资源 / 初中教学', categoryId: 'CT004', categoryName: '数学', order: 20, viewCount: 45, likes: 12, org: '文渊教育', tags: ['语文', '古诗词'], zone: 'teaching', icon: '📖', tone: 2, contentType: '应用和链接', appName: '智慧课堂', chargeType: '收费', payType: '机构', price: '299', duration: '2', durationUnit: '小时', status: '已发布', updatedAt: '2026-06-21 15:08:00',
+              // 商城购买页所需字段
+              mallIntro: '面向初中学段的古诗词赏析课程包，覆盖课内必背与课外延伸篇目，配合智慧课堂应用提供原文朗读、注释对照、典故解读、AI 赏析批注等能力。',
+              mallRichIntro: '<p>本课程包包含 <b>80 篇</b>古诗词，分主题单元编排：咏物、抒情、边塞、山水、哲理；每篇配套：原文、注释、译文、典故、AI 赏析、思考题、朗读音频。</p><ul><li>原文 + 拼音 + 注释，支持中英文双语切换</li><li>AI 智能批注：作者生平、写作背景、典故来源一键呈现</li><li>朗读音频由真人主播录制，支持跟读对比</li><li>配套课后练习题与单元测试，教师可一键下发</li></ul>',
+              mallIntroVideoName: '课程简介.mp4',
+              mallGallery: ['cover', 'preview-1', 'preview-2'],
+              skuList: [
+                { name: '机构版', price: '299', desc: '适用于机构整体部署；含 50 个教师账号 + 500 个学生账号；有效期 1 年' },
+                { name: '综合版', price: '149', desc: '适用于教研组；含 10 个教师账号 + 100 个学生账号；有效期 1 年' },
+                { name: '基础版', price: '79', desc: '适用于个人教师；含 1 个教师账号 + 30 个学生账号；有效期 6 个月' }
+              ],
+              validity: '1 年' },
+            { id: 'RES003', title: '数学思维训练营·PDF讲义', channelId: 'CH001-2', channelName: '教学资源 / 初中教学', categoryId: 'CT004', categoryName: '数学', order: 30, viewCount: 302, likes: 88, org: '思维学堂', tags: ['数学', '思维训练'], zone: 'ai', icon: '🧮', tone: 3, contentType: '文件·视频', appName: '', chargeType: '收费', payType: '机构', price: '199.9', duration: '2', durationUnit: '小时', status: '已发布', updatedAt: '2026-06-22 11:44:00',
+              mallIntro: '面向小学高年级与初中学段的数学思维训练营，PDF 讲义配套讲解视频，帮助学生建立数学思维方法论。',
+              mallRichIntro: '<p>课程共 <b>40 节</b>，分四个主题模块：数与运算、图形与几何、应用题、逻辑推理。每节配套 PDF 讲义、配套习题、视频精讲。</p><ul><li>训练营班主任全程答疑</li><li>学情报告按月推送</li><li>完成全部课程可获得结业证书</li></ul>',
+              mallIntroVideoName: '训练营介绍.mp4',
+              mallGallery: ['cover', 'preview-1', 'preview-2'],
+              skuList: [
+                { name: '机构版', price: '199.9', desc: '适用于机构整体部署；含 30 个学员账号；有效期 1 年' },
+                { name: '个人版', price: '49.9', desc: '1 个学员账号；有效期 6 个月' }
+              ],
+              validity: '1 年',
+              overview: '《数学思维训练营》面向小学高年级与初中学生，以 PDF 讲义 + 配套视频讲解的训练方式，系统训练学生的数学思维。',
+              attachments: [
+                { id: 'AT101', name: '数与运算·讲义.pdf', type: 'pdf', size: '4.6 MB' },
+                { id: 'AT102', name: '图形与几何·讲义.pdf', type: 'pdf', size: '5.2 MB' },
+                { id: 'AT103', name: '应用题专题·讲义.pdf', type: 'pdf', size: '3.8 MB' },
+                { id: 'AT104', name: '逻辑推理·讲义.pdf', type: 'pdf', size: '4.1 MB' },
+                { id: 'AT105', name: '思维训练·入门讲解.mp4', type: 'mp4', size: '186 MB' }
+              ] },
+            { id: 'RES004', title: 'AI 教育应用前沿与实践', channelId: 'CH001-2', channelName: '教学资源 / 初中教学', categoryId: 'CT004', categoryName: '数学', order: 40, viewCount: 512, likes: 156, org: '教科所', tags: ['AI', '前沿'], zone: 'ai', icon: '🤖', tone: 4, contentType: '应用和链接', appName: '学情分析', chargeType: '收费', payType: '个人', price: '99', duration: '1.5', durationUnit: '小时', status: '已发布', updatedAt: '2026-06-23 10:00:00',
+              mallIntro: '教科所联合出品，AI 教育应用前沿与实践课，结合学情分析应用帮助教师建立数据驱动的精准教学能力。',
+              mallRichIntro: '<p>本课程聚焦 AI 在教学中的落地场景，包含 <b>12 大主题</b>：AI 备课、AI 出题、AI 批改、学情诊断、个性化推荐、课堂行为分析、语音评测、作文评分等。</p><ul><li>配套学情分析应用账号，开通即可在班级试用</li><li>32 节视频课 + 6 次直播答疑</li><li>提供 5 个真实教学场景的 AI 应用案例与数据样本</li></ul>',
+              mallIntroVideoName: '课程简介.mp4',
+              mallGallery: ['cover', 'preview-1'],
+              skuList: [
+                { name: '个人版', price: '99', desc: '1 个教师账号；有效期 1 年' },
+                { name: '院校版', price: '1499', desc: '20 个教师账号 + 200 个学生账号；含集中培训；有效期 2 年' }
+              ],
+              validity: '1 年' },
+            { id: 'RES005', title: '小学语文·看图写话专项训练', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 50, viewCount: 220, likes: 64, org: '实验小学', tags: ['语文', '写作'], zone: 'ai', icon: '✏️', tone: 5, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '30', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-24 09:00:00' },
+            { id: 'RES006', title: '信息技术·Python 编程入门', channelId: 'CH001-2', channelName: '教学资源 / 初中教学', categoryId: 'CT004', categoryName: '数学', order: 60, viewCount: 486, likes: 132, org: '编程学院', tags: ['信息技术', 'Python'], zone: 'teaching', icon: '💻', tone: 6, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '60', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-25 14:20:00',
+              overview: '《初识人工智能》面向初中信息技术课堂，系统介绍人工智能的基本概念、典型应用与基础原理。配套课件 AI.docx、课程导论.pdf、讲解视频与拓展视频，支持教师课堂教学与学生课后自学。',
+              attachments: [
+                { id: 'AT001', name: '初探AI.docx', type: 'docx', size: '2.4 MB' },
+                { id: 'AT002', name: '第一课：初探人工智能.pdf', type: 'pdf', size: '5.1 MB' },
+                { id: 'AT003', name: '人工智能通识课-初探人工智能.mp4', type: 'mp4', size: '128 MB' },
+                { id: 'AT004', name: '扑燕姿大场.mp4', type: 'mp4', size: '186 MB' }
+              ] },
+            { id: 'RES007', title: '职业生涯规划·教师成长路径', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT001', categoryName: '语文', order: 70, viewCount: 96, likes: 28, org: '教师发展中心', tags: ['职业', '规划'], zone: 'teaching', icon: '🧭', tone: 2, contentType: '文件·视频', appName: '', chargeType: '收费', payType: '个人', price: '59.9', duration: '40', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-26 11:00:00' },
+            { id: 'RES008', title: '美育·色彩基础与鉴赏', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT002', categoryName: '现代文', order: 80, viewCount: 174, likes: 47, org: '艺术学院', tags: ['美育', '色彩'], zone: 'teaching', icon: '🎨', tone: 3, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '35', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-27 16:30:00' },
+            { id: 'RES009', title: '学之者·经典诵读课程包', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT002', categoryName: '现代文', order: 90, viewCount: 305, likes: 91, org: '文渊教育', tags: ['经典', '诵读'], zone: 'special', icon: '📜', tone: 4, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '50', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-28 08:40:00' },
+            { id: 'RES010', title: '听说写·表达能力训练', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT002', categoryName: '现代文', order: 100, viewCount: 158, likes: 39, org: '语言工作室', tags: ['听说写', '表达'], zone: 'special', icon: '🎙️', tone: 5, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '45', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-29 10:10:00' },
+            { id: 'RES011', title: '显示证·项目成果展示集', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 110, viewCount: 88, likes: 21, org: '教科所', tags: ['成果', '展示'], zone: 'special', icon: '🏆', tone: 6, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '25', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-30 15:00:00' },
+            { id: 'RES012', title: '专题探究·科学实验合集', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 120, viewCount: 142, likes: 44, org: '科学中心', tags: ['科学', '实验'], zone: 'special', icon: '🔬', tone: 1, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '55', durationUnit: '分钟', status: '已发布', updatedAt: '2026-07-01 09:30:00' },
+            { id: 'RES013', title: '师德师风·典型案例分析', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 130, viewCount: 263, likes: 76, org: '教师发展中心', tags: ['师德', '案例'], zone: 'teacher', icon: '🌱', tone: 2, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '40', durationUnit: '分钟', status: '已发布', updatedAt: '2026-07-02 14:00:00' },
+            { id: 'RES014', title: '课堂研究·观察与诊断方法', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 140, viewCount: 131, likes: 35, org: '教研院', tags: ['课堂', '研究'], zone: 'teacher', icon: '🔍', tone: 3, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '48', durationUnit: '分钟', status: '已发布', updatedAt: '2026-07-03 11:20:00' },
+            { id: 'RES015', title: '教研联动·校本研修实操', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 150, viewCount: 97, likes: 26, org: '教研院', tags: ['教研', '研修'], zone: 'teacher', icon: '🤝', tone: 4, contentType: '应用和链接', appName: '在线作业', chargeType: '免费', payType: '个人', price: '', duration: '1', durationUnit: '小时', status: '已发布', updatedAt: '2026-07-04 16:10:00' },
+            { id: 'RES016', title: '教师成长·进阶训练营', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 160, viewCount: 208, likes: 58, org: '教师发展中心', tags: ['成长', '进阶'], zone: 'teacher', icon: '🚀', tone: 5, contentType: '文件·视频', appName: '', chargeType: '收费', payType: '个人', price: '129', duration: '3', durationUnit: '小时', status: '已发布', updatedAt: '2026-07-05 09:00:00' },
+            { id: 'RES017', title: '家校共育·沟通技巧专题', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 170, viewCount: 189, likes: 52, org: '家校联盟', tags: ['家校', '沟通'], zone: 'family', icon: '🏠', tone: 6, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '35', durationUnit: '分钟', status: '已发布', updatedAt: '2026-07-06 10:40:00' },
+            { id: 'RES018', title: '研学课堂·设计与实施', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 180, viewCount: 121, likes: 33, org: '研学中心', tags: ['研学', '设计'], zone: 'family', icon: '🎒', tone: 1, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '42', durationUnit: '分钟', status: '已发布', updatedAt: '2026-07-07 15:20:00' },
+            { id: 'RES019', title: '常规选课·指导手册', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 190, viewCount: 76, likes: 18, org: '教务中心', tags: ['选课', '指导'], zone: 'family', icon: '📋', tone: 2, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '20', durationUnit: '分钟', status: '已发布', updatedAt: '2026-07-08 08:50:00' },
+            { id: 'RES020', title: '家庭教育·亲子共读指南', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 200, viewCount: 145, likes: 41, org: '家校联盟', tags: ['亲子', '阅读'], zone: 'family', icon: '👨‍👩‍👧', tone: 3, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '30', durationUnit: '分钟', status: '已发布', updatedAt: '2026-07-09 13:30:00' }
           ],
           resSteps: ['基本信息', '资源正文', '发布设置'],
+          // ===== 资源中心门户（P12，前台展示层）=====
+          portalVisible: false,
+          portalKeyword: '',
+          // 本地用户态开关：模拟当前登录用户是否已购买收费资源（原型不接后端）
+          portalUser: { purchased: false },
+          // 门户板块轮播索引
+          portalSlide: { special: 0, teacher: 0, family: 0 },
+          // 轻量提示条（门户内交互反馈，避免依赖额外组件）
+          portalToast: { visible: false, text: '' },
+          // 视频试看播放器：收费视频仅可免费试看 30 秒
+          player: {
+            visible: false, resource: null,
+            seconds: 0, playing: false, trialEnd: false, timer: null,
+            // freeFull：是否可完整观看（免费资源或已购买的收费视频）
+            freeFull: true
+          },
+          // 门户顶部导航
+          portalNavs: ['首页', 'AI建设者', '课程教学', '专题资源', '教师成长', '家校学思'],
+          portalNavActive: '首页',
+          // 五个分类入口
+          portalEntries: [
+            { id: 'E1', name: '小儿AI', icon: '🧒', tone: 1 },
+            { id: 'E2', name: '实验室', icon: '🧪', tone: 2 },
+            { id: 'E3', name: '项目化', icon: '📁', tone: 3 },
+            { id: 'E4', name: '教科所', icon: '🏫', tone: 4 },
+            { id: 'E5', name: '科学家', icon: '🔭', tone: 5 }
+          ],
+          // 课程教学板块标签（选中标签的资源排前，不足 4 条由本板块其余资源补齐）
+          teachingTags: ['语文', '信息技术', '职业', '美育'],
+          teachingTagActive: '语文',
+          // 轮播板块配置（标签 + 对应 zone）
+          portalZones: [
+            { key: 'special', title: '专题资源', tags: ['学之者', '听说写', '显示证', '专题探究'] },
+            { key: 'teacher', title: '教师成长', tags: ['师德师风', '课堂研究', '教研联动', '进阶训练'] },
+            { key: 'family', title: '家校学思', tags: ['家校共育', '研学课堂', '常规选', '亲子共读'] }
+          ],
+          // ===== 商城·应用购买页（独立页面，非弹窗）=====
+          mallPage: {
+            visible: false, resource: null,
+            activeSku: 0, qty: 1, activeTab: 'intro',
+            videoSeconds: 0, videoTimer: null
+          },
+          mallStock: 999,
+          // ===== 资源查看页（独立页面）=====
+          // 视频场景：付费未购→仅试看30秒；付费已购/免费→完整观看
+          viewerPage: {
+            visible: false, resource: null,
+            videoSeconds: 0, videoPlaying: false, videoTimer: null,
+            trialEnd: false, // 视频试看结束标记
+            freeFull: true,  // 是否可完整观看（免费或已购）
+            pageIndex: 1, pageTotal: 3,
+            zoom: 'auto' // PDF 阅读器缩放（演示占位）
+          },
           resForm: {
             mode: 'create', step: 0,
             audit: { checked: false, pass: false, hits: [] },
@@ -1494,6 +2433,13 @@
               sectionOn: '否',
               sections: [],
               files: [],
+              // 收费属性（chargeType/payType/price）不在新增/编辑表单展示（后台不采集）：
+              // 新增默认"免费"；方式=应用和链接且选择收费应用时随所选应用自动置"收费"（供前台分流）；
+              // 编辑已有收费资源时保留原值，不因编辑而清空
+              chargeType: '免费',
+              payType: '个人', price: '',
+              // 课时（非必填，支持小数）；durationUnit：分钟 / 小时
+              duration: '', durationUnit: '分钟',
               org: '', author: ''
             }
           },
@@ -1530,6 +2476,40 @@
         channelFormTitle() {
           if (this.channelForm.mode === 'edit') return '编辑频道';
           return this.channelForm.data.parentId ? '添加子频道' : '新增父频道';
+        },
+        isSubChannelForm() {
+          // 是否为子频道场景（添加子频道 / 编辑子频道）：仅此时展示跳转设置
+          return !!this.channelForm.data.parentId || this.channelForm.mode === 'child';
+        },
+        categoryRequired() {
+          // 所属分类是否必填：由所属频道下是否存在分类决定
+          // 该频道下有分类 → 必填；无分类 → 非必填
+          return this.categoryCascaderOptions.length > 0;
+        },
+        // ===== 门户：已发布资源（仅已发布对前台可见）=====
+        portalPublishedRows() {
+          return this.resRows.filter(r => r.status === '已发布');
+        },
+        playerProgress() {
+          // 试看进度：以 30 秒为满格（免费资源按已播放秒数占 30 秒比例，最多 100%）
+          return Math.min(100, Math.round((this.player.seconds / 30) * 100));
+        },
+        // ===== 商城购买页计算属性 =====
+        mallVideoProgress() {
+          // 商城视频演示按 60 秒为满格
+          return Math.min(100, Math.round((this.mallPage.videoSeconds / 60) * 100));
+        },
+        mallVideoPlaying() {
+          return !!this.mallPage.videoTimer;
+        },
+        defaultMallIntro() {
+          return '<p>本应用为资源中心提供的内容产品，购买后可使用全部功能。</p>';
+        },
+        // ===== 资源查看页计算属性 =====
+        viewerVideoProgress() {
+          // 试看进度：以 30 秒为满格（免费/已购时按 60 秒可视化为参考，但仅展示百分比）
+          const cap = this.viewerPage.freeFull ? 60 : 30;
+          return Math.min(100, Math.round((this.viewerPage.videoSeconds / cap) * 100));
         },
         parentChannels() {
           return this.channelRows.filter(c => !c.parentId);
@@ -1677,6 +2657,13 @@
           // 按当前所属频道下的类目重建条目/子条目多选槽位：
           // 保留仍属于该子频道类目的已选条目与已选子条目，切换到其它子频道时旧选择自动失效
           this.syncCategoryItemSlots();
+        },
+        'resForm.data.chargeType'(val) {
+          // 是否收费切为“免费”时清空付费方式与价格，避免脏数据提交
+          if (val !== '收费') {
+            this.resForm.data.payType = '个人';
+            this.resForm.data.price = '';
+          }
         }
       },
       methods: {
@@ -1734,25 +2721,46 @@
         },
         openChannelForm(mode, row) {
           this.channelForm.mode = mode;
+          // 跳转设置默认值：跳转方式默认“内部跳转”，地址协议前缀默认 https://
+          const jumpDefault = {
+            jumpMode: '内部跳转', appName: '',
+            pcUrlProto: 'https://', pcUrl: '',
+            mobileUrlProto: 'https://', mobileUrl: ''
+          };
+          const pickJump = (r) => ({
+            jumpMode: (r && r.jumpMode) || '内部跳转',
+            appName: (r && r.appName) || '',
+            pcUrlProto: (r && r.pcUrlProto) || 'https://',
+            pcUrl: (r && r.pcUrl) || '',
+            mobileUrlProto: (r && r.mobileUrlProto) || 'https://',
+            mobileUrl: (r && r.mobileUrl) || ''
+          });
           if (mode === 'edit' && row) {
-            // 编辑：若为子频道则回填 parentId + parentName（只读展示）
+            // 编辑：回填全部字段；若为子频道则回填所属父频道与跳转设置
             const parent = row.parentId ? this.channelRows.find(c => c.id === row.parentId) : null;
             this.channelForm.data = {
               parentId: row.parentId || '',
               parentName: parent ? parent.name : '',
-              name: row.name, visible: row.visible, order: row.order, desc: row.desc
+              name: row.name, visible: row.visible, order: row.order, desc: row.desc,
+              ...pickJump(row)
             };
           } else if (mode === 'create' && row) {
-            // 添加子频道：row 为父频道
+            // 添加子频道：row 为父频道，默认带出所属父频道，下拉可改；跳转方式默认“内部跳转”
             this.channelForm.data = {
               parentId: row.id, parentName: row.name,
-              name: '', visible: '否', order: '', desc: ''
+              name: '', visible: '是', order: '', desc: '',
+              ...jumpDefault
             };
           } else {
-            // 新增父频道
-            this.channelForm.data = { parentId: '', parentName: '', name: '', visible: '否', order: '', desc: '' };
+            // 新增父频道，是否在资源中心展示默认“是”，无跳转设置
+            this.channelForm.data = { parentId: '', parentName: '', name: '', visible: '是', order: '', desc: '', ...jumpDefault };
           }
           this.channelForm.visible = true;
+        },
+        onChannelParentChange(parentId) {
+          // 切换所属父频道时同步名称（用于列表/保存）
+          const p = this.channelRows.find(c => c.id === parentId);
+          this.channelForm.data.parentName = p ? p.name : '';
         },
         openCategoryForm(mode, row) {
           this.categoryForm.mode = mode;
@@ -1913,6 +2921,11 @@
               sectionOn: row.sectionOn || '否',
               sections: row.sections ? [...row.sections] : [],
               files: row.files ? [...row.files] : [],
+              chargeType: row.chargeType || '免费',
+              payType: row.payType || '个人',
+              price: row.price !== undefined && row.price !== null ? row.price : '',
+              duration: row.duration !== undefined && row.duration !== null ? row.duration : '',
+              durationUnit: row.durationUnit || '分钟',
               org: row.org || '', author: row.author || ''
             };
           } else {
@@ -1924,6 +2937,9 @@
               sectionOn: '否',
               sections: [],
               files: [],
+              chargeType: '免费',
+              payType: '个人', price: '',
+              duration: '', durationUnit: '分钟',
               org: '', author: ''
             };
           }
@@ -1968,6 +2984,266 @@
         },
         addResFile() {
           this.openAddFileDialog();
+        },
+        // ===== 门户（P12）=====
+        openPortal() {
+          this.portalVisible = true;
+          this.portalKeyword = '';
+        },
+        closePortal() {
+          this.portalVisible = false;
+          this.player.visible = false;
+          this.stopTrial();
+          // 同时关闭购买页与查看页，避免状态残留
+          this.closeMallPage();
+          this.closeViewerPage();
+        },
+        portalCards(zone) {
+          // 门户卡片：取该板块已发布资源，支持顶部搜索（标题/机构/标签模糊匹配）
+          let rows = this.portalPublishedRows.filter(r => r.zone === zone);
+          const kw = (this.portalKeyword || '').trim();
+          if (kw) {
+            rows = rows.filter(r =>
+              r.title.includes(kw) || (r.org || '').includes(kw) || (r.tags || []).some(t => t.includes(kw))
+            );
+            return rows;
+          }
+          // 课程教学板块：选中标签的资源排前，不足 4 条由本板块其余资源补齐
+          if (zone === 'teaching') {
+            const tag = this.teachingTagActive;
+            const hit = rows.filter(r => (r.tags || []).includes(tag));
+            const rest = rows.filter(r => !(r.tags || []).includes(tag));
+            return hit.concat(rest).slice(0, 4);
+          }
+          return rows;
+        },
+        portalNext(key) {
+          // 轮播右移：最多移动到「总数 - 3」，保证右侧不空白
+          const total = this.portalCards(key).length;
+          const max = Math.max(0, total - 3);
+          this.portalSlide[key] = Math.min(max, this.portalSlide[key] + 1);
+        },
+        portalPrev(key) {
+          this.portalSlide[key] = Math.max(0, this.portalSlide[key] - 1);
+        },
+        showPortalToast(text) {
+          this.portalToast = { visible: true, text };
+          clearTimeout(this._portalToastTimer);
+          this._portalToastTimer = setTimeout(() => { this.portalToast.visible = false; }, 2000);
+        },
+        // 资源点击统一入口：按「是否收费 + 是否已购买 + contentType」分流
+        // ① 免费资源            → 直接进入资源查看页
+        // ② 收费资源·已购买     → 直接进入资源查看页（不再单点跳转应用）
+        // ③ 收费资源·未购买+应用 → 进入应用购买页
+        // ④ 收费资源·未购买+其它 → 进入资源查看页（视频限 30 秒试看，到点引导购买）
+        openResource(r) {
+          // 收费且未购买：应用类去购买页；非应用类进查看页试看
+          if (r.chargeType === '收费' && !this.portalUser.purchased && r.contentType === '应用和链接') {
+            this.openMall(r);
+            return;
+          }
+          // 免费、或已购买 → 统一打开资源查看页
+          this.openViewer(r);
+        },
+        enterFreeResource(r) {
+          // 免费资源：直接进入资源查看页
+          this.openViewer(r);
+        },
+        showBuyDialog(r) {
+          // 未购买：提示跳转商城购买
+          const priceText = r.price ? (r.price + ' 元') : '——';
+          this.showConfirm(
+            '该资源为收费内容',
+            '「' + r.title + '」为收费资源（付费方式：' + r.payType + '，价格：' + priceText + '）。' +
+            (r.contentType === '应用和链接' ? '购买后打开资源查看页查看资源详情。' : '未购买仅可免费试看 30 秒，购买后可完整观看。') +
+            '是否前往商城购买？',
+            () => this.gotoMall(r)
+          );
+        },
+        gotoMall(r) {
+          // 打开资源中心·应用购买页（商城弹窗）
+          this.player.visible = false;
+          this.stopTrial();
+          this.openMall(r);
+        },
+        gotoApp(r) {
+          // 单点跳转到对应课程/应用
+          const app = this.appLibrary.find(a => a.name === r.appName);
+          const target = app ? app.name : (r.appName || '课程');
+          this.showPortalToast('已单点跳转到「' + target + '」：' + r.title);
+          console.log('[portal] goto app:', target, r);
+        },
+        // ===== 视频试看播放器 =====
+        openPlayer(r, paid) {
+          this.stopTrial();
+          this.player.resource = r;
+          this.player.seconds = 0;
+          this.player.trialEnd = false;
+          this.player.visible = true;
+          // 收费视频未购买 → 仅试看 30 秒；免费或已购买 → 完整观看
+          this.player.freeFull = r.chargeType !== '收费' || !!paid;
+          this.togglePlay();
+        },
+        togglePlay() {
+          if (this.player.playing) {
+            this.stopTrial();
+            return;
+          }
+          if (this.player.trialEnd) return;
+          this.player.playing = true;
+          this.player.timer = setInterval(() => {
+            this.player.seconds++;
+            // 收费视频未购买：30 秒后停止并提示购买
+            if (!this.player.freeFull && this.player.seconds >= 30) {
+              this.player.seconds = 30;
+              this.stopTrial();
+              this.player.trialEnd = true;
+            }
+          }, 1000);
+        },
+        stopTrial() {
+          if (this.player.timer) {
+            clearInterval(this.player.timer);
+            this.player.timer = null;
+          }
+          this.player.playing = false;
+        },
+        resetTrial() {
+          this.stopTrial();
+          this.player.seconds = 0;
+          this.player.trialEnd = false;
+          this.togglePlay();
+        },
+        // ===== 资源查看页方法 =====
+        openViewer(r) {
+          this.viewerPage.resource = r;
+          this.viewerPage.videoSeconds = 0;
+          this.viewerPage.videoPlaying = false;
+          this.viewerPage.trialEnd = false;
+          // 收费视频未购→试看 30 秒；免费或已购→完整观看
+          const trialLocked = r.contentType === '文件·视频' && r.chargeType === '收费' && !this.portalUser.purchased;
+          this.viewerPage.freeFull = !trialLocked;
+          this.viewerPage.visible = true;
+        },
+        closeViewerPage() {
+          this.stopViewerVideo();
+          this.viewerPage.visible = false;
+          this.viewerPage.resource = null;
+        },
+        viewerVideoToggle() {
+          if (this.viewerPage.trialEnd) return;
+          if (this.viewerPage.videoPlaying) {
+            this.stopViewerVideo();
+            return;
+          }
+          this.viewerPage.videoPlaying = true;
+          this.viewerPage.videoTimer = setInterval(() => {
+            this.viewerPage.videoSeconds++;
+            // 收费视频未购：30 秒后停止并提示购买
+            if (!this.viewerPage.freeFull && this.viewerPage.videoSeconds >= 30) {
+              this.viewerPage.videoSeconds = 30;
+              this.stopViewerVideo();
+              this.viewerPage.trialEnd = true;
+              this.viewerPage.videoPlaying = false;
+            }
+          }, 1000);
+        },
+        stopViewerVideo() {
+          if (this.viewerPage.videoTimer) {
+            clearInterval(this.viewerPage.videoTimer);
+            this.viewerPage.videoTimer = null;
+          }
+          this.viewerPage.videoPlaying = false;
+        },
+        viewerVideoRestart() {
+          if (this.viewerPage.trialEnd) return;
+          this.stopViewerVideo();
+          this.viewerPage.videoSeconds = 0;
+          this.viewerVideoToggle();
+        },
+        viewerOpenApp() {
+          // 应用类资源已购买：从查看页单点跳转对应课程/应用
+          const r = this.viewerPage.resource;
+          if (!r) return;
+          this.gotoApp(r);
+        },
+        viewerClickAttachment(a) {
+          // 附件点击：试看页内 PDF/视频 切换演示
+          this.showPortalToast('已打开附件：' + a.name);
+        },
+        viewerPageZoom(direction) {
+          // 演示占位：真实环境对接 PDF 阅读器缩放
+          if (direction === '+' && this.viewerPage.pageIndex < this.viewerPage.pageTotal) this.viewerPage.pageIndex++;
+          if (direction === '-' && this.viewerPage.pageIndex > 1) this.viewerPage.pageIndex--;
+        },
+        viewerBuyNow() {
+          // 试看结束后的去购买：跳转购买页
+          this.closeViewerPage();
+          this.openMall(this.viewerPage.resource || (this.portalCards('ai')[0]));
+        },
+        // ===== 商城购买页方法（独立页面，非弹窗）=====
+        openMall(r) {
+          this.mallPage.resource = r;
+          this.mallPage.activeSku = 0;
+          this.mallPage.qty = 1;
+          this.mallPage.activeTab = 'intro';
+          this.mallPage.videoSeconds = 0;
+          this.mallPage.visible = true;
+          this.player.visible = false;
+          this.stopTrial();
+        },
+        closeMallPage() {
+          this.stopMallVideo();
+          this.mallPage.visible = false;
+          this.mallPage.resource = null;
+        },
+        mallSku(idx) {
+          const r = this.mallPage.resource;
+          const list = (r && r.skuList) || [];
+          return list[idx] || { name: '——', price: r ? r.price || '0' : '0', desc: '' };
+        },
+        addMallToCart() {
+          const sku = this.mallSku(this.mallPage.activeSku);
+          this.showPortalToast('已加入购物车：' + this.mallPage.resource.title + ' · ' + sku.name + ' × ' + this.mallPage.qty);
+          console.log('[mall] add to cart:', this.mallPage.resource.id, sku, this.mallPage.qty);
+        },
+        mallBuyNow() {
+          const sku = this.mallSku(this.mallPage.activeSku);
+          this.showPortalToast('已发起购买：' + this.mallPage.resource.title + ' · ' + sku.name + ' · ¥ ' + sku.price + ' × ' + this.mallPage.qty + '（原型占位，未真实支付）');
+          console.log('[mall] buy now:', this.mallPage.resource.id, sku, this.mallPage.qty);
+          this.portalUser.purchased = true;
+          this.closeMallPage();
+        },
+        mallVideoToggle() {
+          if (this.mallPage.videoTimer) {
+            this.stopMallVideo();
+            return;
+          }
+          this.mallPage.videoTimer = setInterval(() => {
+            this.mallPage.videoSeconds++;
+            if (this.mallPage.videoSeconds >= 60) {
+              this.mallPage.videoSeconds = 60;
+              this.stopMallVideo();
+            }
+          }, 1000);
+        },
+        stopMallVideo() {
+          if (this.mallPage.videoTimer) {
+            clearInterval(this.mallPage.videoTimer);
+            this.mallPage.videoTimer = null;
+          }
+        },
+        mallVideoRestart() {
+          this.stopMallVideo();
+          this.mallPage.videoSeconds = 0;
+          this.mallVideoToggle();
+        },
+        onResAppChange(name) {
+          // 展示方式=应用和链接时，是否收费以所选应用的收费方式为准：
+          // 收费应用 → 默认选中“收费”；免费应用 → “免费”
+          if (this.resForm.data.contentType !== '应用和链接') return;
+          const app = this.appLibrary.find(a => a.name === name) || null;
+          this.resForm.data.chargeType = app && app.paid ? '收费' : '免费';
         },
         // —— 章节：编辑（章节名 + 排序） ——
         openEditSectionDialog(sectionId) {
