@@ -125,7 +125,8 @@
       margin-bottom: 12px;
     }
     .biz-card-title { font-size: 15px; font-weight: 600; }
-    .biz-card-actions { display: flex; gap: 8px; }
+    .biz-card-actions { display: flex; align-items: center; gap: 8px; }
+    .biz-card-tip { font-size: 12px; color: #86909c; }
 
     /* 原生 table */
     .biz-table { width: 100%; border-collapse: collapse; font-size: 14px; }
@@ -235,6 +236,13 @@
     }
     /* P11 表单统一输入框宽度 */
     .res-input { width: 360px; }
+    /* 硬件/服务：色值预览 + 上传列表 */
+    .hw-color-preview { display: inline-block; width: 22px; height: 22px; margin-left: 8px; border: 1px solid #dcdfe6; border-radius: 4px; vertical-align: middle; }
+    .hw-field-tip { color: #86909c; font-size: 12px; line-height: 20px; margin-left: 8px; }
+    .hw-upload-list { margin-top: 8px; width: 520px; }
+    .hw-upload-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; margin-bottom: 6px; background: #f7faff; border: 1px solid #e6ecf5; border-radius: 4px; }
+    .hw-upload-name { flex: 1; font-size: 13px; color: #1f2329; }
+    .hw-upload-size { color: #86909c; font-size: 12px; }
     select.res-input {
       height: 32px; padding: 0 10px;
       border: 1px solid #dcdfe6; border-radius: 6px;
@@ -597,6 +605,13 @@
             <div class="shell-nav-group-title">资源管理</div>
             <el-menu :default-active="currentPage.id" @select="handleNavSelect">
               <el-menu-item index="P10">资源列表</el-menu-item>
+            </el-menu>
+          </div>
+          <div class="shell-nav-group">
+            <div class="shell-nav-group-title">硬件与服务管理</div>
+            <el-menu :default-active="currentPage.id" @select="handleNavSelect">
+              <el-menu-item index="P20">智慧硬件与服务</el-menu-item>
+              <el-menu-item index="P21">预约记录</el-menu-item>
             </el-menu>
           </div>
         </aside>
@@ -1047,7 +1062,11 @@
                   <div class="biz-card-head">
                     <div class="biz-card-title">资源列表</div>
                     <div class="biz-card-actions">
-                      <el-button @click="showConfirm('批量删除所选资源？', '已发布资源需先下架才能删除')">批量删除</el-button>
+                      <el-button :disabled="!resSelectedRows.length" @click="batchPublishRes">批量上架</el-button>
+                      <el-button :disabled="!resSelectedRows.length" @click="batchUnpublishRes">批量下架</el-button>
+                      <el-button :disabled="!resSelectedRows.length" @click="batchRecommendRes">批量推荐</el-button>
+                      <el-button :disabled="!resSelectedRows.length" @click="batchCancelRecommendRes">批量取消推荐</el-button>
+                      <el-button :disabled="!resSelectedRows.length" @click="batchDeleteRes">批量删除</el-button>
                       <el-button @click="openResImportDialog">批量导入</el-button>
                       <el-button type="primary" @click="openResForm('create')">新增资源</el-button>
                     </div>
@@ -1055,22 +1074,23 @@
                   <table class="biz-table">
                     <thead>
                       <tr>
-                        <th class="col-check"><input type="checkbox"></th>
+                        <th class="col-check"><input type="checkbox" :checked="resAllChecked" @change="toggleAllRes"></th>
                         <th>资源标题</th>
                         <th>所属频道</th>
                         <th>所属分类</th>
                         <th>排序</th>
                         <th>查看次数</th>
                         <th>状态</th>
+                        <th>推荐</th>
                         <th>更新时间</th>
                         <th class="col-actions">操作</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr v-for="row in resRows" :key="row.id">
-                        <td><input type="checkbox"></td>
+                        <td><input type="checkbox" v-model="row.checked"></td>
                         <td>{{ row.title }}</td>
-                        <td>{{ row.channelName }}</td>
+                        <td>{{ subChannelName(row.channelName) }}</td>
                         <td>{{ row.categoryName }}</td>
                         <td>{{ row.order }}</td>
                         <td>{{ row.viewCount }}</td>
@@ -1078,16 +1098,22 @@
                           <el-tag v-if="row.status === '已发布'" type="success">已发布</el-tag>
                           <el-tag v-else type="info">未发布</el-tag>
                         </td>
+                        <td>
+                          <el-tag v-if="row.recommended === '是'" type="danger" size="small">推荐</el-tag>
+                          <span v-else style="color:#c0c4cc;">—</span>
+                        </td>
                         <td>{{ row.updatedAt }}</td>
                         <td style="white-space:nowrap;">
                           <el-button size="small" text type="primary" @click="showConfirm('预览资源？', '模拟应用端详情展示：' + row.title)">预览</el-button>
-                          <el-button size="small" text type="primary" @click="openResForm('edit', row)">编辑</el-button>
-                          <el-button v-if="row.status === '未发布'" size="small" text type="success" @click="showConfirm('确认发布该资源？', '发布后应用端可获取')">发布</el-button>
-                          <el-button v-else size="small" text type="warning" @click="showConfirm('确认下架该资源？', '下架后应用端不再获取')">下架</el-button>
-                          <el-button size="small" text type="danger" :disabled="row.status === '已发布'" @click="showConfirm('确认删除该资源？', '删除后不可恢复')">删除</el-button>
+                          <el-button v-if="row.status === '未发布'" size="small" text type="primary" @click="openResForm('edit', row)">编辑</el-button>
+                          <el-button v-if="row.status === '未发布'" size="small" text type="success" @click="publishRes(row)">上架</el-button>
+                          <el-button v-else size="small" text type="warning" @click="unpublishRes(row)">下架</el-button>
+                          <el-button v-if="row.status === '已发布' && row.recommended !== '是'" size="small" text type="danger" @click="toggleRecommend(row, '是')">设为推荐</el-button>
+                          <el-button v-if="row.status === '已发布' && row.recommended === '是'" size="small" text type="info" @click="toggleRecommend(row, '否')">取消推荐</el-button>
+                          <el-button v-if="row.status === '未发布'" size="small" text type="danger" @click="showConfirm('确认删除该资源？', '删除后不可恢复')">删除</el-button>
                         </td>
                       </tr>
-                      <tr v-if="!resRows.length"><td colspan="9" class="biz-empty">暂无资源，请点击右上角新增</td></tr>
+                      <tr v-if="!resRows.length"><td colspan="10" class="biz-empty">暂无资源，请点击右上角新增</td></tr>
                     </tbody>
                   </table>
                   <div class="biz-pagination">
@@ -1150,6 +1176,17 @@
                           class="res-input"></el-cascader>
                         <span v-if="!categoryRequired" style="color:#86909c;font-size:12px;">该所属频道下暂无分类，此为非必填</span>
                       </el-form-item>
+                      <el-form-item label="类目及类目条目" v-if="resForm.data.categoryId && dimsOfCurrentCategory.length">
+                        <div style="width:100%;">
+                          <div v-for="dim in dimsOfCurrentCategory" :key="dim.id" style="margin-bottom:8px;">
+                            <div style="color:#4e5969;font-size:13px;margin-bottom:4px;">{{ dim.name }}</div>
+                            <el-checkbox-group v-model="resForm.data.itemMap[dim.id]">
+                              <el-checkbox v-for="it in itemsOfDim(dim.id)" :key="it.id" :value="it.id" :disabled="isItemLockedByCategory(dim.id, it.id)">{{ it.name }}</el-checkbox>
+                            </el-checkbox-group>
+                          </div>
+                          <div style="color:#86909c;font-size:12px;margin-top:4px;">展示所属分类所在子频道下全部类目及类目条目；该分类已关联的类目条目默认勾选且不可取消（R-CH-23）</div>
+                        </div>
+                      </el-form-item>
                       <el-form-item label="排序" required>
                         <el-input v-model="resForm.data.order" class="res-input"></el-input>
                       </el-form-item>
@@ -1180,6 +1217,42 @@
                           <el-option label="小时" value="小时"></el-option>
                         </el-select>
                       </el-form-item>
+
+                      <!-- 收费方式：免费/收费，默认免费；收费且内容展示方式≠应用和链接时，展示购买引导字段（均必填） -->
+                      <el-form-item label="收费方式" required>
+                        <el-radio-group v-model="resForm.data.chargeType">
+                          <el-radio value="免费">免费</el-radio>
+                          <el-radio value="收费">收费</el-radio>
+                        </el-radio-group>
+                      </el-form-item>
+                      <template v-if="resNeedBuyGuide">
+                        <!-- 权益：数值（支持小数）+ 单位（天 / 次），收费资源必填 -->
+                        <el-form-item label="权益" required>
+                          <el-input v-model="resForm.data.rightsValue" placeholder="请输入数量，支持小数" class="res-input" style="width:220px;"></el-input>
+                          <el-select v-model="resForm.data.rightsUnit" style="width:110px;margin-left:8px;">
+                            <el-option label="天" value="天"></el-option>
+                            <el-option label="次" value="次"></el-option>
+                          </el-select>
+                          <div class="hw-field-tip" style="margin:4px 0 0;">收费资源必填：数值 + 单位，如 7 天、3 次，控制权益的有效时长或可用次数</div>
+                        </el-form-item>
+                        <el-form-item label="应用选择" required>
+                          <el-select
+                            v-model="resForm.data.buyApp"
+                            filterable
+                            clearable
+                            placeholder="输入应用名称模糊查询（最多 50 条）"
+                            class="res-input">
+                            <el-option v-for="a in appLibrary" :key="'buy' + a.id" :label="a.name + (a.paid ? '（收费）' : '（免费）')" :value="a.name"></el-option>
+                          </el-select>
+                        </el-form-item>
+                        <el-form-item label="PC端链接">
+                          <el-input v-model="resForm.data.buyPcLink" maxlength="200" show-word-limit placeholder="请输入 PC 端购买/详情地址，选填" class="res-input"></el-input>
+                        </el-form-item>
+                        <el-form-item label="移动端链接">
+                          <el-input v-model="resForm.data.buyMobileLink" maxlength="200" show-word-limit placeholder="请输入移动端购买/详情地址，选填" class="res-input"></el-input>
+                        </el-form-item>
+                        <div class="hw-field-tip" style="margin:0 0 8px 140px;">收费方式=收费且内容展示方式≠应用和链接时，权益与应用选择必填，PC端/移动端链接选填（作为收费资源的购买去向，未填则应用端不给出跳转入口）</div>
+                      </template>
 
                       <!-- 富文本 -->
                       <template v-if="resForm.data.contentType === '富文本'">
@@ -1316,6 +1389,281 @@
                       <el-button @click="submitResource(false)">提交</el-button>
                       <el-button type="primary" @click="submitResource(true)">提交并发布</el-button>
                     </template>
+                  </div>
+                </div>
+              </template>
+
+              <!-- ============= P20 智慧硬件与服务列表页 ============= -->
+              <template v-if="currentPage.id === 'P20'">
+                <div class="biz-toolbar">
+                  <div class="biz-field">
+                    <span class="biz-field-label">名称</span>
+                    <input type="text" v-model="hwFilter.name" placeholder="硬件/服务名称">
+                  </div>
+                  <div class="biz-field">
+                    <span class="biz-field-label">频道</span>
+                    <el-cascader
+                      v-model="hwFilter.subChannelId"
+                      :options="channelCascaderOptions"
+                      :props="{ emitPath: false, expandTrigger: 'hover' }"
+                      @change="hwFilter.categoryId = ''"
+                      placeholder="请选择频道"
+                      clearable
+                      style="width:260px;"></el-cascader>
+                  </div>
+                  <div class="biz-field">
+                    <span class="biz-field-label">分类</span>
+                    <select v-model="hwFilter.categoryId">
+                      <option value="">全部</option>
+                      <option v-for="c in categoriesOfSubChannel(hwFilter.subChannelId)" :key="c.id" :value="c.id">{{ c.name }}</option>
+                    </select>
+                  </div>
+                  <div class="biz-field">
+                    <span class="biz-field-label">状态</span>
+                    <select v-model="hwFilter.status">
+                      <option value="">全部</option>
+                      <option value="未发布">未发布</option>
+                      <option value="已发布">已发布</option>
+                      <option value="已下架">已下架</option>
+                    </select>
+                  </div>
+                  <div class="biz-toolbar-actions">
+                    <el-button @click="resetHwFilter">重置</el-button>
+                    <el-button type="primary">查询</el-button>
+                  </div>
+                </div>
+
+                <div class="biz-card">
+                  <div class="biz-card-head">
+                    <div class="biz-card-title">智慧硬件与服务列表</div>
+                    <div class="biz-card-actions">
+                      <el-button :disabled="!hwSelectedRows.length" @click="batchPublishHardware">批量发布</el-button>
+                      <el-button :disabled="!hwSelectedRows.length" @click="batchUnpublishHardware">批量下架</el-button>
+                      <el-button type="primary" @click="openHardwareForm('create')">新增</el-button>
+                    </div>
+                  </div>
+                  <table class="biz-table">
+                    <thead>
+                      <tr>
+                        <th class="col-check"><input type="checkbox" :checked="hwAllChecked" @change="toggleAllHardware"></th>
+                        <th>名称</th>
+                        <th>类型</th>
+                        <th>频道</th>
+                        <th>分类</th>
+                        <th>排序</th>
+                        <th>查看次数</th>
+                        <th>状态</th>
+                        <th>更新时间</th>
+                        <th class="col-actions">操作</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="row in filteredHardwares" :key="row.id">
+                        <td><input type="checkbox" v-model="row.checked"></td>
+                        <td>{{ row.name }}</td>
+                        <td>
+                          <el-tag size="small" effect="plain" :type="row.type === '智慧硬件' ? 'primary' : 'warning'">{{ row.type }}</el-tag>
+                        </td>
+                        <td>{{ subChannelPathOf(row.subChannelId) }}</td>
+                        <td>{{ row.categoryName }}</td>
+                        <td>{{ row.order }}</td>
+                        <td>{{ row.viewCount }}</td>
+                        <td>
+                          <el-tag v-if="row.status === '已发布'" type="success" size="small">已发布</el-tag>
+                          <el-tag v-else-if="row.status === '已下架'" type="info" size="small">已下架</el-tag>
+                          <el-tag v-else type="warning" size="small">未发布</el-tag>
+                        </td>
+                        <td>{{ row.updatedAt }}</td>
+                        <td style="white-space:nowrap;">
+                          <el-button size="small" text type="primary" @click="openHardwareForm('edit', row)">编辑</el-button>
+                          <el-button v-if="row.status !== '已发布'" size="small" text type="success" @click="publishHardware(row)">发布</el-button>
+                          <el-button v-else size="small" text type="warning" @click="unpublishHardware(row)">下架</el-button>
+                          <el-button size="small" text type="danger" :disabled="row.status === '已发布'" @click="removeHardware(row)">删除</el-button>
+                        </td>
+                      </tr>
+                      <tr v-if="!filteredHardwares.length"><td colspan="10" class="biz-empty">暂无硬件或服务，请点击右上角新增</td></tr>
+                    </tbody>
+                  </table>
+                  <div class="biz-pagination">
+                    <span>共 {{ filteredHardwares.length }} 条</span>
+                    <button>&lt;</button><span>1</span><button>&gt;</button>
+                    <span>20 条/页</span>
+                  </div>
+                </div>
+              </template>
+
+              <!-- ============= P21 预约记录列表页 ============= -->
+              <template v-if="currentPage.id === 'P21'">
+                <div class="biz-toolbar">
+                  <div class="biz-field">
+                    <span class="biz-field-label">名称</span>
+                    <input type="text" v-model="bookingFilter.name" placeholder="硬件/服务名称">
+                  </div>
+                  <div class="biz-field">
+                    <span class="biz-field-label">预约人</span>
+                    <input type="text" v-model="bookingFilter.contactName">
+                  </div>
+                  <div class="biz-field">
+                    <span class="biz-field-label">状态</span>
+                    <select v-model="bookingFilter.status">
+                      <option value="">全部</option>
+                      <option value="待处理">待处理</option>
+                      <option value="已受理">已受理</option>
+                      <option value="已完成">已完成</option>
+                      <option value="已取消">已取消</option>
+                    </select>
+                  </div>
+                  <div class="biz-toolbar-actions">
+                    <el-button @click="resetBookingFilter">重置</el-button>
+                    <el-button type="primary">查询</el-button>
+                  </div>
+                </div>
+
+                <div class="biz-card">
+                  <div class="biz-card-head">
+                    <div class="biz-card-title">预约记录</div>
+                    <div class="biz-card-actions">
+                      <span class="biz-card-tip">预约由应用端用户提交，后台仅可查看与处理，不支持新增</span>
+                    </div>
+                  </div>
+                  <table class="biz-table">
+                    <thead>
+                      <tr>
+                        <th>预约编号</th>
+                        <th>硬件/服务名称</th>
+                        <th>类型</th>
+                        <th>预约人</th>
+                        <th>联系方式</th>
+                        <th>预约时间</th>
+                        <th>状态</th>
+                        <th>创建时间</th>
+                        <th class="col-actions">操作</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="row in filteredBookings" :key="row.id">
+                        <td>{{ row.id }}</td>
+                        <td>{{ row.hardwareName }}</td>
+                        <td>{{ row.type }}</td>
+                        <td>{{ row.contactName }}</td>
+                        <td>{{ row.phone }}</td>
+                        <td>{{ row.bookTime }}</td>
+                        <td>
+                          <el-tag v-if="row.status === '待处理'" type="warning" size="small">待处理</el-tag>
+                          <el-tag v-else-if="row.status === '已受理'" type="primary" size="small">已受理</el-tag>
+                          <el-tag v-else-if="row.status === '已完成'" type="success" size="small">已完成</el-tag>
+                          <el-tag v-else type="info" size="small">已取消</el-tag>
+                        </td>
+                        <td>{{ row.createdAt }}</td>
+                        <td style="white-space:nowrap;">
+                          <el-button size="small" text type="primary" @click="openBookingDetail(row)">查看</el-button>
+                          <el-button v-if="row.status === '待处理'" size="small" text type="success" @click="acceptBooking(row)">受理</el-button>
+                          <el-button v-if="row.status === '待处理' || row.status === '已受理'" size="small" text type="danger" @click="cancelBooking(row)">取消</el-button>
+                        </td>
+                      </tr>
+                      <tr v-if="!filteredBookings.length"><td colspan="9" class="biz-empty">暂无预约记录</td></tr>
+                    </tbody>
+                  </table>
+                  <div class="biz-pagination">
+                    <span>共 {{ filteredBookings.length }} 条</span>
+                    <button>&lt;</button><span>1</span><button>&gt;</button>
+                    <span>20 条/页</span>
+                  </div>
+                </div>
+              </template>
+
+              <!-- ============= P22 硬件/服务 新增/编辑页 ============= -->
+              <template v-if="currentPage.id === 'P22'">
+                <div class="biz-card">
+                  <div class="biz-card-head">
+                    <div class="biz-card-title">{{ hardwareForm.mode === 'create' ? '新增硬件/服务' : '编辑硬件/服务' }}</div>
+                    <div class="biz-card-actions">
+                      <el-button @click="goHwList">返回列表</el-button>
+                    </div>
+                  </div>
+
+                  <el-form label-width="140px">
+                    <el-form-item label="名称" required>
+                      <el-input v-model="hardwareForm.data.name" maxlength="30" show-word-limit class="res-input" placeholder="请输入硬件或服务名称"></el-input>
+                    </el-form-item>
+                    <el-form-item label="类型" required>
+                      <el-radio-group v-model="hardwareForm.data.type">
+                        <el-radio value="智慧硬件">智慧硬件</el-radio>
+                        <el-radio value="定制服务">定制服务</el-radio>
+                      </el-radio-group>
+                    </el-form-item>
+                    <el-form-item label="所属频道" required>
+                      <el-cascader
+                        v-model="hardwareForm.data.subChannelId"
+                        :options="channelCascaderOptions"
+                        :props="{ emitPath: false, expandTrigger: 'hover' }"
+                        @change="hardwareForm.data.categoryId = ''"
+                        placeholder="请选择所属频道（级联到子频道）"
+                        clearable
+                        class="res-input"></el-cascader>
+                    </el-form-item>
+                    <el-form-item label="所属分类" :required="hwCategoryRequired">
+                      <el-select
+                        v-model="hardwareForm.data.categoryId"
+                        :disabled="!hardwareForm.data.subChannelId"
+                        :placeholder="hardwareForm.data.subChannelId ? (hwCategoryRequired ? '请选择所属分类' : '该频道下暂无分类，可选填') : '请先选择所属频道'"
+                        clearable
+                        class="res-input">
+                        <el-option v-for="c in categoriesOfSubChannel(hardwareForm.data.subChannelId)" :key="c.id" :label="c.name" :value="c.id"></el-option>
+                      </el-select>
+                      <span v-if="!hwCategoryRequired" class="hw-field-tip">该所属频道下暂无分类，此为非必填</span>
+                    </el-form-item>
+                    <el-form-item label="排序" required>
+                      <el-input v-model="hardwareForm.data.order" class="res-input" placeholder="非负整数，数值越小越靠前"></el-input>
+                    </el-form-item>
+                    <el-form-item label="背景色" required>
+                      <el-input v-model="hardwareForm.data.bgColor" class="res-input" maxlength="7" placeholder="请输入十六进制色值，如 #ffffff"></el-input>
+                      <span class="hw-color-preview" :style="{ background: hwColorValid(hardwareForm.data.bgColor) ? hardwareForm.data.bgColor : 'transparent' }"></span>
+                      <div class="hw-field-tip">必填，格式 #ffffff（或 #fff）</div>
+                    </el-form-item>
+                    <el-form-item label="字体颜色" required>
+                      <el-input v-model="hardwareForm.data.textColor" class="res-input" maxlength="7" placeholder="请输入十六进制色值，如 #1f2329"></el-input>
+                      <span class="hw-color-preview" :style="{ background: hwColorValid(hardwareForm.data.textColor) ? hardwareForm.data.textColor : 'transparent' }"></span>
+                      <div class="hw-field-tip">必填，格式 #ffffff（或 #fff）</div>
+                    </el-form-item>
+                    <el-form-item label="简介" required>
+                      <el-input v-model="hardwareForm.data.intro" type="textarea" rows="2" maxlength="50" show-word-limit class="res-input" placeholder="一句话介绍该硬件或服务（50 字符以内）"></el-input>
+                    </el-form-item>
+                    <el-form-item label="详细介绍" required>
+                      <el-input v-model="hardwareForm.data.detail" type="textarea" rows="4" maxlength="200" show-word-limit placeholder="该硬件或服务的详细介绍（200 字符以内）"></el-input>
+                    </el-form-item>
+                    <el-form-item label="详细介绍图片" required>
+                      <el-button @click="hwPickImages">上传图片</el-button>
+                      <span class="hw-field-tip">已上传 {{ hardwareForm.data.images.length }} 张</span>
+                      <div class="hw-field-tip">必填，支持一次上传多张；.jpg/.jpeg/.png；单张 ≤10MB</div>
+                      <div v-if="hardwareForm.data.images.length" class="hw-upload-list">
+                        <div v-for="(img, i) in hardwareForm.data.images" :key="i" class="hw-upload-item">
+                          <span>🖼️</span>
+                          <span class="hw-upload-name">{{ img.name }}</span>
+                          <span class="hw-upload-size">{{ img.size }}</span>
+                          <el-button size="small" text type="danger" @click="hardwareForm.data.images.splice(i, 1)">移除</el-button>
+                        </div>
+                      </div>
+                      <div v-else class="hw-field-tip">暂无图片，请点击"上传图片"至少上传 1 张</div>
+                    </el-form-item>
+                    <el-form-item label="附件上传">
+                      <el-button @click="hwPickAttachments">上传附件</el-button>
+                      <span class="hw-field-tip">{{ hardwareForm.data.attachments.length }}/5</span>
+                      <div class="hw-field-tip">非必填，最多 5 个；单个 ≤20MB；.doc/.docx/.xls/.xlsx/.ppt/.pptx/.pdf</div>
+                      <div v-if="hardwareForm.data.attachments.length" class="hw-upload-list">
+                        <div v-for="(f, i) in hardwareForm.data.attachments" :key="i" class="hw-upload-item">
+                          <span>📄</span>
+                          <span class="hw-upload-name">{{ f.name }}</span>
+                          <span class="hw-upload-size">{{ f.size }}</span>
+                          <el-button size="small" text type="danger" @click="hardwareForm.data.attachments.splice(i, 1)">移除</el-button>
+                        </div>
+                      </div>
+                    </el-form-item>
+                  </el-form>
+
+                  <div class="res-step-footer">
+                    <el-button @click="goHwList">取消</el-button>
+                    <el-button type="primary" @click="saveHardware">保存</el-button>
                   </div>
                 </div>
               </template>
@@ -1933,6 +2281,35 @@
         <el-form-item label="排序" required>
           <el-input v-model="categoryForm.data.order"></el-input>
         </el-form-item>
+        <el-form-item label="分类图标">
+          <el-button @click="pickCategoryIcon">上传图标</el-button>
+          <div class="hw-field-tip">选填，单张；.jpg/.jpeg/.png；≤2MB</div>
+          <div v-if="categoryForm.data.icon" class="hw-upload-list">
+            <div class="hw-upload-item">
+              <span>🖼️</span>
+              <span class="hw-upload-name">{{ categoryForm.data.icon.name }}</span>
+              <span class="hw-upload-size">{{ categoryForm.data.icon.size }}</span>
+              <el-button size="small" text type="danger" @click="categoryForm.data.icon = null">移除</el-button>
+            </div>
+          </div>
+          <div v-else class="hw-field-tip">暂无图标，请点击"上传图标"</div>
+        </el-form-item>
+        <el-form-item label="分类封面">
+          <el-button @click="pickCategoryCover">上传封面</el-button>
+          <div class="hw-field-tip">选填，单张；.jpg/.jpeg/.png；≤5MB</div>
+          <div v-if="categoryForm.data.cover" class="hw-upload-list">
+            <div class="hw-upload-item">
+              <span>🖼️</span>
+              <span class="hw-upload-name">{{ categoryForm.data.cover.name }}</span>
+              <span class="hw-upload-size">{{ categoryForm.data.cover.size }}</span>
+              <el-button size="small" text type="danger" @click="categoryForm.data.cover = null">移除</el-button>
+            </div>
+          </div>
+          <div v-else class="hw-field-tip">暂无封面，请点击"上传封面"</div>
+        </el-form-item>
+        <el-form-item label="按钮文字">
+          <el-input v-model="categoryForm.data.buttonText" maxlength="10" show-word-limit placeholder="应用端分类入口按钮文字（选填，10 字符以内）"></el-input>
+        </el-form-item>
       </el-form>
       <!-- <div class="biz-form-section-title">补充信息（选填）</div> -->
       <el-form label-width="150px">
@@ -1962,7 +2339,7 @@
       </el-form>
       <template #footer>
         <el-button @click="categoryForm.visible = false">取消</el-button>
-        <el-button type="primary" @click="categoryForm.visible = false">保存</el-button>
+        <el-button type="primary" @click="saveCategoryForm">保存</el-button>
       </template>
     </el-dialog>
 
@@ -2054,6 +2431,29 @@
       <template #footer>
         <el-button @click="subItemForm.visible = false">取消</el-button>
         <el-button type="primary" @click="saveSubItemForm">保存</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- ============= P21-Dialog 预约记录详情弹窗 ============= -->
+    <el-dialog v-model="bookingDetail.visible" title="预约记录详情" width="560px">
+      <el-form label-width="110px" v-if="bookingDetail.data">
+        <el-form-item label="预约编号">{{ bookingDetail.data.id }}</el-form-item>
+        <el-form-item label="硬件/服务">{{ bookingDetail.data.hardwareName }}</el-form-item>
+        <el-form-item label="类型">{{ bookingDetail.data.type }}</el-form-item>
+        <el-form-item label="预约人">{{ bookingDetail.data.contactName }}</el-form-item>
+        <el-form-item label="联系方式">{{ bookingDetail.data.phone }}</el-form-item>
+        <el-form-item label="预约时间">{{ bookingDetail.data.bookTime }}</el-form-item>
+        <el-form-item label="预约说明">{{ bookingDetail.data.remark || '—' }}</el-form-item>
+        <el-form-item label="状态">
+          <el-tag v-if="bookingDetail.data.status === '待处理'" type="warning" size="small">待处理</el-tag>
+          <el-tag v-else-if="bookingDetail.data.status === '已受理'" type="primary" size="small">已受理</el-tag>
+          <el-tag v-else-if="bookingDetail.data.status === '已完成'" type="success" size="small">已完成</el-tag>
+          <el-tag v-else type="info" size="small">已取消</el-tag>
+        </el-form-item>
+        <el-form-item label="创建时间">{{ bookingDetail.data.createdAt }}</el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="bookingDetail.visible = false">关闭</el-button>
       </template>
     </el-dialog>
 
@@ -2207,7 +2607,10 @@
       P04: { id: 'P04', label: 'P04 分类新增/编辑', moduleName: '分类管理', topModule: '类目管理' },
       P07: { id: 'P07', label: '条目管理', moduleName: '条目管理', topModule: '类目管理' },
       P10: { id: 'P10', label: 'P10 资源列表页', moduleName: '资源列表', topModule: '资源管理' },
-      P11: { id: 'P11', label: 'P11 资源新增/编辑', moduleName: '资源列表', topModule: '资源管理' }
+      P11: { id: 'P11', label: 'P11 资源新增/编辑', moduleName: '资源列表', topModule: '资源管理' },
+      P20: { id: 'P20', label: 'P20 智慧硬件与服务列表页', moduleName: '智慧硬件与服务', topModule: '硬件与服务管理' },
+      P21: { id: 'P21', label: 'P21 预约记录列表页', moduleName: '预约记录', topModule: '硬件与服务管理' },
+      P22: { id: 'P22', label: 'P22 硬件/服务新增编辑页', moduleName: '智慧硬件与服务', topModule: '硬件与服务管理' }
     };
 
     const app = Vue.createApp({
@@ -2303,7 +2706,7 @@
           // org、likes、tags：门户卡片展示的机构、点赞数、标签
           // attachments：查看页右侧附件列表；overview：富文本/视频的简介
           resRows: [
-            { id: 'RES001', title: '小学一年级语文·汉语拼音教学课件', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 10, viewCount: 128, likes: 32, org: '实验小学', tags: ['语文', '一年级'], zone: 'ai', icon: '📘', tone: 1, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '45', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-20 09:12:00' },
+            { id: 'RES001', title: '小学一年级语文·汉语拼音教学课件', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 10, viewCount: 128, likes: 32, org: '实验小学', tags: ['语文', '一年级'], zone: 'ai', icon: '📘', tone: 1, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '45', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-20 09:12:00'  },
             { id: 'RES002', title: '初中语文·古诗词赏析合集', channelId: 'CH001-2', channelName: '教学资源 / 初中教学', categoryId: 'CT004', categoryName: '数学', order: 20, viewCount: 45, likes: 12, org: '文渊教育', tags: ['语文', '古诗词'], zone: 'teaching', icon: '📖', tone: 2, contentType: '应用和链接', appName: '智慧课堂', chargeType: '收费', payType: '机构', price: '299', duration: '2', durationUnit: '小时', status: '已发布', updatedAt: '2026-06-21 15:08:00',
               // 商城购买页所需字段
               mallIntro: '面向初中学段的古诗词赏析课程包，覆盖课内必背与课外延伸篇目，配合智慧课堂应用提供原文朗读、注释对照、典故解读、AI 赏析批注等能力。',
@@ -2344,7 +2747,7 @@
                 { name: '院校版', price: '1499', desc: '20 个教师账号 + 200 个学生账号；含集中培训；有效期 2 年' }
               ],
               validity: '1 年' },
-            { id: 'RES005', title: '小学语文·看图写话专项训练', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 50, viewCount: 220, likes: 64, org: '实验小学', tags: ['语文', '写作'], zone: 'ai', icon: '✏️', tone: 5, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '30', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-24 09:00:00' },
+            { id: 'RES005', title: '小学语文·看图写话专项训练', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 50, viewCount: 220, likes: 64, org: '实验小学', tags: ['语文', '写作'], zone: 'ai', icon: '✏️', tone: 5, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '30', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-24 09:00:00'  },
             { id: 'RES006', title: '信息技术·Python 编程入门', channelId: 'CH001-2', channelName: '教学资源 / 初中教学', categoryId: 'CT004', categoryName: '数学', order: 60, viewCount: 486, likes: 132, org: '编程学院', tags: ['信息技术', 'Python'], zone: 'teaching', icon: '💻', tone: 6, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '60', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-25 14:20:00',
               overview: '《初识人工智能》面向初中信息技术课堂，系统介绍人工智能的基本概念、典型应用与基础原理。配套课件 AI.docx、课程导论.pdf、讲解视频与拓展视频，支持教师课堂教学与学生课后自学。',
               attachments: [
@@ -2353,22 +2756,48 @@
                 { id: 'AT003', name: '人工智能通识课-初探人工智能.mp4', type: 'mp4', size: '128 MB' },
                 { id: 'AT004', name: '扑燕姿大场.mp4', type: 'mp4', size: '186 MB' }
               ] },
-            { id: 'RES007', title: '职业生涯规划·教师成长路径', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT001', categoryName: '语文', order: 70, viewCount: 96, likes: 28, org: '教师发展中心', tags: ['职业', '规划'], zone: 'teaching', icon: '🧭', tone: 2, contentType: '文件·视频', appName: '', chargeType: '收费', payType: '个人', price: '59.9', duration: '40', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-26 11:00:00' },
-            { id: 'RES008', title: '美育·色彩基础与鉴赏', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT002', categoryName: '现代文', order: 80, viewCount: 174, likes: 47, org: '艺术学院', tags: ['美育', '色彩'], zone: 'teaching', icon: '🎨', tone: 3, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '35', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-27 16:30:00' },
-            { id: 'RES009', title: '学之者·经典诵读课程包', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT002', categoryName: '现代文', order: 90, viewCount: 305, likes: 91, org: '文渊教育', tags: ['经典', '诵读'], zone: 'special', icon: '📜', tone: 4, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '50', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-28 08:40:00' },
-            { id: 'RES010', title: '听说写·表达能力训练', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT002', categoryName: '现代文', order: 100, viewCount: 158, likes: 39, org: '语言工作室', tags: ['听说写', '表达'], zone: 'special', icon: '🎙️', tone: 5, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '45', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-29 10:10:00' },
-            { id: 'RES011', title: '显示证·项目成果展示集', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 110, viewCount: 88, likes: 21, org: '教科所', tags: ['成果', '展示'], zone: 'special', icon: '🏆', tone: 6, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '25', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-30 15:00:00' },
-            { id: 'RES012', title: '专题探究·科学实验合集', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 120, viewCount: 142, likes: 44, org: '科学中心', tags: ['科学', '实验'], zone: 'special', icon: '🔬', tone: 1, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '55', durationUnit: '分钟', status: '已发布', updatedAt: '2026-07-01 09:30:00' },
-            { id: 'RES013', title: '师德师风·典型案例分析', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 130, viewCount: 263, likes: 76, org: '教师发展中心', tags: ['师德', '案例'], zone: 'teacher', icon: '🌱', tone: 2, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '40', durationUnit: '分钟', status: '已发布', updatedAt: '2026-07-02 14:00:00' },
-            { id: 'RES014', title: '课堂研究·观察与诊断方法', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 140, viewCount: 131, likes: 35, org: '教研院', tags: ['课堂', '研究'], zone: 'teacher', icon: '🔍', tone: 3, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '48', durationUnit: '分钟', status: '已发布', updatedAt: '2026-07-03 11:20:00' },
-            { id: 'RES015', title: '教研联动·校本研修实操', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 150, viewCount: 97, likes: 26, org: '教研院', tags: ['教研', '研修'], zone: 'teacher', icon: '🤝', tone: 4, contentType: '应用和链接', appName: '在线作业', chargeType: '免费', payType: '个人', price: '', duration: '1', durationUnit: '小时', status: '已发布', updatedAt: '2026-07-04 16:10:00' },
-            { id: 'RES016', title: '教师成长·进阶训练营', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 160, viewCount: 208, likes: 58, org: '教师发展中心', tags: ['成长', '进阶'], zone: 'teacher', icon: '🚀', tone: 5, contentType: '文件·视频', appName: '', chargeType: '收费', payType: '个人', price: '129', duration: '3', durationUnit: '小时', status: '已发布', updatedAt: '2026-07-05 09:00:00' },
-            { id: 'RES017', title: '家校共育·沟通技巧专题', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 170, viewCount: 189, likes: 52, org: '家校联盟', tags: ['家校', '沟通'], zone: 'family', icon: '🏠', tone: 6, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '35', durationUnit: '分钟', status: '已发布', updatedAt: '2026-07-06 10:40:00' },
-            { id: 'RES018', title: '研学课堂·设计与实施', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 180, viewCount: 121, likes: 33, org: '研学中心', tags: ['研学', '设计'], zone: 'family', icon: '🎒', tone: 1, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '42', durationUnit: '分钟', status: '已发布', updatedAt: '2026-07-07 15:20:00' },
-            { id: 'RES019', title: '常规选课·指导手册', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 190, viewCount: 76, likes: 18, org: '教务中心', tags: ['选课', '指导'], zone: 'family', icon: '📋', tone: 2, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '20', durationUnit: '分钟', status: '已发布', updatedAt: '2026-07-08 08:50:00' },
-            { id: 'RES020', title: '家庭教育·亲子共读指南', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 200, viewCount: 145, likes: 41, org: '家校联盟', tags: ['亲子', '阅读'], zone: 'family', icon: '👨‍👩‍👧', tone: 3, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '30', durationUnit: '分钟', status: '已发布', updatedAt: '2026-07-09 13:30:00' }
+            { id: 'RES007', title: '职业生涯规划·教师成长路径', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT001', categoryName: '语文', order: 70, viewCount: 96, likes: 28, org: '教师发展中心', tags: ['职业', '规划'], zone: 'teaching', icon: '🧭', tone: 2, contentType: '文件·视频', appName: '', chargeType: '收费', payType: '个人', price: '59.9', duration: '40', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-26 11:00:00'  },
+            { id: 'RES008', title: '美育·色彩基础与鉴赏', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT002', categoryName: '现代文', order: 80, viewCount: 174, likes: 47, org: '艺术学院', tags: ['美育', '色彩'], zone: 'teaching', icon: '🎨', tone: 3, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '35', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-27 16:30:00'  },
+            { id: 'RES009', title: '学之者·经典诵读课程包', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT002', categoryName: '现代文', order: 90, viewCount: 305, likes: 91, org: '文渊教育', tags: ['经典', '诵读'], zone: 'special', icon: '📜', tone: 4, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '50', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-28 08:40:00'  },
+            { id: 'RES010', title: '听说写·表达能力训练', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT002', categoryName: '现代文', order: 100, viewCount: 158, likes: 39, org: '语言工作室', tags: ['听说写', '表达'], zone: 'special', icon: '🎙️', tone: 5, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '45', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-29 10:10:00'  },
+            { id: 'RES011', title: '显示证·项目成果展示集', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 110, viewCount: 88, likes: 21, org: '教科所', tags: ['成果', '展示'], zone: 'special', icon: '🏆', tone: 6, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '25', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-30 15:00:00'  },
+            { id: 'RES012', title: '专题探究·科学实验合集', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 120, viewCount: 142, likes: 44, org: '科学中心', tags: ['科学', '实验'], zone: 'special', icon: '🔬', tone: 1, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '55', durationUnit: '分钟', status: '已发布', updatedAt: '2026-07-01 09:30:00'  },
+            { id: 'RES013', title: '师德师风·典型案例分析', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 130, viewCount: 263, likes: 76, org: '教师发展中心', tags: ['师德', '案例'], zone: 'teacher', icon: '🌱', tone: 2, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '40', durationUnit: '分钟', status: '已发布', updatedAt: '2026-07-02 14:00:00'  },
+            { id: 'RES014', title: '课堂研究·观察与诊断方法', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 140, viewCount: 131, likes: 35, org: '教研院', tags: ['课堂', '研究'], zone: 'teacher', icon: '🔍', tone: 3, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '48', durationUnit: '分钟', status: '已发布', updatedAt: '2026-07-03 11:20:00'  },
+            { id: 'RES015', title: '教研联动·校本研修实操', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 150, viewCount: 97, likes: 26, org: '教研院', tags: ['教研', '研修'], zone: 'teacher', icon: '🤝', tone: 4, contentType: '应用和链接', appName: '在线作业', chargeType: '免费', payType: '个人', price: '', duration: '1', durationUnit: '小时', status: '已发布', updatedAt: '2026-07-04 16:10:00'  },
+            { id: 'RES016', title: '教师成长·进阶训练营', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 160, viewCount: 208, likes: 58, org: '教师发展中心', tags: ['成长', '进阶'], zone: 'teacher', icon: '🚀', tone: 5, contentType: '文件·视频', appName: '', chargeType: '收费', payType: '个人', price: '129', duration: '3', durationUnit: '小时', status: '已发布', updatedAt: '2026-07-05 09:00:00'  },
+            { id: 'RES017', title: '家校共育·沟通技巧专题', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 170, viewCount: 189, likes: 52, org: '家校联盟', tags: ['家校', '沟通'], zone: 'family', icon: '🏠', tone: 6, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '35', durationUnit: '分钟', status: '已发布', updatedAt: '2026-07-06 10:40:00'  },
+            { id: 'RES018', title: '研学课堂·设计与实施', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 180, viewCount: 121, likes: 33, org: '研学中心', tags: ['研学', '设计'], zone: 'family', icon: '🎒', tone: 1, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '42', durationUnit: '分钟', status: '已发布', updatedAt: '2026-07-07 15:20:00'  },
+            { id: 'RES019', title: '常规选课·指导手册', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 190, viewCount: 76, likes: 18, org: '教务中心', tags: ['选课', '指导'], zone: 'family', icon: '📋', tone: 2, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '20', durationUnit: '分钟', status: '未发布', updatedAt: '2026-07-08 08:50:00'  },
+            { id: 'RES020', title: '家庭教育·亲子共读指南', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 200, viewCount: 145, likes: 41, org: '家校联盟', tags: ['亲子', '阅读'], zone: 'family', icon: '👨‍👩‍👧', tone: 3, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '30', durationUnit: '分钟', status: '未发布', updatedAt: '2026-07-09 13:30:00'  }
           ],
           resSteps: ['基本信息', '资源正文', '发布设置'],
+          // ===== 硬件与服务管理（P20 智慧硬件与服务 / P21 预约记录）=====
+          hwFilter: { name: '', subChannelId: '', categoryId: '', status: '' },
+          hardwareRows: [
+            { id: 'HW001', name: 'AI 智慧评测终端 X1', type: '智慧硬件', subChannelId: 'CH001-2', categoryId: 'CT004', categoryName: '数学', order: 10, viewCount: 328, status: '已发布', bgColor: '#e8f0ff', textColor: '#1f2329', intro: '桌面式智能评测终端，支持作业自动采集', detail: '面向班级常态化测评的桌面式智能终端，支持作业自动采集、客观题自动批改与学情数据回传，可对接区域学情平台。', images: [{ name: 'hw001_01.jpg', size: '2.4MB' }, { name: 'hw001_02.jpg', size: '3.1MB' }], attachments: [{ name: 'AI智慧评测终端X1_参数手册.pdf', size: '5.6MB' }], updatedAt: '2026-07-10 10:00:00', checked: false },
+            { id: 'HW002', name: '智慧课堂互动一体机 86 寸', type: '智慧硬件', subChannelId: 'CH001-2', categoryId: 'CT004', categoryName: '数学', order: 20, viewCount: 512, status: '已发布', bgColor: '#fff4e6', textColor: '#3d2b00', intro: '86 寸 4K 触控一体机，内置智慧课堂应用', detail: '86 寸 4K 触控一体机，内置智慧课堂应用，支持多端投屏、板书录制与课堂互动，含三年质保与上门安装服务。', images: [{ name: 'hw002_01.jpg', size: '4.8MB' }], attachments: [], updatedAt: '2026-07-11 15:30:00', checked: false },
+            { id: 'HW003', name: 'AI 实验箱·中学物理套装', type: '智慧硬件', subChannelId: 'CH001-2', categoryId: 'CT004', categoryName: '数学', order: 30, viewCount: 176, status: '已下架', bgColor: '#eafaf1', textColor: '#0f3d2e', intro: '物理实验箱，支持数据采集与报告生成', detail: '配套传感器与实验件的物理实验箱，覆盖力学、电学、光学等初中物理实验，支持数据采集与实验报告自动生成。', images: [{ name: 'hw003_01.jpg', size: '3.6MB' }], attachments: [{ name: '实验箱清单.xlsx', size: '0.8MB' }, { name: '实验指导书.pdf', size: '12.4MB' }], updatedAt: '2026-07-12 09:40:00', checked: false },
+            { id: 'HW004', name: '区域大数据学情平台部署服务', type: '定制服务', subChannelId: 'CH001-2', categoryId: 'CT004', categoryName: '数学', order: 40, viewCount: 94, status: '已发布', bgColor: '#f3ebff', textColor: '#2b1055', intro: '区县学情数据中台定制部署服务', detail: '面向区县的学情数据中台定制部署，含历史数据迁移、学校组织架构初始化、教师培训与上线后三个月运维支持。', images: [{ name: 'hw004_01.jpg', size: '2.9MB' }, { name: 'hw004_02.jpg', size: '3.4MB' }, { name: 'hw004_03.jpg', size: '5.2MB' }], attachments: [{ name: '部署服务SOW.docx', size: '1.2MB' }], updatedAt: '2026-07-13 11:20:00', checked: false },
+            { id: 'HW005', name: '校本资源数字化加工服务', type: '定制服务', subChannelId: 'CH001-1', categoryId: 'CT001', categoryName: '语文', order: 50, viewCount: 63, status: '未发布', bgColor: '#fdf1f5', textColor: '#5c1a33', intro: '校本纸质资源结构化加工与上架', detail: '将学校自有纸质与散装资源进行扫描、结构化加工、知识点打标并上架到资源中心，支持按学科与年级归档。', images: [{ name: 'hw005_01.jpg', size: '1.9MB' }], attachments: [], updatedAt: '2026-07-14 16:05:00', checked: false },
+            { id: 'HW006', name: '数字朗读亭（校园版）', type: '智慧硬件', subChannelId: 'CH001-1', categoryId: 'CT002', categoryName: '现代文', order: 60, viewCount: 241, status: '已发布', bgColor: '#e6f7ff', textColor: '#003a5c', intro: '隔音朗读舱体，支持 AI 语音评测', detail: '隔音朗读舱体，支持朗读录音、AI 语音评测与作品分享，内置朗读素材库，可用于图书馆、走廊等场景部署。', images: [{ name: 'hw006_01.jpg', size: '6.2MB' }, { name: 'hw006_02.jpg', size: '4.1MB' }], attachments: [{ name: '朗读亭安装条件说明.pdf', size: '3.3MB' }], updatedAt: '2026-07-15 10:15:00', checked: false },
+            { id: 'HW007', name: '教师专业发展研修定制服务', type: '定制服务', subChannelId: 'CH002-1', categoryId: 'CT002', categoryName: '现代文', order: 70, viewCount: 132, status: '已发布', bgColor: '#fff9e6', textColor: '#4a3300', intro: '按校情定制的校本研修与专家入校', detail: '按校情定制的校本研修方案设计与专家入校指导服务，含需求诊断、方案设计、实施指导与效果评估四个阶段。', images: [{ name: 'hw007_01.jpg', size: '3.7MB' }], attachments: [{ name: '研修方案模板.pptx', size: '8.9MB' }, { name: '需求调研表.xlsx', size: '0.6MB' }], updatedAt: '2026-07-16 14:50:00', checked: false },
+            { id: 'HW008', name: '校园安全巡检机器人 R2', type: '智慧硬件', subChannelId: 'CH002-1', categoryId: 'CT003', categoryName: '古诗文', order: 80, viewCount: 58, status: '未发布', bgColor: '#eceff4', textColor: '#1f2329', intro: '室内自主导航巡检终端', detail: '室内自主导航巡检终端，支持异常识别告警与巡检报告生成，可在夜间对教学楼、食堂等区域执行例行巡检。', images: [{ name: 'hw008_01.jpg', size: '5.5MB' }], attachments: [], updatedAt: '2026-07-17 09:05:00', checked: false }
+          ],
+          hardwareForm: {
+            mode: 'create', editingId: '',
+            data: { name: '', type: '智慧硬件', subChannelId: '', categoryId: '', order: '', bgColor: '#ffffff', textColor: '#1f2329', intro: '', detail: '', images: [], attachments: [] }
+          },
+          bookingFilter: { name: '', contactName: '', status: '' },
+          bookingRows: [
+            { id: 'BK2026001', hardwareId: 'HW001', hardwareName: 'AI 智慧评测终端 X1', type: '智慧硬件', contactName: '王敏', phone: '138****2043', bookTime: '2026-07-12 09:00', remark: '学校机房 30 台设备试用，需现场演示', status: '待处理', createdAt: '2026-07-08 14:20:00' },
+            { id: 'BK2026002', hardwareId: 'HW002', hardwareName: '智慧课堂互动一体机 86 寸', type: '智慧硬件', contactName: '李伟', phone: '139****8812', bookTime: '2026-07-13 14:00', remark: '初二（3）班教室安装，墙面为瓷砖', status: '已受理', createdAt: '2026-07-09 09:35:00' },
+            { id: 'BK2026003', hardwareId: 'HW004', hardwareName: '区域大数据学情平台部署服务', type: '定制服务', contactName: '张丽', phone: '137****3321', bookTime: '2026-07-15 10:30', remark: '区级规模约 40 所学校，期望秋季学期上线', status: '待处理', createdAt: '2026-07-10 16:48:00' },
+            { id: 'BK2026004', hardwareId: 'HW006', hardwareName: '数字朗读亭（校园版）', type: '智慧硬件', contactName: '陈刚', phone: '135****6677', bookTime: '2026-07-11 15:00', remark: '图书馆一楼东侧点位', status: '已完成', createdAt: '2026-07-07 11:02:00' },
+            { id: 'BK2026005', hardwareId: 'HW007', hardwareName: '教师专业发展研修定制服务', type: '定制服务', contactName: '刘芳', phone: '186****5590', bookTime: '2026-07-18 09:00', remark: '语文组 24 人，暑期研修', status: '待处理', createdAt: '2026-07-12 08:26:00' },
+            { id: 'BK2026006', hardwareId: 'HW002', hardwareName: '智慧课堂互动一体机 86 寸', type: '智慧硬件', contactName: '赵鹏', phone: '133****1042', bookTime: '2026-07-09 10:00', remark: '临时调整，改为下学期评估', status: '已取消', createdAt: '2026-07-05 17:40:00' }
+          ],
+          bookingDetail: { visible: false, data: null },
           // ===== 资源中心门户（P12，前台展示层）=====
           portalVisible: false,
           portalKeyword: '',
@@ -2433,10 +2862,13 @@
               sectionOn: '否',
               sections: [],
               files: [],
-              // 收费属性（chargeType/payType/price）不在新增/编辑表单展示（后台不采集）：
-              // 新增默认"免费"；方式=应用和链接且选择收费应用时随所选应用自动置"收费"（供前台分流）；
+              // 收费方式（表单新增，必填，默认"免费"）；方式=应用和链接且选择收费应用时随所选应用自动置"收费"；
               // 编辑已有收费资源时保留原值，不因编辑而清空
+              // 付费方式（payType）与价格（price）仍不在后台采集，由商城/应用侧维护
               chargeType: '免费',
+              buyApp: '', buyPcLink: '', buyMobileLink: '',
+              // 权益（收费资源必填）：rightsValue 数值（支持小数）+ rightsUnit 单位（天 / 次）
+              rightsValue: '', rightsUnit: '天',
               payType: '个人', price: '',
               // 课时（非必填，支持小数）；durationUnit：分钟 / 小时
               duration: '', durationUnit: '分钟',
@@ -2467,6 +2899,20 @@
             ]
           }
         };
+      },
+      created() {
+        // 资源推荐标识与列表勾选态初始化（默认不推荐、未勾选）
+        const recommended = ['RES001', 'RES004', 'RES007', 'RES012', 'RES016'];
+        this.resRows.forEach(r => {
+          if (r.recommended == null) r.recommended = recommended.indexOf(r.id) > -1 ? '是' : '否';
+          if (r.checked == null) r.checked = false;
+        });
+        // 分类图标 / 封面 / 按钮文字 初始化（示例数据，编辑时回填）
+        this.categoryRows.forEach(r => {
+          if (!r.icon) r.icon = { name: '分类图标_' + r.id + '.png', size: '0.8MB' };
+          if (!r.cover) r.cover = { name: '分类封面_' + r.id + '.jpg', size: '2.4MB' };
+          if (r.buttonText == null) r.buttonText = '查看全部';
+        });
       },
       computed: {
         categoryFormTitle() {
@@ -2531,6 +2977,37 @@
           });
           return rows;
         },
+        filteredHardwares() {
+          return this.hardwareRows.filter(r => {
+            if (this.hwFilter.name && !r.name.includes(this.hwFilter.name)) return false;
+            if (this.hwFilter.subChannelId && r.subChannelId !== this.hwFilter.subChannelId) return false;
+            if (this.hwFilter.categoryId && r.categoryId !== this.hwFilter.categoryId) return false;
+            if (this.hwFilter.status && r.status !== this.hwFilter.status) return false;
+            return true;
+          });
+        },
+        // ===== 资源列表（P10）勾选与批量操作 =====
+        resSelectedRows() { return this.resRows.filter(r => r.checked); },
+        resAllChecked() {
+          return this.resRows.length > 0 && this.resRows.every(r => r.checked);
+        },
+        hwSelectedRows() {
+          return this.filteredHardwares.filter(r => r.checked);
+        },
+        hwAllChecked() {
+          return this.filteredHardwares.length > 0 && this.hwSelectedRows.length === this.filteredHardwares.length;
+        },
+        hwCategoryRequired() {
+          return this.categoriesOfSubChannel(this.hardwareForm.data.subChannelId).length > 0;
+        },
+        filteredBookings() {
+          return this.bookingRows.filter(r => {
+            if (this.bookingFilter.name && !r.hardwareName.includes(this.bookingFilter.name)) return false;
+            if (this.bookingFilter.contactName && !r.contactName.includes(this.bookingFilter.contactName)) return false;
+            if (this.bookingFilter.status && r.status !== this.bookingFilter.status) return false;
+            return true;
+          });
+        },
         channelCascaderOptions() {
           // 「父频道 → 子频道」级联树，末端（子频道）方可选中
           return this.channelRows.filter(c => !c.parentId).map(parent => {
@@ -2564,6 +3041,10 @@
             }
             return node;
           });
+        },
+        resNeedBuyGuide() {
+          // 收费方式=收费 且 内容展示方式≠应用和链接（该方式已含应用与链接）时，需要填写购买引导字段
+          return this.resForm.data.chargeType === '收费' && this.resForm.data.contentType !== '应用和链接';
         },
         dimsOfCurrentCategory() {
           const cid = this.resForm.data.categoryId;
@@ -2689,6 +3170,137 @@
           }
         },
         resetChannelFilter() { this.channelFilter = { name: '', visible: '' }; },
+        // ===== 硬件与服务管理：P20 智慧硬件与服务 =====
+        resetHwFilter() { this.hwFilter = { name: '', subChannelId: '', categoryId: '', status: '' }; },
+        resetBookingFilter() { this.bookingFilter = { name: '', contactName: '', status: '' }; },
+        toggleAllHardware() {
+          const next = !this.hwAllChecked;
+          this.filteredHardwares.forEach(r => { r.checked = next; });
+        },
+        nowText() {
+          const d = new Date();
+          const p = n => String(n).padStart(2, '0');
+          return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
+        },
+        openHardwareForm(mode, row) {
+          this.hardwareForm.mode = mode;
+          this.hardwareForm.editingId = mode === 'edit' && row ? row.id : '';
+          this.hardwareForm.data = row ? {
+            name: row.name, type: row.type, subChannelId: row.subChannelId, categoryId: row.categoryId,
+            order: String(row.order), bgColor: row.bgColor || '#ffffff', textColor: row.textColor || '#1f2329',
+            intro: row.intro || '', detail: row.detail || '',
+            images: (row.images || []).map(i => Object.assign({}, i)),
+            attachments: (row.attachments || []).map(f => Object.assign({}, f))
+          } : { name: '', type: '智慧硬件', subChannelId: '', categoryId: '', order: '', bgColor: '#ffffff', textColor: '#1f2329', intro: '', detail: '', images: [], attachments: [] };
+          this.currentPage = PAGE_MAP.P22;
+          if (!this.openTabs.find(t => t.id === 'P22')) this.openTabs.push(PAGE_MAP.P22);
+        },
+        goHwList() {
+          this.currentPage = PAGE_MAP.P20;
+          if (!this.openTabs.find(t => t.id === 'P20')) this.openTabs.push(PAGE_MAP.P20);
+        },
+        hwColorValid(v) {
+          return /^#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})$/.test(String(v == null ? '' : v).trim());
+        },
+        hwPickImages() {
+          // 模拟选择图片：一次可选多张，单张 ≤10MB
+          const n = Math.floor(Math.random() * 2) + 1;
+          for (let i = 0; i < n; i++) {
+            this.hardwareForm.data.images.push({
+              name: '硬件服务图_' + Date.now() + '_' + i + '.jpg',
+              size: (Math.floor(Math.random() * 80) / 10 + 1).toFixed(1) + 'MB'
+            });
+          }
+        },
+        hwPickAttachments() {
+          // 模拟选择附件：最多 5 个，单个 ≤20MB
+          const list = this.hardwareForm.data.attachments;
+          const left = 5 - list.length;
+          if (left <= 0) {
+            this.showConfirm('附件数量已达上限', '最多上传 5 个附件，请先移除后再上传');
+            return;
+          }
+          const n = Math.min(left, Math.floor(Math.random() * 2) + 1);
+          for (let i = 0; i < n; i++) {
+            list.push({
+              name: '服务说明_' + Date.now() + '_' + i + '.pdf',
+              size: (Math.floor(Math.random() * 180) / 10 + 1).toFixed(1) + 'MB'
+            });
+          }
+        },
+        saveHardware() {
+          const d = this.hardwareForm.data;
+          if (!d.name.trim()) { this.showConfirm('无法保存', '名称为必填项，请填写后再保存'); return; }
+          if (!d.subChannelId) { this.showConfirm('无法保存', '所属频道为必填项，且需选择到子频道'); return; }
+          if (this.hwCategoryRequired && !d.categoryId) { this.showConfirm('无法保存', '所属分类为必填项，该频道下已有分类，请选择后再保存'); return; }
+          if (!this.hwColorValid(d.bgColor)) { this.showConfirm('无法保存', '背景色格式不正确，请输入 #ffffff 形式的十六进制色值'); return; }
+          if (!this.hwColorValid(d.textColor)) { this.showConfirm('无法保存', '字体颜色格式不正确，请输入 #ffffff 形式的十六进制色值'); return; }
+          if (!d.intro.trim()) { this.showConfirm('无法保存', '简介为必填项（50 字符以内）'); return; }
+          if (!d.detail.trim()) { this.showConfirm('无法保存', '详细介绍为必填项（200 字符以内）'); return; }
+          if (!d.images.length) { this.showConfirm('无法保存', '详细介绍图片为必填项，请至少上传 1 张（单张 ≤10MB）'); return; }
+          const cat = this.categoryRows.find(c => c.id === d.categoryId);
+          const payload = {
+            name: d.name.trim(), type: d.type, subChannelId: d.subChannelId, categoryId: d.categoryId,
+            categoryName: cat ? cat.name : '', order: Number(d.order) || 0,
+            bgColor: d.bgColor.trim(), textColor: d.textColor.trim(),
+            intro: d.intro.trim(), detail: d.detail.trim(),
+            images: d.images.slice(), attachments: d.attachments.slice(),
+            updatedAt: this.nowText()
+          };
+          if (this.hardwareForm.mode === 'edit') {
+            const idx = this.hardwareRows.findIndex(r => r.id === this.hardwareForm.editingId);
+            if (idx > -1) this.hardwareRows[idx] = Object.assign({}, this.hardwareRows[idx], payload);
+          } else {
+            this.hardwareRows.unshift(Object.assign({
+              id: 'HW' + String(Date.now()).slice(-6),
+              viewCount: 0, status: '未发布', checked: false
+            }, payload));
+          }
+          this.goHwList();
+        },
+        publishHardware(row) {
+          this.showConfirm('确认发布？', '「' + row.name + '」发布后应用端可见，用户可在线提交预约', () => {
+            row.status = '已发布'; row.updatedAt = this.nowText();
+          });
+        },
+        unpublishHardware(row) {
+          this.showConfirm('确认下架？', '「' + row.name + '」下架后应用端不再展示，已产生的预约记录不受影响', () => {
+            row.status = '已下架'; row.updatedAt = this.nowText();
+          });
+        },
+        removeHardware(row) {
+          this.showConfirm('确认删除？', '删除后不可恢复；已发布项需先下架后方可删除', () => {
+            this.hardwareRows = this.hardwareRows.filter(r => r.id !== row.id);
+          });
+        },
+        batchPublishHardware() {
+          const rows = this.hwSelectedRows;
+          if (!rows.length) return;
+          this.showConfirm('批量发布所选硬件/服务？', '共 ' + rows.length + ' 项，发布后应用端可见；已发布项保持不变', () => {
+            const t = this.nowText();
+            rows.forEach(r => { r.status = '已发布'; r.updatedAt = t; });
+          });
+        },
+        batchUnpublishHardware() {
+          const rows = this.hwSelectedRows;
+          if (!rows.length) return;
+          this.showConfirm('批量下架所选硬件/服务？', '共 ' + rows.length + ' 项，下架后应用端不再展示', () => {
+            const t = this.nowText();
+            rows.forEach(r => { r.status = '已下架'; r.updatedAt = t; });
+          });
+        },
+        // ===== 硬件与服务管理：P21 预约记录 =====
+        openBookingDetail(row) { this.bookingDetail.data = row; this.bookingDetail.visible = true; },
+        acceptBooking(row) {
+          this.showConfirm('确认受理该预约？', '受理后状态置为“已受理”，请线下联系预约人确认具体时间', () => {
+            row.status = '已受理';
+          });
+        },
+        cancelBooking(row) {
+          this.showConfirm('确认取消该预约？', '取消后不可恢复，建议同步通知预约人', () => {
+            row.status = '已取消';
+          });
+        },
         showConfirm(title, message, onOk) { this.confirm = { visible: true, title, message, onOk: onOk || null }; },
         confirmOk() {
           const cb = this.confirm.onOk;
@@ -2762,6 +3374,32 @@
           const p = this.channelRows.find(c => c.id === parentId);
           this.channelForm.data.parentName = p ? p.name : '';
         },
+        pickCategoryIcon() {
+          // 模拟选择分类图标：单张，.jpg/.jpeg/.png，≤2MB
+          this.categoryForm.data.icon = { name: '分类图标_' + Date.now() + '.png', size: (Math.floor(Math.random() * 15) / 10 + 0.5).toFixed(1) + 'MB' };
+        },
+        pickCategoryCover() {
+          // 模拟选择分类封面：单张，.jpg/.jpeg/.png，≤5MB
+          this.categoryForm.data.cover = { name: '分类封面_' + Date.now() + '.jpg', size: (Math.floor(Math.random() * 35) / 10 + 1.5).toFixed(1) + 'MB' };
+        },
+        saveCategoryForm() {
+          const d = this.categoryForm.data;
+          if (!d.name) { this.showConfirm('无法保存', '分类名称为必填项'); return; }
+          if (!d.code) { this.showConfirm('无法保存', '分类编码为必填项'); return; }
+          if (d.order === '' || d.order === null || d.order === undefined) { this.showConfirm('无法保存', '排序为必填项，请填写非负整数'); return; }
+          if (!d.subChannelId) { this.showConfirm('无法保存', '所属频道为必填项，请级联选择到二级（子频道）'); return; }
+          // 一级/顶级分类：所属频道下存在已上架类目条目时，须至少勾选一项（R-CH-21）
+          if (this.categoryForm.mode !== 'child') {
+            const dims = this.dimsOfSubChannel(d.subChannelId);
+            const hasAnyItem = dims.some(dm => this.itemsOfDim(dm.id).length);
+            if (hasAnyItem) {
+              const map = d.dimItemMap || {};
+              const total = Object.keys(map).reduce((n, k) => n + (Array.isArray(map[k]) ? map[k].length : 0), 0);
+              if (!total) { this.showConfirm('无法保存', '请选择类目及类目条目：该所属频道下存在已上架类目条目，须至少勾选一项'); return; }
+            }
+          }
+          this.categoryForm.visible = false;
+        },
         openCategoryForm(mode, row) {
           this.categoryForm.mode = mode;
           const resolveParent = (subChannelId) => {
@@ -2773,6 +3411,9 @@
             this.categoryForm.data = {
               parentChannelId: resolveParent(row.subChannelId), subChannelId: row.subChannelId || '',
               parentName: '', name: row.name, code: row.code, order: row.order, desc: row.desc,
+              icon: row.icon ? Object.assign({}, row.icon) : null,
+              cover: row.cover ? Object.assign({}, row.cover) : null,
+              buttonText: row.buttonText || '',
               dimItemMap: row.dimItemMap ? { ...row.dimItemMap } : {},
               dimSubMap: row.dimSubMap ? JSON.parse(JSON.stringify(row.dimSubMap)) : {}
             };
@@ -2780,10 +3421,11 @@
             // 添加子分类：继承父节点的所属频道并只读
             this.categoryForm.data = {
               parentChannelId: resolveParent(row.subChannelId), subChannelId: row.subChannelId || '',
-              parentName: row.name, name: '', code: '', order: '', desc: '', dimItemMap: {}, dimSubMap: {}
+              parentName: row.name, name: '', code: '', order: '', desc: '',
+              icon: null, cover: null, buttonText: '', dimItemMap: {}, dimSubMap: {}
             };
           } else {
-            this.categoryForm.data = { parentChannelId: '', subChannelId: '', parentName: '', name: '', code: '', order: '', desc: '', dimItemMap: {}, dimSubMap: {} };
+            this.categoryForm.data = { parentChannelId: '', subChannelId: '', parentName: '', name: '', code: '', order: '', desc: '', icon: null, cover: null, buttonText: '', dimItemMap: {}, dimSubMap: {} };
           }
           // 按当前子频道重建条目/子条目多选槽位（编辑回填时仅保留已上架子条目）
           this.syncCategoryItemSlots();
@@ -2821,6 +3463,14 @@
           const c = this.categoryRows.find(x => x.id === categoryId);
           if (!c) return categoryId;
           return c.parentId ? c.parentId : c.id;
+        },
+        subChannelName(channelName) {
+          // 列表「所属频道」列按文档口径仅展示子频道名称（"父频道 / 子频道" 取末段）
+          const s = typeof channelName === 'string'
+            ? channelName
+            : (channelName && typeof channelName.name === 'string' ? channelName.name : '');
+          const parts = s.split('/').map(x => x.trim()).filter(Boolean);
+          return parts.length > 1 ? parts[parts.length - 1] : s;
         },
         isItemLockedByCategory(dimId, itemId) {
           // 所属分类已关联的类目条目在资源表单中默认勾选且只读（R-CH-23）
@@ -2905,6 +3555,94 @@
           }
           this.subItemForm.visible = false;
         },
+        // ===== 资源列表（P10）：单条上架/下架、推荐，以及批量操作 =====
+        publishRes(row) {
+          this.showConfirm('确认上架该资源？', '「' + row.title + '」上架后状态置为“已发布”，应用端可获取', () => {
+            row.status = '已发布';
+            row.updatedAt = this.nowText();
+          });
+        },
+        unpublishRes(row) {
+          this.showConfirm('确认下架该资源？', '「' + row.title + '」下架后状态置为“未发布”，应用端不再获取；已推荐的资源将同时取消推荐', () => {
+            row.status = '未发布';
+            row.recommended = '否';
+            row.updatedAt = this.nowText();
+          });
+        },
+        toggleRecommend(row, next) {
+          if (row.status !== '已发布') {
+            this.showConfirm('无法设置推荐', '只有“已发布”的资源才可设为推荐，请先上架该资源');
+            return;
+          }
+          if (next === '是') {
+            this.showConfirm('设为推荐？', '「' + row.title + '」设为推荐后，将在应用端推荐位展示', () => {
+              row.recommended = '是';
+              row.updatedAt = this.nowText();
+            });
+          } else {
+            this.showConfirm('取消推荐？', '「' + row.title + '」取消推荐后，不再在应用端推荐位展示', () => {
+              row.recommended = '否';
+              row.updatedAt = this.nowText();
+            });
+          }
+        },
+        toggleAllRes() {
+          const next = !this.resAllChecked;
+          this.resRows.forEach(r => { r.checked = next; });
+        },
+        batchPublishRes() {
+          const rows = this.resSelectedRows;
+          if (!rows.length) return;
+          this.showConfirm('批量上架所选资源？', '共 ' + rows.length + ' 项；其中“未发布”项将置为“已发布”，已是“已发布”的项保持不变', () => {
+            const t = this.nowText();
+            rows.forEach(r => {
+              if (r.status !== '已发布') { r.status = '已发布'; r.updatedAt = t; }
+            });
+          });
+        },
+        batchUnpublishRes() {
+          const rows = this.resSelectedRows;
+          if (!rows.length) return;
+          this.showConfirm('批量下架所选资源？', '共 ' + rows.length + ' 项；其中“已发布”项将置为“未发布”并同步取消推荐', () => {
+            const t = this.nowText();
+            rows.forEach(r => {
+              if (r.status === '已发布') { r.status = '未发布'; r.recommended = '否'; r.updatedAt = t; }
+            });
+          });
+        },
+        batchRecommendRes() {
+          const rows = this.resSelectedRows;
+          if (!rows.length) return;
+          const canRecommend = rows.filter(r => r.status === '已发布');
+          const skipped = rows.length - canRecommend.length;
+          this.showConfirm('批量推荐所选资源？', '共 ' + rows.length + ' 项，其中 ' + canRecommend.length + ' 项可设为推荐'
+            + (skipped ? '；' + skipped + ' 项因未上架不支持推荐，将被跳过' : '')
+            + '；已是推荐的项保持不变', () => {
+            const t = this.nowText();
+            canRecommend.forEach(r => { r.recommended = '是'; r.updatedAt = t; });
+          });
+        },
+        batchDeleteRes() {
+          const rows = this.resSelectedRows;
+          if (!rows.length) return;
+          const deletable = rows.filter(r => r.status !== '已发布');
+          const blocked = rows.filter(r => r.status === '已发布');
+          this.showConfirm('批量删除所选资源？',
+            '共 ' + rows.length + ' 项，其中 ' + deletable.length + ' 项可删除（删除后不可恢复）'
+            + (blocked.length ? '；以下 ' + blocked.length + ' 项为已发布，需先下架才能删除：' + blocked.map(r => r.title).join('、') : ''));
+        },
+        batchCancelRecommendRes() {
+          const rows = this.resSelectedRows;
+          if (!rows.length) return;
+          const recommended = rows.filter(r => r.recommended === '是');
+          const unchanged = rows.length - recommended.length;
+          this.showConfirm('批量取消推荐所选资源？', '共 ' + rows.length + ' 项，其中 ' + recommended.length + ' 项当前为推荐'
+            + (unchanged ? '；' + unchanged + ' 项本就未推荐，保持不变' : '')
+            + '；取消后不再在应用端推荐位展示', () => {
+            const t = this.nowText();
+            recommended.forEach(r => { r.recommended = '否'; r.updatedAt = t; });
+          });
+        },
         openResForm(mode, row) {
           this.resForm.mode = mode;
           this.resForm.step = 0;
@@ -2922,6 +3660,9 @@
               sections: row.sections ? [...row.sections] : [],
               files: row.files ? [...row.files] : [],
               chargeType: row.chargeType || '免费',
+              buyApp: row.buyApp || '', buyPcLink: row.buyPcLink || '', buyMobileLink: row.buyMobileLink || '',
+              rightsValue: row.rightsValue !== undefined && row.rightsValue !== null ? row.rightsValue : '',
+              rightsUnit: row.rightsUnit || '天',
               payType: row.payType || '个人',
               price: row.price !== undefined && row.price !== null ? row.price : '',
               duration: row.duration !== undefined && row.duration !== null ? row.duration : '',
@@ -2938,6 +3679,8 @@
               sections: [],
               files: [],
               chargeType: '免费',
+              buyApp: '', buyPcLink: '', buyMobileLink: '',
+              rightsValue: '', rightsUnit: '天',
               payType: '个人', price: '',
               duration: '', durationUnit: '分钟',
               org: '', author: ''
@@ -2957,6 +3700,20 @@
           return this.resForm.audit;
         },
         submitResource(publish) {
+          if (this.resNeedBuyGuide) {
+            const d = this.resForm.data;
+            const rv = d.rightsValue;
+            const missing = [];
+            const num = Number(String(rv).trim());
+            if (rv === undefined || rv === null || String(rv).trim() === '' || !isFinite(num) || num <= 0) missing.push('权益数量（须为大于 0 的数字）');
+            if (!d.rightsUnit) missing.push('权益单位');
+            if (!d.buyApp) missing.push('应用选择');
+            if (missing.length) {
+              this.showConfirm('表单未填写完整', '收费资源的'
+                + missing.join('、') + '为必填项（权益需填写数量与单位，如 7 天、3 次），请补充后再提交');
+              return;
+            }
+          }
           const audit = this.auditResourceContent();
           if (!publish) {
             // 仅提交为"未发布"：不受敏感词过滤限制，正常保存
