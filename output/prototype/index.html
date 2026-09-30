@@ -1225,16 +1225,18 @@
                           <el-radio value="收费">收费</el-radio>
                         </el-radio-group>
                       </el-form-item>
-                      <template v-if="resNeedBuyGuide">
-                        <!-- 权益：数值（支持小数）+ 单位（天 / 次），收费资源必填 -->
+                      <!-- 权益：只要收费方式=收费即展示，与内容展示方式无关（含"应用和链接"） -->
+                      <template v-if="resNeedRights">
                         <el-form-item label="权益" required>
                           <el-input v-model="resForm.data.rightsValue" placeholder="请输入数量，支持小数" class="res-input" style="width:220px;"></el-input>
                           <el-select v-model="resForm.data.rightsUnit" style="width:110px;margin-left:8px;">
                             <el-option label="天" value="天"></el-option>
                             <el-option label="次" value="次"></el-option>
                           </el-select>
-                          <div class="hw-field-tip" style="margin:4px 0 0;">收费资源必填：数值 + 单位，如 7 天、3 次，控制权益的有效时长或可用次数</div>
+                          <div class="hw-field-tip" style="margin:4px 0 0;">收费资源必填（内容展示方式=应用和链接时同样展示）：数值 + 单位，如 7 天、3 次，控制权益的有效时长或可用次数</div>
                         </el-form-item>
+                      </template>
+                      <template v-if="resNeedBuyGuide">
                         <el-form-item label="应用选择" required>
                           <el-select
                             v-model="resForm.data.buyApp"
@@ -1251,7 +1253,7 @@
                         <el-form-item label="移动端链接">
                           <el-input v-model="resForm.data.buyMobileLink" maxlength="200" show-word-limit placeholder="请输入移动端购买/详情地址，选填" class="res-input"></el-input>
                         </el-form-item>
-                        <div class="hw-field-tip" style="margin:0 0 8px 140px;">收费方式=收费且内容展示方式≠应用和链接时，权益与应用选择必填，PC端/移动端链接选填（作为收费资源的购买去向，未填则应用端不给出跳转入口）</div>
+                        <div class="hw-field-tip" style="margin:0 0 8px 140px;">收费方式=收费且内容展示方式≠应用和链接时，展示购买去向：应用选择必填，PC端/移动端链接选填（未填则应用端不给出跳转入口）；权益已在上方填写，收费即必填，不受内容展示方式限制</div>
                       </template>
 
                       <!-- 富文本 -->
@@ -3042,6 +3044,10 @@
             return node;
           });
         },
+        resNeedRights() {
+          // 权益：只要收费方式=收费即需填写，不受内容展示方式限制（=应用和链接时同样展示）
+          return this.resForm.data.chargeType === '收费';
+        },
         resNeedBuyGuide() {
           // 收费方式=收费 且 内容展示方式≠应用和链接（该方式已含应用与链接）时，需要填写购买引导字段
           return this.resForm.data.chargeType === '收费' && this.resForm.data.contentType !== '应用和链接';
@@ -3700,19 +3706,19 @@
           return this.resForm.audit;
         },
         submitResource(publish) {
-          if (this.resNeedBuyGuide) {
-            const d = this.resForm.data;
+          const d = this.resForm.data;
+          const missing = [];
+          if (this.resNeedRights) {
             const rv = d.rightsValue;
-            const missing = [];
             const num = Number(String(rv).trim());
             if (rv === undefined || rv === null || String(rv).trim() === '' || !isFinite(num) || num <= 0) missing.push('权益数量（须为大于 0 的数字）');
             if (!d.rightsUnit) missing.push('权益单位');
-            if (!d.buyApp) missing.push('应用选择');
-            if (missing.length) {
-              this.showConfirm('表单未填写完整', '收费资源的'
-                + missing.join('、') + '为必填项（权益需填写数量与单位，如 7 天、3 次），请补充后再提交');
-              return;
-            }
+          }
+          if (this.resNeedBuyGuide && !d.buyApp) missing.push('应用选择');
+          if (missing.length) {
+            this.showConfirm('表单未填写完整', '收费资源的'
+              + missing.join('、') + '为必填项（权益需填写数量与单位，如 7 天、3 次），请补充后再提交');
+            return;
           }
           const audit = this.auditResourceContent();
           if (!publish) {
