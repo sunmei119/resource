@@ -1218,8 +1218,8 @@
                         </el-select>
                       </el-form-item>
 
-                      <!-- 收费方式：免费/收费，默认免费；收费且内容展示方式≠应用和链接时，展示购买引导字段（均必填） -->
-                      <el-form-item label="收费方式" required>
+                      <!-- 收费方式：免费/收费，默认免费；内容展示方式=链接时不采集（链接资源固定按免费处理） -->
+                      <el-form-item label="收费方式" required v-if="resForm.data.contentType !== '链接'">
                         <el-radio-group v-model="resForm.data.chargeType">
                           <el-radio value="免费">免费</el-radio>
                           <el-radio value="收费">收费</el-radio>
@@ -1253,7 +1253,7 @@
                         <el-form-item label="移动端链接">
                           <el-input v-model="resForm.data.buyMobileLink" maxlength="200" show-word-limit placeholder="请输入移动端购买/详情地址，选填" class="res-input"></el-input>
                         </el-form-item>
-                        <div class="hw-field-tip" style="margin:0 0 8px 140px;">收费方式=收费且内容展示方式≠应用和链接时，展示购买去向：应用选择必填，PC端/移动端链接选填（未填则应用端不给出跳转入口）；权益在上方展示且为选填，不受内容展示方式限制</div>
+                        <div class="hw-field-tip" style="margin:0 0 8px 140px;">收费方式=收费且内容展示方式≠应用和链接、≠链接时，展示购买去向：应用选择必填，PC端/移动端链接选填（未填则应用端不给出跳转入口）；权益在上方展示且为选填；内容展示方式=链接时不采集收费信息</div>
                       </template>
 
                       <!-- 富文本 -->
@@ -3045,12 +3045,14 @@
           });
         },
         resNeedRights() {
-          // 权益：只要收费方式=收费即需填写，不受内容展示方式限制（=应用和链接时同样展示）
-          return this.resForm.data.chargeType === '收费';
+          // 权益（选填）：收费方式=收费且内容展示方式≠链接时展示（=应用和链接时同样展示；=链接时不采集收费信息）
+          return this.resForm.data.chargeType === '收费' && this.resForm.data.contentType !== '链接';
         },
         resNeedBuyGuide() {
-          // 收费方式=收费 且 内容展示方式≠应用和链接（该方式已含应用与链接）时，需要填写购买引导字段
-          return this.resForm.data.chargeType === '收费' && this.resForm.data.contentType !== '应用和链接';
+          // 收费方式=收费 且 内容展示方式≠应用和链接（该方式已含应用与链接）且≠链接（该方式不采集收费信息）时，需要填写购买引导字段
+          return this.resForm.data.chargeType === '收费'
+            && this.resForm.data.contentType !== '应用和链接'
+            && this.resForm.data.contentType !== '链接';
         },
         dimsOfCurrentCategory() {
           const cid = this.resForm.data.categoryId;
@@ -3706,6 +3708,13 @@
           return this.resForm.audit;
         },
         submitResource(publish) {
+          // 内容展示方式=链接：不采集收费方式、权益与购买引导，统一按"免费"保存
+          if (this.resForm.data.contentType === '链接') {
+            Object.assign(this.resForm.data, {
+              chargeType: '免费', rightsValue: '', rightsUnit: '天',
+              buyApp: '', buyPcLink: '', buyMobileLink: ''
+            });
+          }
           const d = this.resForm.data;
           const missing = [];
           const rv = d.rightsValue;
