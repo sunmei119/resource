@@ -275,27 +275,59 @@
     .res-file-table .res-file-toggle { margin-right: 6px; }
     .res-file-table .res-file-icon { margin-right: 4px; }
 
-    /* 资源批量导入弹窗 */
-    .res-import-hero {
-      background: #f7faff; border: 1px solid #e6ecf5; border-radius: 8px;
-      padding: 18px 20px; display: flex; flex-direction: column; gap: 14px;
+    /* 资源预览页（P15，按内容展示方式分流） */
+    .page-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .page-head-title { font-size: 16px; font-weight: 600; color: #1f2329; }
+    .preview-form { max-width: 760px; background: #fff; border: 1px solid #e6ecf5; border-radius: 8px; padding: 20px 24px 4px; }
+    .preview-form .el-form-item { margin-bottom: 14px; }
+    /* 资源预览弹窗（按内容展示方式分流） */
+    .preview-head { padding-bottom: 10px; border-bottom: 1px solid #e6ecf5; }
+    .preview-title { font-size: 18px; font-weight: 600; color: #1f2329; }
+    .preview-tags { margin-top: 8px; display: flex; gap: 8px; }
+    .preview-meta { margin-top: 8px; color: #86909c; font-size: 12px; }
+    .preview-body { margin-top: 14px; }
+    .preview-flex { display: flex; gap: 14px; align-items: flex-start; }
+    .preview-player {
+      flex: 1.6; background: #000; border-radius: 8px; overflow: hidden;
+      display: flex; flex-direction: column;
     }
-    .res-import-step-title { font-weight: 600; color: #1f2329; margin-bottom: 8px; }
-    .res-import-step-body { display: flex; align-items: flex-start; gap: 16px; }
-    .res-import-btn-download {
-      background: #d9ecff; border-color: #d9ecff; color: #1779F6;
+    .preview-player-screen {
+      height: 340px; display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 40px; background: linear-gradient(135deg, #101418 60%, #1d2733);
     }
-    .res-import-btn-download:hover { background: #cfe4ff; }
-    .res-import-tip {
-      color: #4e5969; font-size: 12px; line-height: 1.6;
-      background: #fff; border: 1px solid #e6ecf5; border-radius: 6px;
-      padding: 8px 12px;
+    .preview-player-bar {
+      display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+      color: #cfd8e3; font-size: 12px; background: #10151b;
     }
-    .res-import-btn-upload { min-width: 140px; }
-    .res-import-hint { color: #86909c; font-size: 12px; }
-    .res-import-status.is-done { color: #00b42a; }
-    .res-import-status.is-doing { color: #ff9500; }
-    .res-import-status.is-fail { color: #f56c6c; }
+    .preview-progress { flex: 1; height: 4px; border-radius: 2px; background: #3a4655; position: relative; }
+    .preview-progress::before {
+      content: ''; position: absolute; left: 0; top: 0; height: 4px; width: 18%;
+      border-radius: 2px; background: #1779F6;
+    }
+    .preview-files {
+      flex: 1; border: 1px solid #e6ecf5; border-radius: 8px; padding: 12px;
+      max-height: 400px; overflow: auto; background: #fff;
+    }
+    .preview-files-title { font-weight: 600; color: #1f2329; font-size: 13px; margin-bottom: 10px; }
+    .preview-file-item { margin-bottom: 8px; }
+    .preview-file-name { color: #1f2329; font-size: 13px; display: flex; gap: 6px; align-items: center; }
+    .preview-file-icon { width: 18px; text-align: center; }
+    .preview-file-children { margin: 4px 0 0 22px; }
+    .preview-file-child {
+      color: #4e5969; font-size: 12px; padding: 4px 6px; border-radius: 4px;
+    }
+    .preview-file-child.is-playing { background: #f2f7ff; color: #1779F6; }
+    .preview-rich h3 { color: #1f2329; margin: 0 0 10px; }
+    .preview-rich p { color: #4e5969; line-height: 1.8; font-size: 13px; }
+    .cfg-tip { color: #86909c; font-size: 12px; line-height: 1.6; margin-top: 6px; }
+    /* 人员可搜索下拉选项（姓名/手机尾号4位(部门)） */
+    .person-option { display: flex; align-items: center; gap: 10px; }
+    .person-avatar {
+      width: 26px; height: 26px; border-radius: 50%; flex: none;
+      background: #1779F6; color: #fff; font-size: 13px;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .person-text { color: #1f2329; font-size: 13px; }
 
     /* P08 条目树形列表（维度条目 → 子条目 → 子条目项） */
     .biz-tree { border: 1px solid var(--shell-line); border-radius: 8px; overflow: hidden; }
@@ -585,15 +617,19 @@
         </div>
         <div class="shell-header-center"></div>
         <div class="shell-header-actions">
+          <el-radio-group v-model="role" size="small" style="margin-right:12px;" @change="onRoleChange">
+            <el-radio-button value="super">桂教通超管</el-radio-button>
+            <el-radio-button value="org">机构人员</el-radio-button>
+          </el-radio-group>
           <el-button text @click="openPortal">门户预览</el-button>
           <el-button text>帮助</el-button>
-          <el-avatar size="small">A</el-avatar>
+          <el-avatar size="small">{{ role === 'super' ? 'A' : 'B' }}</el-avatar>
         </div>
       </el-header>
 
       <el-container class="shell-body">
         <aside class="shell-sidebar">
-          <div class="shell-nav-group">
+          <div class="shell-nav-group" v-if="isSuper">
             <div class="shell-nav-group-title">类目管理</div>
             <el-menu :default-active="currentPage.id" @select="handleNavSelect">
               <el-menu-item index="P01">频道管理</el-menu-item>
@@ -608,6 +644,18 @@
             </el-menu>
           </div>
           <div class="shell-nav-group">
+            <div class="shell-nav-group-title">审批管理</div>
+            <el-menu :default-active="currentPage.id" @select="handleNavSelect">
+              <el-menu-item index="P30">审批列表</el-menu-item>
+            </el-menu>
+          </div>
+          <div class="shell-nav-group" v-if="isSuper">
+            <div class="shell-nav-group-title">配置管理</div>
+            <el-menu :default-active="currentPage.id" @select="handleNavSelect">
+              <el-menu-item index="P40">后台人员配置</el-menu-item>
+            </el-menu>
+          </div>
+          <div class="shell-nav-group" v-if="isSuper">
             <div class="shell-nav-group-title">硬件与服务管理</div>
             <el-menu :default-active="currentPage.id" @select="handleNavSelect">
               <el-menu-item index="P20">智慧硬件与服务</el-menu-item>
@@ -1048,12 +1096,15 @@
                     <span class="biz-field-label">状态</span>
                     <select v-model="resFilter.status">
                       <option value="">全部</option>
+                      <option value="草稿">草稿</option>
+                      <option value="未审批">未审批</option>
+                      <option value="已驳回">已驳回</option>
                       <option value="未发布">未发布</option>
                       <option value="已发布">已发布</option>
                     </select>
                   </div>
                   <div class="biz-toolbar-actions">
-                    <el-button>重置</el-button>
+                    <el-button @click="resFilter = { title: '', subChannelId: '', categoryId: '', status: '' }">重置</el-button>
                     <el-button type="primary">查询</el-button>
                   </div>
                 </div>
@@ -1062,20 +1113,23 @@
                   <div class="biz-card-head">
                     <div class="biz-card-title">资源列表</div>
                     <div class="biz-card-actions">
-                      <el-button :disabled="!resSelectedRows.length" @click="batchPublishRes">批量上架</el-button>
-                      <el-button :disabled="!resSelectedRows.length" @click="batchUnpublishRes">批量下架</el-button>
-                      <el-button :disabled="!resSelectedRows.length" @click="batchRecommendRes">批量推荐</el-button>
-                      <el-button :disabled="!resSelectedRows.length" @click="batchCancelRecommendRes">批量取消推荐</el-button>
-                      <el-button :disabled="!resSelectedRows.length" @click="batchDeleteRes">批量删除</el-button>
-                      <el-button @click="openResImportDialog">批量导入</el-button>
+                      <template v-if="isSuper">
+                        <el-button :disabled="!resSelectedRows.length" @click="batchPublishRes">批量上架</el-button>
+                        <el-button :disabled="!resSelectedRows.length" @click="batchUnpublishRes">批量下架</el-button>
+                        <el-button :disabled="!resSelectedRows.length" @click="batchRecommendRes">批量推荐</el-button>
+                        <el-button :disabled="!resSelectedRows.length" @click="batchCancelRecommendRes">批量取消推荐</el-button>
+                        <el-button :disabled="!resSelectedRows.length" @click="batchDeleteRes">批量删除</el-button>
+                      </template>
+                      <el-button @click="openResImport">批量导入</el-button>
                       <el-button type="primary" @click="openResForm('create')">新增资源</el-button>
                     </div>
                   </div>
                   <table class="biz-table">
                     <thead>
                       <tr>
-                        <th class="col-check"><input type="checkbox" :checked="resAllChecked" @change="toggleAllRes"></th>
+                        <th v-if="isSuper" class="col-check"><input type="checkbox" :checked="resAllChecked" @change="toggleAllRes"></th>
                         <th>资源标题</th>
+                        <th>所属机构</th>
                         <th>所属频道</th>
                         <th>所属分类</th>
                         <th>排序</th>
@@ -1087,16 +1141,20 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="row in resRows" :key="row.id">
-                        <td><input type="checkbox" v-model="row.checked"></td>
+                      <tr v-for="row in visibleResRows" :key="row.id">
+                        <td v-if="isSuper"><input type="checkbox" v-model="row.checked"></td>
                         <td>{{ row.title }}</td>
+                        <td>{{ row.org }}</td>
                         <td>{{ subChannelName(row.channelName) }}</td>
                         <td>{{ row.categoryName }}</td>
                         <td>{{ row.order }}</td>
                         <td>{{ row.viewCount }}</td>
                         <td>
                           <el-tag v-if="row.status === '已发布'" type="success">已发布</el-tag>
-                          <el-tag v-else type="info">未发布</el-tag>
+                          <el-tag v-else-if="row.status === '未发布'" type="info">未发布</el-tag>
+                          <el-tag v-else-if="row.status === '草稿'" type="warning">草稿</el-tag>
+                          <el-tag v-else-if="row.status === '未审批'" type="primary">未审批</el-tag>
+                          <el-tag v-else type="danger">已驳回</el-tag>
                         </td>
                         <td>
                           <el-tag v-if="row.recommended === '是'" type="danger" size="small">推荐</el-tag>
@@ -1104,20 +1162,26 @@
                         </td>
                         <td>{{ row.updatedAt }}</td>
                         <td style="white-space:nowrap;">
-                          <el-button size="small" text type="primary" @click="showConfirm('预览资源？', '模拟应用端详情展示：' + row.title)">预览</el-button>
-                          <el-button v-if="row.status === '未发布'" size="small" text type="primary" @click="openResForm('edit', row)">编辑</el-button>
-                          <el-button v-if="row.status === '未发布'" size="small" text type="success" @click="publishRes(row)">上架</el-button>
-                          <el-button v-else size="small" text type="warning" @click="unpublishRes(row)">下架</el-button>
-                          <el-button v-if="row.status === '已发布' && row.recommended !== '是'" size="small" text type="danger" @click="toggleRecommend(row, '是')">设为推荐</el-button>
-                          <el-button v-if="row.status === '已发布' && row.recommended === '是'" size="small" text type="info" @click="toggleRecommend(row, '否')">取消推荐</el-button>
-                          <el-button v-if="row.status === '未发布'" size="small" text type="danger" @click="showConfirm('确认删除该资源？', '删除后不可恢复')">删除</el-button>
+                          <el-button v-if="row.status === '已发布'" size="small" text type="primary" @click="openPreview(row)">预览</el-button>
+                          <template v-if="isSuper">
+                            <el-button v-if="row.status === '草稿' || row.status === '未发布'" size="small" text type="primary" @click="openResForm('edit', row)">编辑</el-button>
+                            <el-button v-if="row.status === '未发布'" size="small" text type="success" @click="publishRes(row)">上架</el-button>
+                            <el-button v-if="row.status === '已发布'" size="small" text type="warning" @click="unpublishRes(row)">下架</el-button>
+                            <el-button v-if="row.status === '已发布' && row.recommended !== '是'" size="small" text type="danger" @click="toggleRecommend(row, '是')">设为推荐</el-button>
+                            <el-button v-if="row.status === '已发布' && row.recommended === '是'" size="small" text type="info" @click="toggleRecommend(row, '否')">取消推荐</el-button>
+                            <el-button v-if="row.status === '草稿' || row.status === '未发布'" size="small" text type="danger" @click="showConfirm('确认删除该资源？', '删除后不可恢复')">删除</el-button>
+                          </template>
+                          <template v-else>
+                            <el-button v-if="row.status === '草稿' || row.status === '已驳回'" size="small" text type="primary" @click="openResForm('edit', row)">编辑</el-button>
+                            <el-button v-if="row.status === '草稿' || row.status === '已驳回'" size="small" text type="danger" @click="showConfirm('确认删除该资源？', '删除后不可恢复')">删除</el-button>
+                          </template>
                         </td>
                       </tr>
-                      <tr v-if="!resRows.length"><td colspan="10" class="biz-empty">暂无资源，请点击右上角新增</td></tr>
+                      <tr v-if="!visibleResRows.length"><td :colspan="isSuper ? 10 : 9" class="biz-empty">暂无资源，请点击右上角新增</td></tr>
                     </tbody>
                   </table>
                   <div class="biz-pagination">
-                    <span>共 {{ resRows.length }} 条</span>
+                    <span>共 {{ visibleResRows.length }} 条</span>
                     <button>&lt;</button><span>1</span><button>&gt;</button>
                     <span>20 条/页</span>
                   </div>
@@ -1206,7 +1270,9 @@
                           <el-radio value="文件·视频">文件·视频</el-radio>
                           <el-radio value="应用和链接">应用和链接</el-radio>
                           <el-radio value="链接">链接</el-radio>
+                          <el-radio value="视频">视频</el-radio>
                         </el-radio-group>
+                        <div class="hw-field-tip" v-if="resForm.data.contentType === '视频'" style="margin:4px 0 0;">视频类型：附件仅支持所有视频格式（.mp4/.avi/.mov/.wmv/.flv/.mkv 等），单个大小 ≤1GB；导入创建的视频资源需在编辑页手动上传附件</div>
                       </el-form-item>
 
                       <!-- 课时：非必填，数字输入支持小数，单位下拉 分钟/小时 -->
@@ -1360,7 +1426,7 @@
                             </tbody>
                           </table>
                           <div v-else style="color:#86909c;font-size:12px;margin-top:8px;">
-                            暂无{{ resForm.data.sectionOn === '是' ? '章节/文件' : '文件' }}，支持 .mp4/.doc/.docx/.xls/.xlsx/.ppt/.pptx/.pdf（文档 ≤50MB、视频 ≤500MB，最多 50 个）
+                            暂无{{ resForm.data.sectionOn === '是' ? '章节/文件' : '文件' }}，{{ fileRuleText }}
                           </div>
                         </div>
                       </el-form-item>
@@ -1388,10 +1454,85 @@
                     <el-button v-if="resForm.step > 0" @click="resForm.step--">上一步</el-button>
                     <el-button v-if="resForm.step < 2" type="primary" @click="resForm.step++">下一步</el-button>
                     <template v-if="resForm.step === 2">
-                      <el-button @click="submitResource(false)">提交</el-button>
-                      <el-button type="primary" @click="submitResource(true)">提交并发布</el-button>
+                      <el-button @click="saveResDraft">保存草稿</el-button>
+                      <el-button type="primary" @click="submitResource(false)">提交</el-button>
+                      <el-button v-if="isSuper" type="primary" @click="submitResource(true)">提交并发布</el-button>
                     </template>
                   </div>
+                </div>
+              </template>
+
+              <!-- ============= P15 资源预览页（按内容展示方式分流，全屏页面） ============= -->
+              <template v-if="currentPage.id === 'P15' && previewRow">
+                <div class="page-head">
+                  <el-button size="small" @click="backResList">返回列表</el-button>
+                  <span class="page-head-title">资源预览</span>
+                </div>
+
+                <div class="preview-head">
+                  <div class="preview-title">{{ previewRow.title }}</div>
+                  <div class="preview-tags">
+                    <el-tag :type="previewRow.chargeType === '收费' ? 'danger' : 'success'" size="small">{{ previewRow.chargeType || '免费' }}</el-tag>
+                    <el-tag type="info" size="small">{{ previewRow.categoryName }}</el-tag>
+                  </div>
+                  <div class="preview-meta">{{ previewMetaText(previewRow) }}</div>
+                </div>
+
+                <!-- 文件·视频 / 视频：左侧视频播放器 + 右侧附件列表 -->
+                <div v-if="previewRow.contentType === '文件·视频' || previewRow.contentType === '视频'" class="preview-body preview-flex">
+                  <div class="preview-player">
+                    <div class="preview-player-screen">▶</div>
+                    <div class="preview-player-bar">
+                      <span>00:00</span>
+                      <div class="preview-progress"></div>
+                      <span>{{ previewRow.duration ? previewRow.duration + ' ' + (previewRow.durationUnit || '分钟') : '30:00' }}</span>
+                    </div>
+                  </div>
+                  <div class="preview-files">
+                    <div class="preview-files-title">{{ previewRow.title }}</div>
+                    <div v-for="(f, i) in previewFiles(previewRow)" :key="i" class="preview-file-item">
+                      <div class="preview-file-name">
+                        <span class="preview-file-icon">{{ f.type === 'folder' ? '📂' : (f.type === 'video' ? '🎬' : (f.type === 'pdf' ? '📕' : '📄')) }}</span>
+                        {{ f.name }}
+                      </div>
+                      <div v-if="f.children" class="preview-file-children">
+                        <div v-for="(c, j) in f.children" :key="j" class="preview-file-child" :class="{ 'is-playing': j === 0 }">{{ j === 0 ? '▶' : '　' }} {{ c }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 富文本：富文本详情 -->
+                <div v-else-if="previewRow.contentType === '富文本'" class="preview-body">
+                  <div class="preview-rich">
+                    <h3>{{ previewRow.title }}</h3>
+                    <p>{{ previewRow.intro || '（资源简介）' }}</p>
+                    <p>（此处为富文本正文内容预览：图文混排内容按后台维护顺序展示，支持标题、段落、图片与表格等元素。）</p>
+                  </div>
+                </div>
+
+                <!-- 应用和链接 / 链接：表单详情界面，el-form 只读展示全部字段 -->
+                <div v-else class="preview-body preview-form">
+                  <el-form label-width="140px" label-position="right">
+                    <el-form-item label="资源标题">{{ previewRow.title }}</el-form-item>
+                    <el-form-item label="所属频道">{{ subChannelName(previewRow.channelName) }}</el-form-item>
+                    <el-form-item label="所属分类">{{ previewRow.categoryName }}</el-form-item>
+                    <el-form-item label="排序">{{ previewRow.order }}</el-form-item>
+                    <el-form-item label="内容展示方式">{{ previewRow.contentType }}</el-form-item>
+                    <el-form-item label="课时">{{ previewRow.duration ? previewRow.duration + ' ' + (previewRow.durationUnit || '分钟') : '—' }}</el-form-item>
+                    <el-form-item label="收费方式">{{ previewRow.chargeType || '免费' }}</el-form-item>
+                    <el-form-item label="付费方式">{{ previewRow.payType || '个人' }}</el-form-item>
+                    <el-form-item label="价格">{{ previewRow.price || '—' }}</el-form-item>
+                    <el-form-item label="应用选择">{{ previewRow.appName || '—' }}</el-form-item>
+                    <el-form-item label="PC端链接">—</el-form-item>
+                    <el-form-item label="移动端链接">—</el-form-item>
+                    <el-form-item label="资源简介">{{ previewRow.intro || '—' }}</el-form-item>
+                    <el-form-item label="资源来源机构">{{ previewRow.org }}</el-form-item>
+                    <el-form-item label="资源作者">{{ previewRow.author || '—' }}</el-form-item>
+                    <el-form-item label="所属机构">{{ previewRow.org }}</el-form-item>
+                    <el-form-item label="状态">{{ previewRow.status }}</el-form-item>
+                    <el-form-item label="更新时间">{{ previewRow.updatedAt }}</el-form-item>
+                  </el-form>
                 </div>
               </template>
 
@@ -1666,6 +1807,218 @@
                   <div class="res-step-footer">
                     <el-button @click="goHwList">取消</el-button>
                     <el-button type="primary" @click="saveHardware">保存</el-button>
+                  </div>
+                </div>
+              </template>
+
+              <!-- ============= P30 审批列表页 ============= -->
+              <template v-if="currentPage.id === 'P30'">
+                <div class="biz-toolbar">
+                  <div class="biz-field">
+                    <span class="biz-field-label">机构名称</span>
+                    <input type="text" v-model="approvalFilter.org" placeholder="模糊匹配">
+                  </div>
+                  <div class="biz-field">
+                    <span class="biz-field-label">资源名称</span>
+                    <input type="text" v-model="approvalFilter.resourceName" placeholder="模糊匹配">
+                  </div>
+                  <div class="biz-field">
+                    <span class="biz-field-label">审核状态</span>
+                    <select v-model="approvalFilter.status">
+                      <option value="">全部</option>
+                      <option value="未审批">未审批</option>
+                      <option value="审批通过">审批通过</option>
+                      <option value="已驳回">已驳回</option>
+                    </select>
+                  </div>
+                  <div class="biz-toolbar-actions">
+                    <el-button @click="approvalFilter = { org: '', resourceName: '', status: '' }">重置</el-button>
+                    <el-button type="primary">查询</el-button>
+                  </div>
+                </div>
+
+                <div class="biz-card">
+                  <div class="biz-card-head">
+                    <div class="biz-card-title">审批列表</div>
+                    <div class="biz-card-actions"></div>
+                  </div>
+                  <table class="biz-table">
+                    <thead>
+                      <tr>
+                        <th>机构名称</th>
+                        <th>资源名称</th>
+                        <th>所属频道</th>
+                        <th>所属分类</th>
+                        <th>提交人</th>
+                        <th>审核状态</th>
+                        <th>提交时间</th>
+                        <th class="col-actions">操作</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="row in visibleApprovalRows" :key="row.id">
+                        <td>{{ row.org }}</td>
+                        <td>{{ row.resourceName }}</td>
+                        <td>{{ subChannelName(row.channelName) }}</td>
+                        <td>{{ row.categoryName }}</td>
+                        <td>{{ row.submitter }}</td>
+                        <td>
+                          <el-tag v-if="row.status === '审批通过'" type="success">审批通过</el-tag>
+                          <el-tag v-else-if="row.status === '已驳回'" type="danger">已驳回</el-tag>
+                          <el-tag v-else type="warning">未审批</el-tag>
+                        </td>
+                        <td>{{ row.submittedAt }}</td>
+                        <td style="white-space:nowrap;">
+                          <template v-if="isSuper">
+                            <el-button v-if="row.status === '未审批'" size="small" text type="primary" @click="openApprovalPage(row, 'approve')">审批</el-button>
+                            <el-button size="small" text type="info" @click="openApprovalPage(row, 'view')">查看</el-button>
+                          </template>
+                          <el-button v-else size="small" text type="info" @click="openApprovalPage(row, 'view')">查看</el-button>
+                        </td>
+                      </tr>
+                      <tr v-if="!visibleApprovalRows.length"><td colspan="8" class="biz-empty">暂无审批记录</td></tr>
+                    </tbody>
+                  </table>
+                  <div class="biz-pagination">
+                    <span>共 {{ visibleApprovalRows.length }} 条</span>
+                    <button>&lt;</button><span>1</span><button>&gt;</button>
+                    <span>20 条/页</span>
+                  </div>
+                </div>
+              </template>
+
+              <!-- ============= P31 审批页/查看页 ============= -->
+              <template v-if="currentPage.id === 'P31'">
+                <div class="biz-card">
+                  <div class="biz-card-head">
+                    <div class="biz-card-title">{{ approvalPage.mode === 'approve' ? '资源审批' : '审批详情' }}</div>
+                    <div class="biz-card-actions">
+                      <el-button @click="backApprovalList">返回列表</el-button>
+                    </div>
+                  </div>
+
+                  <!-- 资源详情区（只读） -->
+                  <div class="biz-detail-block">
+                    <div class="biz-detail-title">资源详情</div>
+                    <el-descriptions :column="2" border>
+                      <el-descriptions-item label="资源标题">{{ approvalPage.row.title }}</el-descriptions-item>
+                      <el-descriptions-item label="所属机构">{{ approvalPage.row.org }}</el-descriptions-item>
+                      <el-descriptions-item label="所属频道">{{ subChannelName(approvalPage.row.channelName) }}</el-descriptions-item>
+                      <el-descriptions-item label="所属分类">{{ approvalPage.row.categoryName }}</el-descriptions-item>
+                      <el-descriptions-item label="内容展示方式">{{ approvalPage.row.contentType }}</el-descriptions-item>
+                      <el-descriptions-item label="资源来源机构">{{ approvalPage.row.org }}</el-descriptions-item>
+                      <el-descriptions-item label="资源作者">{{ approvalPage.row.author }}</el-descriptions-item>
+                      <el-descriptions-item label="创建人">{{ approvalPage.row.creator }}</el-descriptions-item>
+                      <el-descriptions-item label="排序">{{ approvalPage.row.order }}</el-descriptions-item>
+                      <el-descriptions-item label="资源简介" :span="2">{{ approvalPage.row.intro }}</el-descriptions-item>
+                      <el-descriptions-item label="资源正文内容" :span="2">{{ approvalPage.row.contentType === '富文本' || approvalPage.row.contentType === '文件·视频' ? '（此处展示资源正文内容预览）' : approvalPage.row.contentType }}</el-descriptions-item>
+                    </el-descriptions>
+                  </div>
+
+                  <!-- 审批信息区（仅桂教通超管审批模式） -->
+                  <div v-if="approvalPage.mode === 'approve'" class="biz-detail-block">
+                    <div class="biz-detail-title">审批信息</div>
+                    <el-form label-width="100px">
+                      <el-form-item label="审批结果" required>
+                        <el-radio-group v-model="approvalPage.result">
+                          <el-radio value="通过">通过</el-radio>
+                          <el-radio value="驳回">驳回</el-radio>
+                        </el-radio-group>
+                      </el-form-item>
+                      <el-form-item label="审批意见">
+                        <el-input v-model="approvalPage.comment" type="textarea" rows="3" maxlength="200" show-word-limit placeholder="选填，最多 200 字符"></el-input>
+                      </el-form-item>
+                      <el-form-item>
+                        <el-button type="primary" @click="submitApproval">提交</el-button>
+                        <el-button @click="backApprovalList">取消</el-button>
+                      </el-form-item>
+                    </el-form>
+                  </div>
+
+                  <!-- 审批历史区（查看模式） -->
+                  <div v-else class="biz-detail-block">
+                    <div class="biz-detail-title">审批历史</div>
+                    <el-descriptions :column="2" border>
+                      <el-descriptions-item label="审核状态">{{ approvalPage.row.status }}</el-descriptions-item>
+                      <el-descriptions-item label="审批结果">{{ approvalPage.row.result || '—' }}</el-descriptions-item>
+                      <el-descriptions-item label="审批意见" :span="2">{{ approvalPage.row.comment || '—' }}</el-descriptions-item>
+                      <el-descriptions-item label="审批人">{{ approvalPage.row.approver || '—' }}</el-descriptions-item>
+                      <el-descriptions-item label="审批时间">{{ approvalPage.row.approvedAt || '—' }}</el-descriptions-item>
+                    </el-descriptions>
+                  </div>
+                </div>
+              </template>
+
+              <!-- ============= P40 配置列表页 ============= -->
+              <template v-if="currentPage.id === 'P40'">
+                <div class="biz-toolbar">
+                  <div class="biz-field">
+                    <span class="biz-field-label">姓名或手机号</span>
+                    <input type="text" v-model="configFilter.kw" placeholder="模糊匹配姓名/手机号">
+                  </div>
+                  <div class="biz-field">
+                    <span class="biz-field-label">所属机构</span>
+                    <input type="text" v-model="configFilter.org" placeholder="模糊匹配">
+                  </div>
+                  <div class="biz-field">
+                    <span class="biz-field-label">状态</span>
+                    <select v-model="configFilter.status">
+                      <option value="">全部</option>
+                      <option value="启用">启用</option>
+                      <option value="停用">停用</option>
+                    </select>
+                  </div>
+                  <div class="biz-toolbar-actions">
+                    <el-button @click="configFilter = { kw: '', org: '', status: '' }">重置</el-button>
+                    <el-button type="primary">查询</el-button>
+                  </div>
+                </div>
+
+                <div class="biz-card">
+                  <div class="biz-card-head">
+                    <div class="biz-card-title">后台人员配置</div>
+                    <div class="biz-card-actions">
+                      <el-button type="primary" @click="openConfigForm('create')">新增配置</el-button>
+                    </div>
+                  </div>
+                  <table class="biz-table">
+                    <thead>
+                      <tr>
+                        <th>姓名</th>
+                        <th>手机号</th>
+                        <th>部门</th>
+                        <th>所属机构</th>
+                        <th>可配置频道</th>
+                        <th>状态</th>
+                        <th>更新时间</th>
+                        <th class="col-actions">操作</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="row in visibleConfigRows" :key="row.id">
+                        <td>{{ row.name }}</td>
+                        <td>{{ row.phone }}</td>
+                        <td>{{ row.dept || '—' }}</td>
+                        <td>{{ row.org }}</td>
+                        <td>{{ configChannelsText(row) }}</td>
+                        <td>
+                          <el-tag v-if="row.status === '启用'" type="success">启用</el-tag>
+                          <el-tag v-else type="info">停用</el-tag>
+                        </td>
+                        <td>{{ row.updatedAt }}</td>
+                        <td style="white-space:nowrap;">
+                          <el-button size="small" text type="primary" @click="openConfigForm('edit', row)">编辑</el-button>
+                          <el-button size="small" text :type="row.status === '启用' ? 'warning' : 'success'" @click="toggleConfigStatus(row)">{{ row.status === '启用' ? '停用' : '启用' }}</el-button>
+                          <el-button size="small" text type="danger" @click="deleteConfig(row)">删除</el-button>
+                        </td>
+                      </tr>
+                      <tr v-if="!visibleConfigRows.length"><td colspan="8" class="biz-empty">暂无配置，请点击右上角新增</td></tr>
+                    </tbody>
+                  </table>
+                  <div class="biz-pagination">
+                    <span>共 {{ visibleConfigRows.length }} 条</span>
+                    <button>&lt;</button><span>1</span><button>&gt;</button>
+                    <span>20 条/页</span>
                   </div>
                 </div>
               </template>
@@ -2476,7 +2829,7 @@
             <el-button @click="mockPickFiles">选择文件</el-button>
             <div style="color:#86909c;font-size:12px;margin-top:6px;">
               {{ fileDialog.mode === 'add-file' ? '支持一次上传多个' : '仅可替换当前文件' }}
-              ；.mp4/.doc/.docx/.xls/.xlsx/.ppt/.pptx/.pdf；文档 ≤50MB、视频 ≤500MB；最多 50 个
+              ；{{ fileRuleText }}
             </div>
             <div v-if="fileDialog.data.pickedFiles.length" style="margin-top:8px;">
               <div v-for="(f, fi) in fileDialog.data.pickedFiles" :key="fi"
@@ -2501,89 +2854,65 @@
       </template>
     </el-dialog>
 
-    <!-- ============= P10-Dialog 资源批量导入弹窗 ============= -->
-    <el-dialog v-model="resImportDialog.visible" title="批量导入资源" width="900px" top="6vh">
-      <div class="res-import-hero">
-        <div class="res-import-step">
-          <div class="res-import-step-title">1. 下载标准导入模板，填写模板信息</div>
-          <div class="res-import-step-body">
-            <el-button class="res-import-btn-download" @click="downloadResImportTemplate">下载导入模板</el-button>
-            <div class="res-import-tip">
-              导入内容有：所属频道、资源标题、资源简介、所属分类、类目及类目条目、排序、资源来源机构、资源作者。<br/>
-              模板下载时，将「所属频道」「所属分类」「类目及类目条目」按当前配置生成 Excel 下拉选择项。
-            </div>
-          </div>
-        </div>
-        <div class="res-import-step">
-          <div class="res-import-step-title">2. 上传文件，批量导入资源</div>
-          <div class="res-import-step-body">
-            <el-button type="primary" class="res-import-btn-upload" @click="mockUploadResImport">导入资源信息</el-button>
-          </div>
-        </div>
-        <div class="res-import-hint">（请按照标准模板填写信息，上传结果可在以下列表中查看，如果上传失败可通过导出源文件来定位问题，修改后可重新上传）</div>
-      </div>
-
-      <div class="biz-toolbar" style="margin-top:16px;">
-        <div class="biz-field">
-          <span class="biz-field-label">状态</span>
-          <select v-model="resImportDialog.filter.status">
-            <option value="">请选择状态</option>
-            <option value="上传中">上传中</option>
-            <option value="已完成">已完成</option>
-            <option value="失败">失败</option>
-          </select>
-        </div>
-        <div class="biz-field">
-          <span class="biz-field-label">操作时间</span>
-          <input type="text" placeholder="请选择操作时间" v-model="resImportDialog.filter.time">
-        </div>
-        <div class="biz-field">
-          <span class="biz-field-label">操作类型</span>
-          <select v-model="resImportDialog.filter.opType">
-            <option value="">请选择操作类型</option>
-            <option value="导入">导入</option>
-          </select>
-        </div>
-        <div class="biz-toolbar-actions">
-          <el-button type="primary">搜索</el-button>
-        </div>
-      </div>
-
-      <table class="biz-table" style="margin-top:12px;">
-        <thead>
-          <tr>
-            <th>文件名称</th>
-            <th>操作类型</th>
-            <th>状态</th>
-            <th>成功数</th>
-            <th>失败数</th>
-            <th>操作人</th>
-            <th>操作时间</th>
-            <th class="col-actions">操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="row in resImportDialog.rows" :key="row.id">
-            <td>{{ row.fileName }}</td>
-            <td>{{ row.opType }}</td>
-            <td>
-              <span class="res-import-status" :class="'is-' + row.statusKey">● {{ row.status }}</span>
-            </td>
-            <td>{{ row.status === '上传中' ? '-' : row.success }}</td>
-            <td>{{ row.status === '上传中' ? '-' : row.fail }}</td>
-            <td>{{ row.operator }}</td>
-            <td>{{ row.operatedAt }}</td>
-            <td>
-              <el-button size="small" text type="danger" @click="showConfirm('确认是否删除', '数据删除后将无法恢复，请确认是否继续删除？')">删除</el-button>
-              <el-button size="small" text type="primary">导出源文件</el-button>
-            </td>
-          </tr>
-          <tr v-if="!resImportDialog.rows.length"><td colspan="8" class="biz-empty">暂无导入记录</td></tr>
-        </tbody>
-      </table>
-
+    <!-- ============= P41-Dialog 配置新增/编辑弹窗 ============= -->
+    <el-dialog v-model="configForm.visible" :title="configForm.mode === 'edit' ? '编辑后台人员配置' : '新增后台人员配置'" width="640px">
+      <el-form label-width="110px">
+        <el-form-item label="所属机构" required>
+          <el-select v-model="configForm.data.org" filterable placeholder="输入机构名称搜索" style="width:100%;"
+                     @change="onConfigOrgChange">
+            <el-option v-for="o in orgOptions" :key="o" :label="o" :value="o"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="姓名" required>
+          <el-select v-model="configForm.data.personKey" filterable :disabled="!configForm.data.org"
+                     :placeholder="configForm.data.org ? '输入姓名/手机号搜索' : '请先选择所属机构'"
+                     style="width:100%;" @change="onPersonPicked">
+            <el-option v-for="p in staffOfOrg(configForm.data.org)" :key="p.phone" :label="p.name" :value="p.phone">
+              <div class="person-option">
+                <span class="person-avatar">{{ p.name.slice(0, 1) }}</span>
+                <span class="person-text">{{ staffOptionText(p) }}</span>
+              </div>
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="手机号" required>
+          <el-input v-model="configForm.data.phone" readonly placeholder="选择人员后自动带出"></el-input>
+        </el-form-item>
+        <el-form-item label="可配置频道" required>
+          <el-checkbox-group v-model="configForm.data.channels">
+            <el-checkbox v-for="c in channelRows.filter(x => x.parentId)" :key="c.id" :label="c.id">{{ subChannelPathOf(c.id) }}</el-checkbox>
+          </el-checkbox-group>
+          <div class="cfg-tip">至少勾选 1 个可配置频道（R-CFG-05），勾选范围决定其在频道相关页面的可见与可操作数据范围；保存后该人员登录即可进入资源后台（菜单：资源列表、审批列表；数据范围：本人创建的资源与审批数据，R-CFG-04）</div>
+        </el-form-item>
+      </el-form>
       <template #footer>
-        <el-button type="primary" @click="resImportDialog.visible = false">关闭</el-button>
+        <el-button @click="configForm.visible = false">取消</el-button>
+        <el-button type="primary" @click="saveConfig">保存</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- ============= P10-Dialog 资源批量导入弹窗 ============= -->
+    <el-dialog v-model="resImportDialog.visible" title="批量导入资源" width="640px">
+      <el-form label-width="120px">
+        <el-form-item label="导入模板">
+          <el-button @click="downloadResImportTemplate">下载导入模板</el-button>
+          <div class="cfg-tip">模板字段：资源标题、所属频道（子频道）、所属分类、内容展示方式、排序、课时、收费方式、资源简介、资源来源机构、资源作者</div>
+        </el-form-item>
+        <el-form-item label="导入文件" required>
+          <el-button @click="mockPickImportFile">选择文件</el-button>
+          <span v-if="resImportDialog.pickedFile" style="margin-left:10px;color:#1f2329;font-size:13px;">{{ resImportDialog.pickedFile }}</span>
+          <div class="cfg-tip">仅支持 .xlsx 格式，单次最多导入 100 条</div>
+        </el-form-item>
+        <el-form-item label="导入规则">
+          <div class="cfg-tip" style="margin-top:0;line-height:1.8;">
+            1. 桂教通超管导入的资源状态为"未发布"，机构人员导入的资源状态为"草稿"（提交审批后走正常审批流）<br>
+            2. 导入仅创建资源基本内容；内容展示方式=视频/文件·视频时，需进入编辑页手动上传对应附件后才能发布
+          </div>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="resImportDialog.visible = false">取消</el-button>
+        <el-button type="primary" @click="submitResImport">导入</el-button>
       </template>
     </el-dialog>
 
@@ -2610,9 +2939,14 @@
       P07: { id: 'P07', label: '条目管理', moduleName: '条目管理', topModule: '类目管理' },
       P10: { id: 'P10', label: 'P10 资源列表页', moduleName: '资源列表', topModule: '资源管理' },
       P11: { id: 'P11', label: 'P11 资源新增/编辑', moduleName: '资源列表', topModule: '资源管理' },
+      P15: { id: 'P15', label: 'P15 资源预览页', moduleName: '资源列表', topModule: '资源管理' },
       P20: { id: 'P20', label: 'P20 智慧硬件与服务列表页', moduleName: '智慧硬件与服务', topModule: '硬件与服务管理' },
       P21: { id: 'P21', label: 'P21 预约记录列表页', moduleName: '预约记录', topModule: '硬件与服务管理' },
-      P22: { id: 'P22', label: 'P22 硬件/服务新增编辑页', moduleName: '智慧硬件与服务', topModule: '硬件与服务管理' }
+      P22: { id: 'P22', label: 'P22 硬件/服务新增编辑页', moduleName: '智慧硬件与服务', topModule: '硬件与服务管理' },
+      P30: { id: 'P30', label: 'P30 审批列表页', moduleName: '审批列表', topModule: '审批管理' },
+      P31: { id: 'P31', label: 'P31 审批页/查看页', moduleName: '审批列表', topModule: '审批管理' },
+      P40: { id: 'P40', label: 'P40 配置列表页', moduleName: '后台人员配置', topModule: '配置管理' },
+      P41: { id: 'P41', label: 'P41 配置新增/编辑页', moduleName: '后台人员配置', topModule: '配置管理' }
     };
 
     const app = Vue.createApp({
@@ -2701,7 +3035,52 @@
             data: { name: '', items: [] }
           },
           confirm: { visible: false, title: '', message: '' },
+          // 当前登录角色：super=桂教通超管（全功能），org=后台配置人员（菜单=资源列表+审批列表，数据=本人创建）
+          role: 'super',
+          currentOrg: '实验小学',
+          currentPerson: '李梅梅',
+          // 机构人员库（模拟身份系统人员数据，用于"姓名"可搜索下拉）
+          orgStaff: {
+            '实验小学': [
+              { name: '孙小小', phone: '13800007605', dept: '教育局职工' },
+              { name: '李梅梅', phone: '13812347605', dept: '教学部' },
+              { name: '赵芳', phone: '13811112222', dept: '德育部' },
+              { name: '陈静', phone: '13833334444', dept: '教务处' }
+            ],
+            '文渊教育': [
+              { name: '张丹丹', phone: '13987654321', dept: '教研部' },
+              { name: '刘伟', phone: '13900001111', dept: '运营部' }
+            ],
+            '思维学堂': [
+              { name: '王强', phone: '13755556666', dept: '课程部' }
+            ],
+            '家校联盟': [
+              { name: '周敏', phone: '13666667777', dept: '联络部' }
+            ]
+          },
           resFilter: { title: '', parentChannelId: '', subChannelId: '', categoryId: '', status: '' },
+          // ===== 审批管理（P30 审批列表 / P31 审批页）=====
+          approvalFilter: { org: '', resourceName: '', status: '' },
+          approvalRows: [
+            { id: 'AP20260620001', resourceId: 'RES012', org: '实验小学', resourceName: '小学二年级数学·乘法口诀微课', channelName: '教学资源 / 小学教学', categoryName: '数学', submitter: '李梅梅', status: '未审批', result: '', comment: '', approver: '', approvedAt: '', submittedAt: '2026-06-20 10:12:00', title: '小学二年级数学·乘法口诀微课', intro: '通过动画与口诀歌帮助二年级学生掌握乘法口诀，配套课堂练习与课后巩固微课。', contentType: '文件·视频', author: '李梅梅', creator: '李梅梅', order: 120 },
+            { id: 'AP20260621002', resourceId: 'RES013', org: '文渊教育', resourceName: '初中物理·力学实验演示合集', channelName: '教学资源 / 初中教学', categoryName: '数学', submitter: '张丹丹', status: '审批通过', result: '通过', comment: '内容完整，同意发布。', approver: '桂教通超管 A', approvedAt: '2026-06-21 09:30:00', submittedAt: '2026-06-21 08:45:00', title: '初中物理·力学实验演示合集', intro: '覆盖初中物理力学核心实验的演示视频合集，支持课堂投屏与课后复看。', contentType: '文件·视频', author: '张丹丹', creator: '张丹丹', order: 130 },
+            { id: 'AP20260622003', resourceId: 'RES014', org: '思维学堂', resourceName: '奥数思维·行程问题专项', channelName: '教学资源 / 初中教学', categoryName: '数学', submitter: '王强', status: '已驳回', result: '驳回', comment: '封面缺失，资源正文不完整，请补充后重新提交。', approver: '桂教通超管 A', approvedAt: '2026-06-22 15:20:00', submittedAt: '2026-06-22 14:05:00', title: '奥数思维·行程问题专项', intro: '行程问题专项训练，含相遇、追及、流水行船等典型模型讲解。', contentType: '富文本', author: '王强', creator: '王强', order: 140 },
+            { id: 'AP20260623004', resourceId: 'RES015', org: '实验小学', resourceName: '小学语文·识字卡片（可打印）', channelName: '教学资源 / 小学教学', categoryName: '语文', submitter: '李梅梅', status: '未审批', result: '', comment: '', approver: '', approvedAt: '', submittedAt: '2026-06-23 11:40:00', title: '小学语文·识字卡片（可打印）', intro: '一年级识字卡片 PDF，可直接打印用于课堂识字游戏与课后复习。', contentType: '文件·视频', author: '李梅梅', creator: '李梅梅', order: 150 }
+          ],
+          approvalPage: { mode: 'approve', row: null, result: '', comment: '' },
+          // ===== 配置管理（P40 配置列表 / P41 配置新增/编辑）=====
+          configFilter: { kw: '', org: '', status: '' },
+          orgOptions: ['实验小学', '文渊教育', '思维学堂', '家校联盟'],
+          configRows: [
+            { id: 'CFG001', name: '李梅梅', phone: '13812347605', dept: '教学部', org: '实验小学', channels: ['CH001-1', 'CH001-2'], status: '启用', updatedAt: '2026-07-12 10:20:00' },
+            { id: 'CFG002', name: '张丹丹', phone: '13987654321', dept: '教研部', org: '文渊教育', channels: ['CH002-1'], status: '启用', updatedAt: '2026-07-13 15:40:00' },
+            { id: 'CFG003', name: '王强', phone: '13755556666', dept: '课程部', org: '思维学堂', channels: ['CH001-2'], status: '停用', updatedAt: '2026-07-15 11:05:00' }
+          ],
+          configForm: { visible: false, mode: 'create', data: { id: '', org: '', personKey: '', name: '', phone: '', dept: '', channels: [], status: '启用' } },
+          // ===== 资源预览页（P15，按内容展示方式分流）=====
+          previewRow: null,
+          // ===== 批量导入（P10，全角色；超管导入=未发布，机构人员导入=草稿）=====
+          resImportDialog: { visible: false, pickedFile: '' },
           // 资源数据：后台配置，门户（P12）与资源列表共用
           // zone：门户板块（ai 建设者 / teaching 课程教学 / special 专题资源 / teacher 教师成长 / family 家校学思）
           // icon、tone：门户卡片封面占位（原型无真实图片，用图标+渐变模拟）
@@ -2771,7 +3150,11 @@
             { id: 'RES017', title: '家校共育·沟通技巧专题', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 170, viewCount: 189, likes: 52, org: '家校联盟', tags: ['家校', '沟通'], zone: 'family', icon: '🏠', tone: 6, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '35', durationUnit: '分钟', status: '已发布', updatedAt: '2026-07-06 10:40:00'  },
             { id: 'RES018', title: '研学课堂·设计与实施', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 180, viewCount: 121, likes: 33, org: '研学中心', tags: ['研学', '设计'], zone: 'family', icon: '🎒', tone: 1, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '42', durationUnit: '分钟', status: '已发布', updatedAt: '2026-07-07 15:20:00'  },
             { id: 'RES019', title: '常规选课·指导手册', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 190, viewCount: 76, likes: 18, org: '教务中心', tags: ['选课', '指导'], zone: 'family', icon: '📋', tone: 2, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '20', durationUnit: '分钟', status: '未发布', updatedAt: '2026-07-08 08:50:00'  },
-            { id: 'RES020', title: '家庭教育·亲子共读指南', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 200, viewCount: 145, likes: 41, org: '家校联盟', tags: ['亲子', '阅读'], zone: 'family', icon: '👨‍👩‍👧', tone: 3, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '30', durationUnit: '分钟', status: '未发布', updatedAt: '2026-07-09 13:30:00'  }
+            { id: 'RES020', title: '家庭教育·亲子共读指南', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 200, viewCount: 145, likes: 41, org: '家校联盟', tags: ['亲子', '阅读'], zone: 'family', icon: '👨‍👩‍👧', tone: 3, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '30', durationUnit: '分钟', status: '未发布', updatedAt: '2026-07-09 13:30:00'  },
+            { id: 'RES021', title: '小学二年级数学·乘法口诀微课', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 210, viewCount: 0, likes: 0, org: '实验小学', tags: ['数学', '微课'], zone: 'ai', icon: '✖️', tone: 2, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '15', durationUnit: '分钟', status: '草稿', updatedAt: '2026-07-18 09:10:00', intro: '通过动画与口诀歌帮助二年级学生掌握乘法口诀，配套课堂练习与课后巩固微课。', author: '李梅梅' },
+            { id: 'RES022', title: '小学语文·识字卡片（可打印）', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 220, viewCount: 0, likes: 0, org: '实验小学', tags: ['语文', '识字'], zone: 'ai', icon: '🔤', tone: 4, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '10', durationUnit: '分钟', status: '未审批', updatedAt: '2026-07-19 10:25:00', intro: '一年级识字卡片 PDF，可直接打印用于课堂识字游戏与课后复习。', author: '李梅梅' },
+            { id: 'RES023', title: '小学科学·观察日记模板包', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 230, viewCount: 0, likes: 0, org: '实验小学', tags: ['科学', '模板'], zone: 'teaching', icon: '🔎', tone: 5, contentType: '富文本', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '', durationUnit: '分钟', status: '已驳回', updatedAt: '2026-07-20 14:05:00', intro: '小学科学观察日记模板包，含植物、动物、天气三类观察记录表。', author: '李梅梅' },
+            { id: 'RES024', title: '初中化学·实验安全微课', channelId: 'CH001-2', channelName: '教学资源 / 初中教学', categoryId: 'CT004', categoryName: '数学', order: 240, viewCount: 0, likes: 0, org: '文渊教育', tags: ['化学', '安全'], zone: 'teaching', icon: '⚗️', tone: 6, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '20', durationUnit: '分钟', status: '未发布', updatedAt: '2026-07-21 08:40:00', intro: '初中化学实验安全微课，覆盖常见危险操作与应急处理。', author: '张丹丹' }
           ],
           resSteps: ['基本信息', '资源正文', '发布设置'],
           // ===== 硬件与服务管理（P20 智慧硬件与服务 / P21 预约记录）=====
@@ -2854,7 +3237,7 @@
             zoom: 'auto' // PDF 阅读器缩放（演示占位）
           },
           resForm: {
-            mode: 'create', step: 0,
+            mode: 'create', step: 0, editingId: '',
             audit: { checked: false, pass: false, hits: [] },
             data: {
               parentChannelId: '', channelId: '', title: '', intro: '', categoryId: '',
@@ -2888,17 +3271,6 @@
               pickedFiles: [],
               order: ''
             }
-          },
-          resImportDialog: {
-            visible: false,
-            filter: { status: '', time: '', opType: '' },
-            rows: [
-              { id: 1, fileName: 'batch_res_upload_19.xlsx', opType: '导入', status: '已完成', statusKey: 'done', success: 28, fail: 0, operator: '黄思思', operatedAt: '2026-01-09 16:06:46' },
-              { id: 2, fileName: 'batch_res_upload_18.xlsx', opType: '导入', status: '已完成', statusKey: 'done', success: 23, fail: 0, operator: '张丹丹', operatedAt: '2026-01-09 15:12:11' },
-              { id: 3, fileName: 'batch_res_upload_17.xlsx', opType: '导入', status: '上传中', statusKey: 'doing', success: '-', fail: '-', operator: '李梅梅', operatedAt: '2026-01-09 15:03:22' },
-              { id: 4, fileName: 'batch_res_upload_16.xlsx', opType: '导入', status: '已完成', statusKey: 'done', success: 22, fail: 3, operator: '李华', operatedAt: '2026-01-08 18:44:02' },
-              { id: 5, fileName: 'batch_res_upload_15.xlsx', opType: '导入', status: '已完成', statusKey: 'done', success: 34, fail: 0, operator: '韩梅梅', operatedAt: '2026-01-08 10:21:37' }
-            ]
           }
         };
       },
@@ -2988,10 +3360,45 @@
             return true;
           });
         },
+        // ===== 角色与数据范围 =====
+        isSuper() { return this.role === 'super'; },
+        // 资源列表（P10）：按角色数据范围 + 筛选条件过滤
+        visibleResRows() {
+          const f = this.resFilter;
+          return this.resRows.filter(r => {
+            if (!this.isSuper && (r.author || '') !== this.currentPerson) return false; // 后台配置人员仅本人创建
+            if (f.title && !r.title.includes(f.title)) return false;
+            if (f.subChannelId && r.channelId !== f.subChannelId) return false;
+            if (f.categoryId && r.categoryId !== f.categoryId) return false;
+            if (f.status && r.status !== f.status) return false;
+            return true;
+          }).sort((a, b) => (a.order - b.order) || (b.updatedAt < a.updatedAt ? -1 : 1));
+        },
         // ===== 资源列表（P10）勾选与批量操作 =====
-        resSelectedRows() { return this.resRows.filter(r => r.checked); },
+        resSelectedRows() { return this.visibleResRows.filter(r => r.checked); },
         resAllChecked() {
-          return this.resRows.length > 0 && this.resRows.every(r => r.checked);
+          return this.visibleResRows.length > 0 && this.visibleResRows.every(r => r.checked);
+        },
+        // 审批列表（P30）：按角色数据范围 + 筛选条件过滤
+        visibleApprovalRows() {
+          const f = this.approvalFilter;
+          return this.approvalRows.filter(r => {
+            if (!this.isSuper && (r.submitter || '') !== this.currentPerson) return false; // 后台配置人员仅本人发起
+            if (f.org && !r.org.includes(f.org)) return false;
+            if (f.resourceName && !r.resourceName.includes(f.resourceName)) return false;
+            if (f.status && r.status !== f.status) return false;
+            return true;
+          });
+        },
+        // 配置列表（P40）：仅超管可见，按筛选条件过滤
+        visibleConfigRows() {
+          const f = this.configFilter;
+          return this.configRows.filter(r => {
+            if (f.kw && !r.name.includes(f.kw) && !(r.phone || '').includes(f.kw)) return false;
+            if (f.org && !(r.org || '').includes(f.org)) return false;
+            if (f.status && r.status !== f.status) return false;
+            return true;
+          });
         },
         hwSelectedRows() {
           return this.filteredHardwares.filter(r => r.checked);
@@ -3073,6 +3480,13 @@
             'edit-section': '编辑章节'
           };
           return titleMap[this.fileDialog.mode] || '添加文件';
+        },
+        // 附件规则文案：内容展示方式=视频 时仅允许视频格式且 ≤1GB，其余类型沿用通用规则
+        fileRuleText() {
+          if (this.resForm.data.contentType === '视频') {
+            return '支持所有视频格式（.mp4/.avi/.mov/.wmv/.flv/.mkv 等），单个 ≤1GB，最多 50 个';
+          }
+          return '支持 .mp4/.doc/.docx/.xls/.xlsx/.ppt/.pptx/.pdf（文档 ≤50MB、视频 ≤500MB，最多 50 个）';
         },
         showSectionField() {
           // 编辑章节始终显示；新增文件仅在开启小节时显示
@@ -3596,7 +4010,7 @@
         },
         toggleAllRes() {
           const next = !this.resAllChecked;
-          this.resRows.forEach(r => { r.checked = next; });
+          this.visibleResRows.forEach(r => { r.checked = next; });
         },
         batchPublishRes() {
           const rows = this.resSelectedRows;
@@ -3653,6 +4067,7 @@
         },
         openResForm(mode, row) {
           this.resForm.mode = mode;
+          this.resForm.editingId = (mode === 'edit' && row) ? row.id : '';
           this.resForm.step = 0;
           if (mode === 'edit' && row) {
             const sub = this.channelRows.find(c => c.id === row.channelId);
@@ -3730,17 +4145,82 @@
             return;
           }
           const audit = this.auditResourceContent();
-          if (!publish) {
-            // 仅提交为"未发布"：不受敏感词过滤限制，正常保存
-            this.showConfirm('提交资源？', '提交后资源状态为“未发布”' + (audit.pass ? '' : '（内容命中敏感词，需修改并通过机器审核后方可发布）'));
+
+          if (publish) {
+            // 提交并发布：仅桂教通超管，须机器敏感词过滤通过
+            if (!this.isSuper) return;
+            if (!audit.pass) {
+              this.showConfirm('无法发布：机器敏感词过滤未通过', '内容命中违规词「' + audit.hits.join('、') + '」，违规资源不可发布。请修改内容后重试。');
+              return;
+            }
+            const rec = this.persistResource('已发布');
+            this.showConfirm('提交并发布资源？', '机器敏感词过滤已通过，发布后应用端可获取', () => { this.goResList(); });
             return;
           }
-          // 提交并发布：必须先通过机器敏感词过滤
-          if (!audit.pass) {
-            this.showConfirm('无法发布：机器敏感词过滤未通过', '内容命中违规词「' + audit.hits.join('、') + '」，违规资源不可发布。请修改内容后重试，或先“提交”保存为未发布。');
+
+          if (!this.isSuper) {
+            // 机构人员提交：须机器敏感词过滤通过，状态=未审批，生成审批记录
+            if (!audit.pass) {
+              this.showConfirm('无法提交：机器敏感词过滤未通过', '内容命中违规词「' + audit.hits.join('、') + '」，违规资源不可提交。请修改内容后重试。');
+              return;
+            }
+            const rec = this.persistResource('未审批');
+            this.createApprovalRecord(rec);
+            this.showConfirm('提交成功', '资源已提交，状态为“未审批”，审批记录已生成，请等待桂教通超管审批', () => { this.goResList(); });
             return;
           }
-          this.showConfirm('提交并发布资源？', '机器敏感词过滤已通过，发布后应用端可获取');
+
+          // 桂教通超管提交：状态=未发布（命中敏感词仍可保存）
+          const rec = this.persistResource('未发布');
+          this.showConfirm('提交资源？', '提交后资源状态为“未发布”' + (audit.pass ? '' : '（内容命中敏感词，需修改并通过机器审核后方可发布）'), () => { this.goResList(); });
+        },
+        saveResDraft() {
+          const rec = this.persistResource('草稿');
+          this.showConfirm('保存草稿？', '资源已保存为草稿，可稍后在资源列表继续编辑', () => { this.goResList(); });
+        },
+        persistResource(status) {
+          // 保存资源：编辑模式更新原行，新增模式生成新行；返回该行
+          const d = this.resForm.data;
+          const t = this.nowText();
+          const cat = this.categoryRows.find(c => c.id === d.categoryId) || {};
+          const row = this.resForm.editingId ? this.resRows.find(r => r.id === this.resForm.editingId) : null;
+          if (row) {
+            Object.assign(row, {
+              title: d.title, intro: d.intro, channelId: d.channelId,
+              channelName: this.subChannelPathOf(d.channelId) || d.channelId,
+              categoryId: d.categoryId, categoryName: cat.name || '',
+              order: d.order, status: status, updatedAt: t,
+              contentType: d.contentType, chargeType: d.chargeType,
+              org: d.org || row.org, author: d.author,
+              checked: row.checked || false
+            });
+            return row;
+          }
+          const id = 'RES' + String(Date.now()).slice(-6);
+          const created = {
+            id, title: d.title || '未命名资源', intro: d.intro, channelId: d.channelId,
+            channelName: this.subChannelPathOf(d.channelId) || d.channelId,
+            categoryId: d.categoryId, categoryName: cat.name || '',
+            order: d.order, viewCount: 0, likes: 0, org: d.org || this.currentOrg, tags: [],
+            zone: 'ai', icon: '📄', tone: 1, contentType: d.contentType, chargeType: d.chargeType,
+            payType: '个人', price: '', status: status, recommended: '否', updatedAt: t, checked: false,
+            author: d.author
+          };
+          this.resRows.push(created);
+          return created;
+        },
+        createApprovalRecord(resRow) {
+          // 机构人员提交资源时自动生成审批记录
+          const now = this.nowText();
+          const id = 'AP' + now.replace(/[^0-9]/g, '').slice(0, 14);
+          this.approvalRows.unshift({
+            id, resourceId: resRow.id, org: resRow.org, resourceName: resRow.title,
+            channelName: resRow.channelName, categoryName: resRow.categoryName,
+            submitter: resRow.author || this.currentOrg, status: '未审批', result: '', comment: '',
+            approver: '', approvedAt: '', submittedAt: now,
+            title: resRow.title, intro: resRow.intro || '', contentType: resRow.contentType,
+            author: resRow.author, creator: resRow.author, order: resRow.order
+          });
         },
         ensureItemMapSlots() {
           const dims = this.dimsOfCurrentCategory;
@@ -3753,6 +4233,209 @@
         goResList() {
           this.currentPage = PAGE_MAP.P10;
           if (!this.openTabs.find(t => t.id === 'P10')) this.openTabs.push(PAGE_MAP.P10);
+        },
+        // ===== 角色切换 =====
+        onRoleChange() {
+          // 切换角色后回到对应角色可见的默认页面
+          this.currentPage = this.isSuper ? PAGE_MAP.P01 : PAGE_MAP.P10;
+          if (!this.openTabs.find(t => t.id === this.currentPage.id)) this.openTabs.push(this.currentPage);
+        },
+        // ===== 审批管理（P30 / P31）=====
+        openApprovalPage(row, mode) {
+          this.approvalPage = { mode: mode, row: row, result: '', comment: '' };
+          this.currentPage = PAGE_MAP.P31;
+          if (!this.openTabs.find(t => t.id === 'P31')) this.openTabs.push(PAGE_MAP.P31);
+        },
+        backApprovalList() {
+          this.currentPage = PAGE_MAP.P30;
+          if (!this.openTabs.find(t => t.id === 'P30')) this.openTabs.push(PAGE_MAP.P30);
+        },
+        submitApproval() {
+          if (!this.approvalPage.result) {
+            this.showConfirm('请选择审批结果', '审批结果为必填项，请选择“通过”或“驳回”后提交');
+            return;
+          }
+          const row = this.approvalPage.row;
+          const now = this.nowText();
+          const pass = this.approvalPage.result === '通过';
+          // 更新审批记录
+          Object.assign(row, {
+            status: pass ? '审批通过' : '已驳回',
+            result: this.approvalPage.result,
+            comment: this.approvalPage.comment,
+            approver: '桂教通超管 A',
+            approvedAt: now
+          });
+          // 触发关联资源状态迁移：通过→已发布，驳回→已驳回
+          const res = this.resRows.find(r => r.id === row.resourceId);
+          if (res) {
+            res.status = pass ? '已发布' : '已驳回';
+            res.updatedAt = now;
+          }
+          this.showConfirm('审批已提交', '审批结果：' + this.approvalPage.result + '；关联资源已同步更新为“' + (pass ? '已发布' : '已驳回') + '”', () => {
+            this.backApprovalList();
+          });
+        },
+        // ===== 资源预览（P10 仅已发布行 → P15 资源预览页，按内容展示方式分流）=====
+        openPreview(row) {
+          this.previewRow = row;
+          this.currentPage = PAGE_MAP.P15;
+          if (!this.openTabs.find(t => t.id === 'P15')) this.openTabs.push(PAGE_MAP.P15);
+        },
+        backResList() {
+          this.currentPage = PAGE_MAP.P10;
+        },
+        previewFiles(row) {
+          // 模拟文件·视频类资源的附件列表（含章节分组）
+          const base = (row.title || '资源').slice(0, 10);
+          return [
+            { name: base + '：配套讲义.docx', type: 'doc' },
+            { name: '第一课：' + base + '.pdf', type: 'pdf' },
+            { name: '第一课 ' + base + '.mp4', type: 'video' },
+            { name: base + '--示例章节', type: 'folder', children: ['方言.mp4', '语音识别.mp4', '语音识别科普.mp4', '身边的人工智能_v1.mp4'] }
+          ];
+        },
+        previewMetaText(row) {
+          return [row.updatedAt, '👁 ' + (row.viewCount || 0), '☆ ' + (row.likes || 0)].join('　');
+        },
+        // ===== 批量导入（P10，全角色；超管导入=未发布，机构人员导入=草稿；视频类需手动上传附件）=====
+        openResImport() {
+          this.resImportDialog = { visible: true, pickedFile: '' };
+        },
+        downloadResImportTemplate() {
+          this.showConfirm('模板已下载', '资源批量导入模板.xlsx 已下载至本地，请按模板字段填写后上传（单次最多 100 条）');
+        },
+        mockPickImportFile() {
+          this.resImportDialog.pickedFile = '资源批量导入_' + Date.now() + '.xlsx';
+        },
+        submitResImport() {
+          const f = this.resImportDialog.pickedFile;
+          if (!f) {
+            this.showConfirm('请选择导入文件', '请先下载模板并填写后，选择 .xlsx 文件再导入');
+            return;
+          }
+          if (!/\.xlsx$/i.test(f)) {
+            this.showConfirm('文件格式不符合要求', '批量导入仅支持 .xlsx 格式文件');
+            return;
+          }
+          const target = this.isSuper ? '未发布' : '草稿';
+          const org = this.isSuper ? '桂教通平台' : this.currentOrg;
+          const author = this.isSuper ? '平台运营' : this.currentPerson;
+          const t = this.nowText();
+          const baseOrder = this.resRows.reduce((m, r) => Math.max(m, Number(r.order) || 0), 0);
+          const items = [
+            { title: '导入资源·消防安全知识手册', contentType: '富文本', categoryName: '安全教育' },
+            { title: '导入资源·校园安全微课', contentType: '视频', categoryName: '安全教育' },
+            { title: '导入资源·文明礼仪课程介绍', contentType: '富文本', categoryName: '素质教育' }
+          ];
+          let videoCount = 0;
+          items.forEach((it, i) => {
+            if (it.contentType === '视频') videoCount++;
+            this.resRows.push({
+              id: 'RES' + String(Date.now()).slice(-6) + i,
+              title: it.title,
+              channelId: 'CH001-1', channelName: '教学资源 / 小学教学',
+              categoryId: 'CT004', categoryName: it.categoryName,
+              order: baseOrder + (i + 1) * 10,
+              viewCount: 0, likes: 0,
+              status: target, recommended: '否',
+              updatedAt: t, contentType: it.contentType,
+              org: org, author: author, intro: '（批量导入创建的基本内容）'
+            });
+          });
+          this.resImportDialog.visible = false;
+          this.showConfirm('导入成功', '成功导入 ' + items.length + ' 条资源，状态为"' + target + '"；导入仅创建基本内容' + (videoCount ? '，其中 ' + videoCount + ' 条为视频类资源，需进入编辑页手动上传附件后才能发布' : ''));
+        },
+        // ===== 配置管理（P40 / P41）=====
+        channelLabel(id) {
+          return this.subChannelPathOf(id) || id;
+        },
+        staffOfOrg(org) {
+          return (this.orgStaff && this.orgStaff[org]) || [];
+        },
+        staffOptionText(p) {
+          return p.name + '/' + p.phone.slice(-4) + '(' + p.dept + ')';
+        },
+        onPersonPicked(phone) {
+          const p = this.staffOfOrg(this.configForm.data.org).find(x => x.phone === phone);
+          if (p) {
+            this.configForm.data.name = p.name;
+            this.configForm.data.phone = p.phone;
+            this.configForm.data.dept = p.dept;
+          }
+        },
+        onConfigOrgChange() {
+          // 切换机构后清空已选人员，姓名/手机号需重新带出
+          this.configForm.data.personKey = '';
+          this.configForm.data.name = '';
+          this.configForm.data.phone = '';
+          this.configForm.data.dept = '';
+        },
+        configChannelsText(row) {
+          if (!row.channels || !row.channels.length) return '—';
+          const names = row.channels.map(id => this.channelLabel(id));
+          return names.length <= 3 ? names.join('、') : names.slice(0, 3).join('、') + ' 等 ' + names.length + ' 个';
+        },
+        openConfigForm(mode, row) {
+          const empty = { id: '', org: '', personKey: '', name: '', phone: '', dept: '', channels: [], status: '启用' };
+          this.configForm = {
+            visible: true,
+            mode: mode,
+            data: mode === 'edit' && row ? {
+              id: row.id, org: row.org || '', personKey: row.phone || '',
+              name: row.name, phone: row.phone, dept: row.dept || '',
+              channels: (row.channels || []).slice(), status: row.status
+            } : empty
+          };
+        },
+        saveConfig() {
+          const d = this.configForm.data;
+          const missing = [];
+          if (!d.org) missing.push('所属机构');
+          if (!d.personKey || !d.name) missing.push('姓名（从机构人员中搜索选择）');
+          if (!d.phone) missing.push('手机号（选择人员后自动带出）');
+          if (!d.channels || !d.channels.length) missing.push('可配置频道（至少勾选 1 个）');
+          if (missing.length) {
+            this.showConfirm('表单未填写完整', '以下字段需要补充或修正：' + missing.join('、'));
+            return;
+          }
+          const dup = this.configRows.find(r => r.org === d.org && r.phone === d.phone && r.id !== d.id);
+          if (dup) {
+            this.showConfirm('该人员已在配置列表', '同一人员（所属机构 + 手机号）仅可配置一条（R-CFG-01），请勿重复添加');
+            return;
+          }
+          const t = this.nowText();
+          if (this.configForm.mode === 'edit') {
+            const row = this.configRows.find(r => r.id === d.id);
+            Object.assign(row, {
+              name: d.name, phone: d.phone, dept: d.dept, org: d.org,
+              channels: d.channels.slice(), status: d.status, updatedAt: t
+            });
+          } else {
+            // 新增提交后状态固定为"启用"（R-CFG-03）
+            this.configRows.push({
+              id: 'CFG' + String(Date.now()).slice(-6),
+              name: d.name, phone: d.phone, dept: d.dept, org: d.org,
+              channels: d.channels.slice(), status: '启用', updatedAt: t
+            });
+          }
+          this.configForm.visible = false;
+          this.showConfirm('保存成功', '后台人员配置已保存；该人员登录后即可进入资源后台（菜单：资源列表、审批列表；数据范围：本人创建的资源与审批数据）');
+        },
+        toggleConfigStatus(row) {
+          const target = row.status === '启用' ? '停用' : '启用';
+          const msg = target === '停用'
+            ? '停用后该人员将立即失去资源后台访问能力（R-CFG-03），请确认是否继续？'
+            : '启用后该人员恢复资源后台访问能力，请确认是否继续？';
+          this.showConfirm('确认' + target + '该人员？', msg, () => {
+            row.status = target;
+            row.updatedAt = this.nowText();
+          });
+        },
+        deleteConfig(row) {
+          this.showConfirm('确认删除该配置？', '删除后该人员将立即失去资源后台访问能力（R-CFG-06），请确认是否继续？', () => {
+            this.configRows = this.configRows.filter(r => r.id !== row.id);
+          });
         },
         addResFile() {
           this.openAddFileDialog();
@@ -4051,21 +4734,46 @@
           };
           this.fileDialog.visible = true;
         },
-        // 模拟选择文件：add-file 支持多个；edit-file 只保留 1 个
+        // 模拟选择文件：add-file 支持多个；edit-file 只保留 1 个；内容展示方式=视频 时模拟视频文件
         mockPickFiles() {
+          const isVideo = this.resForm.data.contentType === '视频';
           const count = this.fileDialog.mode === 'add-file' ? (Math.floor(Math.random() * 3) + 1) : 1;
+          const videoExts = ['.mp4', '.avi', '.mov', '.mkv'];
           const picks = [];
           for (let i = 0; i < count; i++) {
-            picks.push({
-              name: '示例文件_' + Date.now() + '_' + i + '.pdf',
-              size: (Math.floor(Math.random() * 40) + 1) + 'MB'
-            });
+            if (isVideo) {
+              picks.push({
+                name: '示例视频_' + Date.now() + '_' + i + videoExts[i % videoExts.length],
+                size: (Math.floor(Math.random() * 800) + 100) + 'MB'
+              });
+            } else {
+              picks.push({
+                name: '示例文件_' + Date.now() + '_' + i + '.pdf',
+                size: (Math.floor(Math.random() * 40) + 1) + 'MB'
+              });
+            }
           }
           if (this.fileDialog.mode === 'add-file') {
             this.fileDialog.data.pickedFiles.push(...picks);
           } else {
             this.fileDialog.data.pickedFiles = picks;
           }
+        },
+        // 视频（contentType=视频）附件校验：所有视频格式、单个 ≤1GB
+        validateVideoFiles(files) {
+          const VIDEO_RE = /\.(mp4|avi|mov|wmv|flv|mkv|webm|m4v|3gp|ts|mpg|mpeg)$/i;
+          for (const pf of files) {
+            if (!VIDEO_RE.test(pf.name)) {
+              this.showConfirm('文件格式不符合要求', '内容展示方式=视频时，附件仅支持所有视频格式文件：' + pf.name);
+              return false;
+            }
+            const mb = parseFloat(pf.size);
+            if (!isNaN(mb) && mb > 1024) {
+              this.showConfirm('文件大小超出限制', '视频类附件单个大小不能超过 1GB：' + pf.name);
+              return false;
+            }
+          }
+          return true;
         },
         submitFileDialog() {
           const d = this.fileDialog.data;
@@ -4089,6 +4797,7 @@
               this.showConfirm('请选择要上传的文件', '请点击"选择文件"完成附件选择后再确认');
               return;
             }
+            if (this.resForm.data.contentType === '视频' && !this.validateVideoFiles(d.pickedFiles)) return;
             let sectionId = '';
             if (this.resForm.data.sectionOn === '是') {
               if (!d.section) { this.showConfirm('请填写章节名称', '开启小节时，章节名称为必填项'); return; }
@@ -4125,6 +4834,7 @@
           if (mode === 'edit-file') {
             const target = this.resForm.data.files[d.editIdx];
             if (!target) { this.fileDialog.visible = false; return; }
+            if (this.resForm.data.contentType === '视频' && !this.validateVideoFiles(d.pickedFiles)) return;
             if (d.pickedFiles.length && d.pickedFiles[0].name !== target.name) {
               target.name = d.pickedFiles[0].name;
               if (d.pickedFiles[0].size) target.size = d.pickedFiles[0].size;
@@ -4168,58 +4878,6 @@
           document.body.removeChild(a);
           URL.revokeObjectURL(url);
         },
-        openResImportDialog() {
-          this.resImportDialog.visible = true;
-        },
-        downloadResImportTemplate() {
-          // 生成含下拉选项说明的 CSV 模板；表头即新增资源的基本信息字段
-          const header = ['所属频道', '资源标题', '资源简介', '所属分类', '类目及类目条目', '排序', '资源来源机构', '资源作者'];
-          const channelOpts = this.channelRows.filter(c => c.parentId).map(c => this.subChannelPathOf(c.id)).join(' / ');
-          const categoryOpts = this.categoryRows.filter(c => c.level === 0).map(c => c.name).join(' / ');
-          const dimItemHint = this.dimRows.filter(d => d.status === '上架').map(d => {
-            const items = this.dimItemRows.filter(i => i.dimId === d.id && i.status === '已上架').map(i => i.name).join('/');
-            return d.name + ':' + items;
-          }).join('；');
-          const sampleRow = [
-            '【下拉】' + channelOpts,
-            '示例：初中数学·函数专题',
-            '示例：函数专题精讲',
-            '【下拉】' + categoryOpts,
-            '【下拉·多类目多选】' + dimItemHint,
-            '10',
-            '示例机构',
-            '示例作者'
-          ];
-          const csv = [header, sampleRow]
-            .map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(','))
-            .join('\r\n');
-          const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = '资源批量导入模板.csv';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-        },
-        mockUploadResImport() {
-          const now = new Date();
-          const pad = n => String(n).padStart(2, '0');
-          const stamp = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) + ' '
-                      + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
-          this.resImportDialog.rows.unshift({
-            id: Date.now(),
-            fileName: 'batch_res_upload_' + Math.floor(Math.random() * 90 + 10) + '.xlsx',
-            opType: '导入',
-            status: '上传中',
-            statusKey: 'doing',
-            success: '-',
-            fail: '-',
-            operator: '当前用户',
-            operatedAt: stamp
-          });
-        }
       }
     });
 
