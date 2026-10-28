@@ -320,6 +320,9 @@
     .preview-rich h3 { color: #1f2329; margin: 0 0 10px; }
     .preview-rich p { color: #4e5969; line-height: 1.8; font-size: 13px; }
     .cfg-tip { color: #86909c; font-size: 12px; line-height: 1.6; margin-top: 6px; }
+    /* 导入历史列表/错误明细 */
+    .import-hist-tip { color: #4e5969; font-size: 12px; }
+    .import-err-row { background: #fff5f5; }
     /* 人员可搜索下拉选项（姓名/手机尾号4位(部门)） */
     .person-option { display: flex; align-items: center; gap: 10px; }
     .person-avatar {
@@ -1121,6 +1124,7 @@
                         <el-button :disabled="!resSelectedRows.length" @click="batchDeleteRes">批量删除</el-button>
                       </template>
                       <el-button @click="openResImport">批量导入</el-button>
+                      <el-button @click="openImportHistory">导入历史</el-button>
                       <el-button type="primary" @click="openResForm('create')">新增资源</el-button>
                     </div>
                   </div>
@@ -2896,7 +2900,7 @@
       <el-form label-width="120px">
         <el-form-item label="导入模板">
           <el-button @click="downloadResImportTemplate">下载导入模板</el-button>
-          <div class="cfg-tip">模板字段：资源标题、所属频道（子频道）、所属分类、内容展示方式、排序、课时、收费方式、资源简介、资源来源机构、资源作者</div>
+          <div class="cfg-tip">模板字段：资源标题、所属频道（子频道）、所属分类、内容展示方式、排序、课时、收费方式、资源简介、资源来源机构、资源作者；模板的「所属频道」枚举仅限你当前可配置的频道（配置管理决定），「所属分类」为对应频道下的一级分类（R-RES-15）</div>
         </el-form-item>
         <el-form-item label="导入文件" required>
           <el-button @click="mockPickImportFile">选择文件</el-button>
@@ -2913,6 +2917,77 @@
       <template #footer>
         <el-button @click="resImportDialog.visible = false">取消</el-button>
         <el-button type="primary" @click="submitResImport">导入</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- ============= P10-Dialog 导入历史列表 ============= -->
+    <el-dialog v-model="importHistoryDialog.visible" title="导入历史" width="860px">
+      <div v-if="visibleImportHistory.length" class="import-hist-tip">共 {{ visibleImportHistory.length }} 条导入记录（{{ isSuper ? '全量' : '当前机构：' + currentOrg }}）；点击「导出源文件」可下载含「导入错误信息」列的源文件</div>
+      <div v-else class="import-hist-tip">暂无导入历史，请先在「批量导入」中导入资源</div>
+      <table class="biz-table" style="margin-top:10px;">
+        <thead>
+          <tr>
+            <th>导入时间</th>
+            <th>文件名</th>
+            <th>总条数</th>
+            <th>成功</th>
+            <th>失败</th>
+            <th>状态</th>
+            <th class="col-actions">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="rec in visibleImportHistory" :key="rec.id">
+            <td>{{ rec.time }}</td>
+            <td>{{ rec.fileName }}</td>
+            <td>{{ rec.total }}</td>
+            <td><span style="color:#00b42a;">{{ rec.success }}</span></td>
+            <td><span :style="{ color: rec.fail ? '#f53f3f' : '#86909c' }">{{ rec.fail }}</span></td>
+            <td>
+              <el-tag v-if="rec.status === '成功'" type="success" size="small">成功</el-tag>
+              <el-tag v-else-if="rec.status === '失败'" type="danger" size="small">失败</el-tag>
+              <el-tag v-else type="warning" size="small">部分成功</el-tag>
+            </td>
+            <td style="white-space:nowrap;">
+              <el-button size="small" text type="primary" :disabled="!rec.fail" @click="viewImportDetail(rec)">查看</el-button>
+              <el-button size="small" text type="primary" @click="exportImportSource(rec)">导出源文件</el-button>
+            </td>
+          </tr>
+          <tr v-if="!visibleImportHistory.length"><td colspan="7" class="biz-empty">暂无导入记录</td></tr>
+        </tbody>
+      </table>
+      <template #footer>
+        <el-button @click="importHistoryDialog.visible = false">关闭</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- ============= P10-Dialog 导入错误明细 ============= -->
+    <el-dialog v-model="importDetailDialog.visible" :title="'导入错误明细 · ' + (importDetailDialog.rec ? importDetailDialog.rec.fileName : '')" width="820px">
+      <table class="biz-table" v-if="importDetailDialog.rec">
+        <thead>
+          <tr>
+            <th>行号</th>
+            <th>资源标题</th>
+            <th>所属频道</th>
+            <th>所属分类</th>
+            <th>内容展示方式</th>
+            <th>导入错误信息</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="r in importDetailDialog.rec.rows" :key="r.line" :class="{ 'import-err-row': r.errors.length }">
+            <td>{{ r.line }}</td>
+            <td>{{ r.title }}</td>
+            <td>{{ r.channel || '—' }}</td>
+            <td>{{ r.category || '—' }}</td>
+            <td>{{ r.contentType || '—' }}</td>
+            <td style="color:#f53f3f;">{{ r.errors.length ? r.errors.join('；') : '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <template #footer>
+        <el-button @click="importDetailDialog.visible = false">关闭</el-button>
+        <el-button type="primary" @click="exportImportSource(importDetailDialog.rec)">导出源文件</el-button>
       </template>
     </el-dialog>
 
@@ -3081,6 +3156,10 @@
           previewRow: null,
           // ===== 批量导入（P10，全角色；超管导入=未发布，机构人员导入=草稿）=====
           resImportDialog: { visible: false, pickedFile: '' },
+          // 导入历史（按当前机构记录；超管可见全量，机构人员仅本人所属机构）
+          importHistory: [],
+          importHistoryDialog: { visible: false },
+          importDetailDialog: { visible: false, rec: null },
           // 资源数据：后台配置，门户（P12）与资源列表共用
           // zone：门户板块（ai 建设者 / teaching 课程教学 / special 专题资源 / teacher 教师成长 / family 家校学思）
           // icon、tone：门户卡片封面占位（原型无真实图片，用图标+渐变模拟）
@@ -3487,6 +3566,23 @@
             return '支持所有视频格式（.mp4/.avi/.mov/.wmv/.flv/.mkv 等），单个 ≤1GB，最多 50 个';
           }
           return '支持 .mp4/.doc/.docx/.xls/.xlsx/.ppt/.pptx/.pdf（文档 ≤50MB、视频 ≤500MB，最多 50 个）';
+        },
+        // 当前登录人员可配置的子频道（决定批量导入模板的频道/分类枚举范围）
+        myChannelIds() {
+          if (this.isSuper) return this.channelRows.filter(c => c.parentId).map(c => c.id);
+          const cfg = this.configRows.find(r => r.name === this.currentPerson && r.status === '启用');
+          return cfg && cfg.channels ? cfg.channels.slice() : [];
+        },
+        myChannelOptions() {
+          return this.channelRows
+            .filter(c => c.parentId && this.myChannelIds.includes(c.id))
+            .map(c => ({ id: c.id, label: this.subChannelPathOf(c.id) }));
+        },
+        myCategoryOptions() {
+          // 分类取各可配置子频道下的一级分类
+          return this.categoryRows
+            .filter(c => c.level === 0 && this.myChannelIds.includes(c.subChannelId))
+            .map(c => ({ id: c.id, name: c.name, channelId: c.subChannelId }));
         },
         showSectionField() {
           // 编辑章节始终显示；新增文件仅在开启小节时显示
@@ -4303,10 +4399,52 @@
           this.resImportDialog = { visible: true, pickedFile: '' };
         },
         downloadResImportTemplate() {
-          this.showConfirm('模板已下载', '资源批量导入模板.xlsx 已下载至本地，请按模板字段填写后上传（单次最多 100 条）');
+          // 模板频道/分类枚举按当前人员可配置范围生成（R-RES-15）
+          const headers = ['资源标题', '所属频道（子频道）', '所属分类', '内容展示方式', '排序', '课时', '收费方式', '资源简介', '资源来源机构', '资源作者'];
+          const chLabels = this.myChannelOptions.map(c => c.label);
+          const catNames = this.myCategoryOptions.map(c => c.name);
+          // 模板示例行：取第一个可配置频道与分类，便于填写人员参照
+          const sample = this.myChannelOptions.length && this.myCategoryOptions.length
+            ? [this.myChannelOptions[0].label, this.myCategoryOptions[0].name]
+            : ['', ''];
+          const rows = [
+            headers,
+            ['示例资源标题', sample[0], sample[1], '富文本', '10', '30', '免费', '示例简介', this.isSuper ? '桂教通平台' : this.currentOrg, this.isSuper ? '平台运营' : this.currentPerson],
+            ['', '', '', '', '', '', '', '', '', '']
+          ];
+          this.downloadCsv('资源批量导入模板.csv', rows);
+          const scope = this.isSuper
+            ? '全部频道'
+            : (chLabels.length ? chLabels.join('、') : '（无，请先在配置管理中为该人员配置频道）');
+          const cats = catNames.length ? catNames.join('、') : '（无）';
+          this.showConfirm('模板已下载', '资源批量导入模板.csv 已下载；模板频道枚举仅限你当前可配置的频道：' + scope + '；所属分类枚举为对应频道下的一级分类：' + cats + '（单次最多导入 100 条）');
         },
         mockPickImportFile() {
           this.resImportDialog.pickedFile = '资源批量导入_' + Date.now() + '.xlsx';
+        },
+        // 单条行校验：频道须在可配置范围、分类须属于该频道、内容展示方式合法
+        validateImportRow(row) {
+          const errs = [];
+          if (!row.title || !row.title.trim()) errs.push('资源标题必填');
+          const chIds = this.myChannelOptions.map(c => c.id);
+          const chMap = {};
+          this.myChannelOptions.forEach(c => { chMap[c.label] = c.id; });
+          if (!row.channel || !row.channel.trim()) {
+            errs.push('所属频道必填');
+          } else if (!chMap[row.channel]) {
+            errs.push('所属频道不在可配置范围内');
+          } else {
+            const cid = chMap[row.channel];
+            if (!row.category || !row.category.trim()) {
+              errs.push('所属分类必填');
+            } else {
+              const ok = this.categoryRows.some(c => c.level === 0 && c.subChannelId === cid && c.name === row.category.trim());
+              if (!ok) errs.push('所属分类不属于该频道');
+            }
+          }
+          const cts = ['富文本', '文件·视频', '应用和链接', '链接', '视频'];
+          if (!row.contentType || !cts.includes(row.contentType)) errs.push('内容展示方式不合法');
+          return errs;
         },
         submitResImport() {
           const f = this.resImportDialog.pickedFile;
@@ -4322,29 +4460,90 @@
           const org = this.isSuper ? '桂教通平台' : this.currentOrg;
           const author = this.isSuper ? '平台运营' : this.currentPerson;
           const t = this.nowText();
-          const baseOrder = this.resRows.reduce((m, r) => Math.max(m, Number(r.order) || 0), 0);
-          const items = [
-            { title: '导入资源·消防安全知识手册', contentType: '富文本', categoryName: '安全教育' },
-            { title: '导入资源·校园安全微课', contentType: '视频', categoryName: '安全教育' },
-            { title: '导入资源·文明礼仪课程介绍', contentType: '富文本', categoryName: '素质教育' }
+          // 模拟解析文件得到的原始行（部分合法、部分非法，用于演示逐行校验与错误反馈）
+          const chOpt = this.myChannelOptions;
+          const catOpt = this.myCategoryOptions;
+          const inScopeCh = chOpt.length ? chOpt[0].label : '';
+          const inScopeCat = catOpt.length ? catOpt[0].name : '';
+          const outCh = this.channelRows.filter(c => c.parentId && !this.myChannelIds.includes(c.id));
+          const outChLabel = outCh.length ? this.subChannelPathOf(outCh[0].id) : '';
+          const raw = [
+            { title: '导入资源·消防安全知识手册', channel: inScopeCh, category: inScopeCat, contentType: '富文本' },
+            { title: '导入资源·校园安全微课', channel: inScopeCh, category: inScopeCat, contentType: '视频' },
+            { title: '导入资源·跨学科示范课', channel: outChLabel || inScopeCh, category: inScopeCat, contentType: '富文本' },
+            { title: '导入资源·缺失分类资源', channel: inScopeCh, category: '不存在的分类', contentType: '富文本' },
+            { title: '', channel: inScopeCh, category: inScopeCat, contentType: '图文' }
           ];
-          let videoCount = 0;
-          items.forEach((it, i) => {
-            if (it.contentType === '视频') videoCount++;
-            this.resRows.push({
-              id: 'RES' + String(Date.now()).slice(-6) + i,
-              title: it.title,
-              channelId: 'CH001-1', channelName: '教学资源 / 小学教学',
-              categoryId: 'CT004', categoryName: it.categoryName,
-              order: baseOrder + (i + 1) * 10,
-              viewCount: 0, likes: 0,
-              status: target, recommended: '否',
-              updatedAt: t, contentType: it.contentType,
-              org: org, author: author, intro: '（批量导入创建的基本内容）'
-            });
+          const baseOrder = this.resRows.reduce((m, r) => Math.max(m, Number(r.order) || 0), 0);
+          let success = 0, fail = 0, videoCount = 0;
+          const detailRows = [];
+          raw.forEach((r, i) => {
+            const errs = this.validateImportRow(r);
+            if (errs.length) { fail++; }
+            else {
+              success++;
+              if (r.contentType === '视频') videoCount++;
+              const cid = this.myChannelOptions.find(c => c.label === r.channel).id;
+              const cat = this.categoryRows.find(c => c.level === 0 && c.subChannelId === cid && c.name === r.category.trim());
+              this.resRows.push({
+                id: 'RES' + String(Date.now()).slice(-5) + i,
+                title: r.title, channelId: cid, channelName: r.channel,
+                categoryId: cat ? cat.id : '', categoryName: r.category,
+                order: baseOrder + (success) * 10,
+                viewCount: 0, likes: 0, status: target, recommended: '否',
+                updatedAt: t, contentType: r.contentType,
+                org: org, author: author, intro: '（批量导入创建的基本内容）'
+              });
+            }
+            detailRows.push({ line: i + 2, title: r.title || '（空）', channel: r.channel, category: r.category, contentType: r.contentType, errors: errs });
           });
+          const rec = {
+            id: 'IMP' + String(Date.now()).slice(-6),
+            time: t, fileName: f,
+            total: raw.length, success: success, fail: fail,
+            status: fail === 0 ? '成功' : (success === 0 ? '失败' : '部分成功'),
+            operator: author, org: org,
+            rows: detailRows
+          };
+          this.importHistory.unshift(rec);
           this.resImportDialog.visible = false;
-          this.showConfirm('导入成功', '成功导入 ' + items.length + ' 条资源，状态为"' + target + '"；导入仅创建基本内容' + (videoCount ? '，其中 ' + videoCount + ' 条为视频类资源，需进入编辑页手动上传附件后才能发布' : ''));
+          const head = '导入完成：共 ' + raw.length + ' 条，成功 ' + success + ' 条，失败 ' + fail + ' 条；状态为"' + target + '"' + (videoCount ? '，其中 ' + videoCount + ' 条为视频类资源，需进入编辑页手动上传附件后才能发布' : '');
+          const tail = fail ? '；失败行已在「导入历史」中记录，可导出源文件查看「导入错误信息」列' : '';
+          this.showConfirm('导入完成', head + tail);
+        },
+        // ===== 导入历史（P10）=====
+        openImportHistory() {
+          this.importHistoryDialog.visible = true;
+        },
+        visibleImportHistory() {
+          // 超管可见全量，机构人员仅本人所属机构
+          if (this.isSuper) return this.importHistory;
+          return this.importHistory.filter(r => r.org === this.currentOrg);
+        },
+        viewImportDetail(rec) {
+          this.importDetailDialog = { visible: true, rec: rec };
+        },
+        exportImportSource(rec) {
+          const headers = ['行号', '资源标题', '所属频道（子频道）', '所属分类', '内容展示方式', '导入错误信息'];
+          const rows = [headers].concat(rec.rows.map(r => [
+            r.line, r.title, r.channel || '', r.category || '', r.contentType || '',
+            r.errors.length ? r.errors.join('；') : ''
+          ]));
+          this.downloadCsv('导入源文件_' + rec.fileName.replace(/\.xlsx$/i, '.csv'), rows);
+          this.showConfirm('源文件已导出', '已导出含「导入错误信息」列的源文件（' + rec.fileName + '），每行错误原因已追加至末尾列');
+        },
+        downloadCsv(filename, rows) {
+          const escape = v => {
+            const s = String(v == null ? '' : v);
+            return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+          };
+          const content = rows.map(r => r.map(escape).join(',')).join('\r\n');
+          const blob = new Blob(['\ufeff' + content], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url; a.download = filename;
+          document.body.appendChild(a); a.click();
+          document.body.removeChild(a); URL.revokeObjectURL(url);
         },
         // ===== 配置管理（P40 / P41）=====
         channelLabel(id) {
