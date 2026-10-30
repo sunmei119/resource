@@ -239,6 +239,17 @@
     /* 硬件/服务：色值预览 + 上传列表 */
     .hw-color-preview { display: inline-block; width: 22px; height: 22px; margin-left: 8px; border: 1px solid #dcdfe6; border-radius: 4px; vertical-align: middle; }
     .hw-field-tip { color: #86909c; font-size: 12px; line-height: 20px; margin-left: 8px; }
+    .flow-wrap { display: flex; flex-direction: column; }
+    .flow-role { font-size: 12px; color: #909399; letter-spacing: 2px; margin: 12px 0 2px; }
+    .flow-role:first-child { margin-top: 0; }
+    .flow-node { border: 1px solid #dcdfe6; border-radius: 8px; padding: 10px 14px; font-size: 13px; font-weight: 600; color: #303133; }
+    .flow-node-org { background: #f0f7ff; border-color: #b3d8ff; }
+    .flow-node-admin { background: #fdf6ec; border-color: #f5dab1; }
+    .flow-node-pass { background: #f0f9eb; border-color: #c2e7b0; }
+    .flow-node-reject { background: #fef0f0; border-color: #fbc4c4; }
+    .flow-tag { display: block; font-size: 12px; font-weight: 400; color: #606266; margin-top: 4px; }
+    .flow-arrow { padding: 5px 0 5px 18px; font-size: 12px; color: #909399; }
+    .flow-branch { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .hw-upload-list { margin-top: 8px; width: 520px; }
     .hw-upload-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; margin-bottom: 6px; background: #f7faff; border: 1px solid #e6ecf5; border-radius: 4px; }
     .hw-upload-name { flex: 1; font-size: 13px; color: #1f2329; }
@@ -1114,7 +1125,10 @@
 
                 <div class="biz-card">
                   <div class="biz-card-head">
-                    <div class="biz-card-title">资源列表</div>
+                    <div class="biz-card-title">资源列表
+                      <span v-if="isSuper" style="font-size:12px;color:#909399;font-weight:normal;margin-left:10px;">数据范围：全量数据（含各机构人员创建的草稿、未审批、已驳回等全部状态）</span>
+                      <span v-else style="font-size:12px;color:#909399;font-weight:normal;margin-left:10px;">数据范围：仅本人创建的数据</span>
+                    </div>
                     <div class="biz-card-actions">
                       <template v-if="isSuper">
                         <el-button :disabled="!resSelectedRows.length" @click="batchPublishRes">批量上架</el-button>
@@ -1134,6 +1148,7 @@
                         <th v-if="isSuper" class="col-check"><input type="checkbox" :checked="resAllChecked" @change="toggleAllRes"></th>
                         <th>资源标题</th>
                         <th>所属机构</th>
+                        <th>创建人</th>
                         <th>所属频道</th>
                         <th>所属分类</th>
                         <th>排序</th>
@@ -1149,6 +1164,7 @@
                         <td v-if="isSuper"><input type="checkbox" v-model="row.checked"></td>
                         <td>{{ row.title }}</td>
                         <td>{{ row.org }}</td>
+                        <td>{{ row.author || '平台运营' }}</td>
                         <td>{{ subChannelName(row.channelName) }}</td>
                         <td>{{ row.categoryName }}</td>
                         <td>{{ row.order }}</td>
@@ -1176,12 +1192,14 @@
                             <el-button v-if="row.status === '草稿' || row.status === '未发布'" size="small" text type="danger" @click="showConfirm('确认删除该资源？', '删除后不可恢复')">删除</el-button>
                           </template>
                           <template v-else>
-                            <el-button v-if="row.status === '草稿' || row.status === '已驳回'" size="small" text type="primary" @click="openResForm('edit', row)">编辑</el-button>
+                            <!-- 机构人员：草稿/已驳回/未发布（下架后的已审核资源）可编辑；编辑后提交将重新生成审批并进入"未审批" -->
+                            <el-button v-if="row.status === '草稿' || row.status === '已驳回' || row.status === '未发布'" size="small" text type="primary" @click="openResForm('edit', row)">编辑</el-button>
+                            <el-button v-if="row.status === '已发布'" size="small" text type="warning" @click="unpublishRes(row)">下架</el-button>
                             <el-button v-if="row.status === '草稿' || row.status === '已驳回'" size="small" text type="danger" @click="showConfirm('确认删除该资源？', '删除后不可恢复')">删除</el-button>
                           </template>
                         </td>
                       </tr>
-                      <tr v-if="!visibleResRows.length"><td :colspan="isSuper ? 10 : 9" class="biz-empty">暂无资源，请点击右上角新增</td></tr>
+                      <tr v-if="!visibleResRows.length"><td :colspan="isSuper ? 11 : 10" class="biz-empty">暂无资源，请点击右上角新增</td></tr>
                     </tbody>
                   </table>
                   <div class="biz-pagination">
@@ -1844,7 +1862,9 @@
                 <div class="biz-card">
                   <div class="biz-card-head">
                     <div class="biz-card-title">审批列表</div>
-                    <div class="biz-card-actions"></div>
+                    <div class="biz-card-actions">
+                      <el-button size="small" text type="primary" @click="flowDialog.visible = true">查看审批流程</el-button>
+                    </div>
                   </div>
                   <table class="biz-table">
                     <thead>
@@ -2992,6 +3012,43 @@
     </el-dialog>
 
     <!-- 二次确认弹窗（统一） -->
+    <!-- 资源审批流程图：机构人员 创建→提交→未审批→桂教通超管审批→已发布→机构人员下架→编辑提交→重新审批 -->
+    <el-dialog v-model="flowDialog.visible" title="资源审批流程" width="680px">
+      <div class="flow-wrap">
+        <div class="flow-role">机构人员</div>
+        <div class="flow-node flow-node-org">① 创建资源、完善信息后提交
+          <span class="flow-tag">可先看"保存草稿"，提交前须通过机器敏感词过滤</span>
+        </div>
+        <div class="flow-arrow">↓ 提交成功，状态置为"未审批"，自动生成一条审批记录</div>
+        <div class="flow-role">桂教通超管</div>
+        <div class="flow-node flow-node-admin">② 审批</div>
+        <div class="flow-branch">
+          <div>
+            <div class="flow-arrow">↓ 驳回（填写审批意见）</div>
+            <div class="flow-node flow-node-reject">已驳回
+              <span class="flow-tag">机构人员可编辑后重新提交 → 回到 ①之后的状态（未审批，重新生成审批记录）</span>
+            </div>
+          </div>
+          <div>
+            <div class="flow-arrow">↓ 通过</div>
+            <div class="flow-node flow-node-pass">已发布
+              <span class="flow-tag">应用端可获取</span>
+            </div>
+          </div>
+        </div>
+        <div class="flow-arrow">↓ 需要调整内容时：机构人员对"已发布"资源执行【下架】</div>
+        <div class="flow-role">机构人员</div>
+        <div class="flow-node flow-node-org">③ 资源下架
+          <span class="flow-tag">状态置为"未发布"，应用端不再获取；随后可【编辑】调整内容并重新提交</span>
+        </div>
+        <div class="flow-arrow">↓ 编辑后提交，状态重新置为"未审批"，重新生成一条审批记录</div>
+        <div class="flow-role">桂教通超管</div>
+        <div class="flow-node flow-node-admin">④ 再次审批
+          <span class="flow-tag">通过 → 重新"已发布"；驳回 → "已驳回"，可再次编辑提交</span>
+        </div>
+      </div>
+    </el-dialog>
+
     <el-dialog v-model="confirm.visible" :title="confirm.title" width="420px">
       <div style="color:#4e5969;font-size:14px;line-height:1.6;">{{ confirm.message }}</div>
       <template #footer>
@@ -3110,6 +3167,7 @@
             data: { name: '', items: [] }
           },
           confirm: { visible: false, title: '', message: '' },
+          flowDialog: { visible: false },
           // 当前登录角色：super=桂教通超管（全功能），org=后台配置人员（菜单=资源列表+审批列表，数据=本人创建）
           role: 'super',
           currentOrg: '实验小学',
@@ -3137,10 +3195,12 @@
           // ===== 审批管理（P30 审批列表 / P31 审批页）=====
           approvalFilter: { org: '', resourceName: '', status: '' },
           approvalRows: [
-            { id: 'AP20260620001', resourceId: 'RES012', org: '实验小学', resourceName: '小学二年级数学·乘法口诀微课', channelName: '教学资源 / 小学教学', categoryName: '数学', submitter: '李梅梅', status: '未审批', result: '', comment: '', approver: '', approvedAt: '', submittedAt: '2026-06-20 10:12:00', title: '小学二年级数学·乘法口诀微课', intro: '通过动画与口诀歌帮助二年级学生掌握乘法口诀，配套课堂练习与课后巩固微课。', contentType: '文件·视频', author: '李梅梅', creator: '李梅梅', order: 120 },
-            { id: 'AP20260621002', resourceId: 'RES013', org: '文渊教育', resourceName: '初中物理·力学实验演示合集', channelName: '教学资源 / 初中教学', categoryName: '数学', submitter: '张丹丹', status: '审批通过', result: '通过', comment: '内容完整，同意发布。', approver: '桂教通超管 A', approvedAt: '2026-06-21 09:30:00', submittedAt: '2026-06-21 08:45:00', title: '初中物理·力学实验演示合集', intro: '覆盖初中物理力学核心实验的演示视频合集，支持课堂投屏与课后复看。', contentType: '文件·视频', author: '张丹丹', creator: '张丹丹', order: 130 },
-            { id: 'AP20260622003', resourceId: 'RES014', org: '思维学堂', resourceName: '奥数思维·行程问题专项', channelName: '教学资源 / 初中教学', categoryName: '数学', submitter: '王强', status: '已驳回', result: '驳回', comment: '封面缺失，资源正文不完整，请补充后重新提交。', approver: '桂教通超管 A', approvedAt: '2026-06-22 15:20:00', submittedAt: '2026-06-22 14:05:00', title: '奥数思维·行程问题专项', intro: '行程问题专项训练，含相遇、追及、流水行船等典型模型讲解。', contentType: '富文本', author: '王强', creator: '王强', order: 140 },
-            { id: 'AP20260623004', resourceId: 'RES015', org: '实验小学', resourceName: '小学语文·识字卡片（可打印）', channelName: '教学资源 / 小学教学', categoryName: '语文', submitter: '李梅梅', status: '未审批', result: '', comment: '', approver: '', approvedAt: '', submittedAt: '2026-06-23 11:40:00', title: '小学语文·识字卡片（可打印）', intro: '一年级识字卡片 PDF，可直接打印用于课堂识字游戏与课后复习。', contentType: '文件·视频', author: '李梅梅', creator: '李梅梅', order: 150 }
+            { id: 'AP20260620001', resourceId: 'RES021', org: '实验小学', resourceName: '小学二年级数学·乘法口诀微课', channelName: '教学资源 / 小学教学', categoryName: '语文', submitter: '李梅梅', status: '未审批', result: '', comment: '', approver: '', approvedAt: '', submittedAt: '2026-06-20 10:12:00', title: '小学二年级数学·乘法口诀微课', intro: '通过动画与口诀歌帮助二年级学生掌握乘法口诀，配套课堂练习与课后巩固微课。', contentType: '文件·视频', author: '李梅梅', creator: '李梅梅', order: 210 },
+            { id: 'AP20260621002', resourceId: 'RES025', org: '文渊教育', resourceName: '初中物理·力学实验演示合集', channelName: '教学资源 / 初中教学', categoryName: '数学', submitter: '张丹丹', status: '审批通过', result: '通过', comment: '内容完整，同意发布。', approver: '桂教通超管 A', approvedAt: '2026-06-21 09:30:00', submittedAt: '2026-06-21 08:45:00', title: '初中物理·力学实验演示合集', intro: '覆盖初中物理力学核心实验的演示视频合集，支持课堂投屏与课后复看。', contentType: '文件·视频', author: '张丹丹', creator: '张丹丹', order: 250 },
+            { id: 'AP20260622003', resourceId: 'RES027', org: '思维学堂', resourceName: '奥数思维·行程问题专项', channelName: '教学资源 / 初中教学', categoryName: '数学', submitter: '王强', status: '已驳回', result: '驳回', comment: '封面缺失，资源正文不完整，请补充后重新提交。', approver: '桂教通超管 A', approvedAt: '2026-06-22 15:20:00', submittedAt: '2026-06-22 14:05:00', title: '奥数思维·行程问题专项', intro: '行程问题专项训练，含相遇、追及、流水行船等典型模型讲解。', contentType: '富文本', author: '王强', creator: '王强', order: 270 },
+            { id: 'AP20260623004', resourceId: 'RES022', org: '实验小学', resourceName: '小学语文·识字卡片（可打印）', channelName: '教学资源 / 小学教学', categoryName: '语文', submitter: '李梅梅', status: '未审批', result: '', comment: '', approver: '', approvedAt: '', submittedAt: '2026-06-23 11:40:00', title: '小学语文·识字卡片（可打印）', intro: '一年级识字卡片 PDF，可直接打印用于课堂识字游戏与课后复习。', contentType: '文件·视频', author: '李梅梅', creator: '李梅梅', order: 220 },
+            { id: 'AP20260624005', resourceId: 'RES026', org: '实验小学', resourceName: '小学语文·古诗诵读音频课', channelName: '教学资源 / 小学教学', categoryName: '语文', submitter: '李梅梅', status: '审批通过', result: '通过', comment: '内容规范，同意发布。', approver: '桂教通超管 A', approvedAt: '2026-06-24 16:20:00', submittedAt: '2026-06-24 15:02:00', title: '小学语文·古诗诵读音频课', intro: '精选 20 首小学生必背古诗的朗诵音频，配套注释与赏析。', contentType: '文件·视频', author: '李梅梅', creator: '李梅梅', order: 260 },
+            { id: 'AP20260720006', resourceId: 'RES023', org: '实验小学', resourceName: '小学科学·观察日记模板包', channelName: '教学资源 / 小学教学', categoryName: '语文', submitter: '李梅梅', status: '已驳回', result: '驳回', comment: '正文内容不完整，请补充示例后重新提交。', approver: '桂教通超管 A', approvedAt: '2026-07-20 14:05:00', submittedAt: '2026-07-19 16:30:00', title: '小学科学·观察日记模板包', intro: '小学科学观察日记模板包，含植物、动物、天气三类观察记录表。', contentType: '富文本', author: '李梅梅', creator: '李梅梅', order: 230 }
           ],
           approvalPage: { mode: 'approve', row: null, result: '', comment: '' },
           // ===== 配置管理（P40 配置列表 / P41 配置新增/编辑）=====
@@ -3230,10 +3290,14 @@
             { id: 'RES018', title: '研学课堂·设计与实施', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 180, viewCount: 121, likes: 33, org: '研学中心', tags: ['研学', '设计'], zone: 'family', icon: '🎒', tone: 1, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '42', durationUnit: '分钟', status: '已发布', updatedAt: '2026-07-07 15:20:00'  },
             { id: 'RES019', title: '常规选课·指导手册', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 190, viewCount: 76, likes: 18, org: '教务中心', tags: ['选课', '指导'], zone: 'family', icon: '📋', tone: 2, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '20', durationUnit: '分钟', status: '未发布', updatedAt: '2026-07-08 08:50:00'  },
             { id: 'RES020', title: '家庭教育·亲子共读指南', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 200, viewCount: 145, likes: 41, org: '家校联盟', tags: ['亲子', '阅读'], zone: 'family', icon: '👨‍👩‍👧', tone: 3, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '30', durationUnit: '分钟', status: '未发布', updatedAt: '2026-07-09 13:30:00'  },
-            { id: 'RES021', title: '小学二年级数学·乘法口诀微课', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 210, viewCount: 0, likes: 0, org: '实验小学', tags: ['数学', '微课'], zone: 'ai', icon: '✖️', tone: 2, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '15', durationUnit: '分钟', status: '草稿', updatedAt: '2026-07-18 09:10:00', intro: '通过动画与口诀歌帮助二年级学生掌握乘法口诀，配套课堂练习与课后巩固微课。', author: '李梅梅' },
-            { id: 'RES022', title: '小学语文·识字卡片（可打印）', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 220, viewCount: 0, likes: 0, org: '实验小学', tags: ['语文', '识字'], zone: 'ai', icon: '🔤', tone: 4, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '10', durationUnit: '分钟', status: '未审批', updatedAt: '2026-07-19 10:25:00', intro: '一年级识字卡片 PDF，可直接打印用于课堂识字游戏与课后复习。', author: '李梅梅' },
+            { id: 'RES021', title: '小学二年级数学·乘法口诀微课', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 210, viewCount: 0, likes: 0, org: '实验小学', tags: ['数学', '微课'], zone: 'ai', icon: '✖️', tone: 2, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '15', durationUnit: '分钟', status: '未审批', updatedAt: '2026-06-20 10:12:00', intro: '通过动画与口诀歌帮助二年级学生掌握乘法口诀，配套课堂练习与课后巩固微课。', author: '李梅梅' },
+            { id: 'RES022', title: '小学语文·识字卡片（可打印）', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 220, viewCount: 0, likes: 0, org: '实验小学', tags: ['语文', '识字'], zone: 'ai', icon: '🔤', tone: 4, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '10', durationUnit: '分钟', status: '未审批', updatedAt: '2026-06-23 11:40:00', intro: '一年级识字卡片 PDF，可直接打印用于课堂识字游戏与课后复习。', author: '李梅梅' },
             { id: 'RES023', title: '小学科学·观察日记模板包', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 230, viewCount: 0, likes: 0, org: '实验小学', tags: ['科学', '模板'], zone: 'teaching', icon: '🔎', tone: 5, contentType: '富文本', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '', durationUnit: '分钟', status: '已驳回', updatedAt: '2026-07-20 14:05:00', intro: '小学科学观察日记模板包，含植物、动物、天气三类观察记录表。', author: '李梅梅' },
-            { id: 'RES024', title: '初中化学·实验安全微课', channelId: 'CH001-2', channelName: '教学资源 / 初中教学', categoryId: 'CT004', categoryName: '数学', order: 240, viewCount: 0, likes: 0, org: '文渊教育', tags: ['化学', '安全'], zone: 'teaching', icon: '⚗️', tone: 6, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '20', durationUnit: '分钟', status: '未发布', updatedAt: '2026-07-21 08:40:00', intro: '初中化学实验安全微课，覆盖常见危险操作与应急处理。', author: '张丹丹' }
+            { id: 'RES024', title: '初中化学·实验安全微课', channelId: 'CH001-2', channelName: '教学资源 / 初中教学', categoryId: 'CT004', categoryName: '数学', order: 240, viewCount: 0, likes: 0, org: '文渊教育', tags: ['化学', '安全'], zone: 'teaching', icon: '⚗️', tone: 6, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '20', durationUnit: '分钟', status: '未发布', updatedAt: '2026-07-21 08:40:00', intro: '初中化学实验安全微课，覆盖常见危险操作与应急处理。', author: '张丹丹' },
+            { id: 'RES025', title: '初中物理·力学实验演示合集', channelId: 'CH001-2', channelName: '教学资源 / 初中教学', categoryId: 'CT004', categoryName: '数学', order: 250, viewCount: 86, likes: 12, org: '文渊教育', tags: ['物理', '实验'], zone: 'ai', icon: '🧲', tone: 1, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '25', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-21 09:30:00', intro: '覆盖初中物理力学核心实验的演示视频合集，支持课堂投屏与课后复看。', author: '张丹丹' },
+            { id: 'RES026', title: '小学语文·古诗诵读音频课', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 260, viewCount: 152, likes: 45, org: '实验小学', tags: ['语文', '古诗'], zone: 'ai', icon: '🎧', tone: 3, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '8', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-24 16:20:00', intro: '精选 20 首小学生必背古诗的朗诵音频，配套注释与赏析。', author: '李梅梅' },
+            { id: 'RES027', title: '奥数思维·行程问题专项', channelId: 'CH001-2', channelName: '教学资源 / 初中教学', categoryId: 'CT004', categoryName: '数学', order: 270, viewCount: 0, likes: 0, org: '思维学堂', tags: ['奥数', '行程'], zone: 'teaching', icon: '🚗', tone: 4, contentType: '富文本', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '', durationUnit: '分钟', status: '已驳回', updatedAt: '2026-06-22 15:20:00', intro: '行程问题专项训练，含相遇、追及、流水行船等典型模型讲解。', author: '王强' },
+            { id: 'RES028', title: '小学英语·自然拼读入门', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 280, viewCount: 0, likes: 0, org: '实验小学', tags: ['英语', '拼读'], zone: 'ai', icon: '🔠', tone: 5, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '12', durationUnit: '分钟', status: '草稿', updatedAt: '2026-07-22 09:00:00', intro: '通过字母音与拼读规则帮助低年级学生入门英语自然拼读。', author: '李梅梅' }
           ],
           resSteps: ['基本信息', '资源正文', '发布设置'],
           // ===== 硬件与服务管理（P20 智慧硬件与服务 / P21 预约记录）=====
@@ -4081,7 +4145,11 @@
           });
         },
         unpublishRes(row) {
-          this.showConfirm('确认下架该资源？', '「' + row.title + '」下架后状态置为“未发布”，应用端不再获取；已推荐的资源将同时取消推荐', () => {
+          // 桂教通超管与机构人员均可下架（机构仅能操作本人数据，列表已过滤）；机构下架多为"调整已审核资源内容"
+          const tip = this.isSuper
+            ? '下架后状态置为“未发布”，应用端不再获取；已推荐的资源将同时取消推荐'
+            : '下架后状态置为“未发布”，应用端不再获取；已推荐的资源将同时取消推荐；如需调整内容，可编辑后重新提交，将重新生成审批并进入“未审批”';
+          this.showConfirm('确认下架该资源？', '「' + row.title + '」' + tip, () => {
             row.status = '未发布';
             row.recommended = '否';
             row.updatedAt = this.nowText();
