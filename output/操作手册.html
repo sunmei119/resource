@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>资源中心管理后台 · 操作手册（一期）</title>
+<style>
+  :root{--brand:#2f54eb;--brand-soft:#e8effc;--ink:#1f2329;--sub:#5e6573;--line:#e5e6eb;--warn:#d4380d;--warn-soft:#fff1ec;--ok:#389e0d;--bg:#f7f8fa;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;color:var(--ink);background:var(--bg);line-height:1.7;}
+  .wrap{max-width:960px;margin:0 auto;padding:32px 20px 80px;background:#fff;min-height:100vh;}
+  header.top{border-bottom:3px solid var(--brand);padding-bottom:16px;margin-bottom:8px;}
+  header.top h1{font-size:26px;margin:0 0 6px;}
+  header.top .meta{color:var(--sub);font-size:14px;}
+  nav.toc{background:var(--brand-soft);border-radius:10px;padding:14px 20px;margin:20px 0 28px;}
+  nav.toc h2{font-size:15px;margin:0 0 8px;color:var(--brand);}
+  nav.toc ol{margin:0;padding-left:22px;font-size:14px;}
+  nav.toc a{color:var(--brand);text-decoration:none;}
+  nav.toc a:hover{text-decoration:underline;}
+  section{margin-bottom:34px;scroll-margin-top:20px;}
+  h2.sec{font-size:21px;border-left:5px solid var(--brand);padding-left:12px;margin:30px 0 14px;}
+  h3.sub{font-size:17px;color:#2b333e;margin:20px 0 8px;}
+  h4.mini{font-size:15px;margin:16px 0 6px;color:var(--sub);}
+  p{margin:8px 0;}
+  ul,ol{padding-left:24px;margin:8px 0;}
+  li{margin:4px 0;}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14px;}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top;}
+  th{background:#fafbfc;color:var(--sub);font-weight:600;}
+  blockquote{margin:12px 0;padding:10px 14px;background:var(--warn-soft);border-left:4px solid var(--warn);border-radius:6px;color:#7a2e12;font-size:14px;}
+  blockquote.info{background:var(--brand-soft);border-left-color:var(--brand);color:#1d39c4;}
+  code{background:#f2f3f5;padding:1px 6px;border-radius:4px;font-size:13px;}
+  .shot{display:flex;flex-direction:column;align-items:center;justify-content:center;margin:16px 0;padding:26px 16px;border:2px dashed #c9d3e6;border-radius:10px;background:#fbfcfe;color:#8a94a6;font-size:13px;text-align:center;min-height:120px;}
+  .shot b{color:var(--brand);font-size:14px;margin-bottom:4px;}
+  .tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12px;background:var(--brand-soft);color:var(--brand);}
+  footer{margin-top:50px;border-top:1px solid var(--line);padding-top:16px;color:var(--sub);font-size:13px;}
+  @media (max-width:600px){.wrap{padding:18px 12px;}header.top h1{font-size:21px;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>资源中心管理后台 · 操作手册（一期）</h1>
+  <div class="meta">角色：后台管理员（一个角色，所有按钮都能用） · 范围：频道、分类、条目、资源、硬件与服务 五大模块</div>
+</header>
+
+<nav class="toc">
+  <h2>目录</h2>
+  <ol>
+    <li><a href="#s1">先搞清楚：怎么一步步搭起来</a></li>
+    <li><a href="#s2">这些操作到处都一样</a></li>
+    <li><a href="#s3">频道管理</a></li>
+    <li><a href="#s4">分类管理</a></li>
+    <li><a href="#s5">条目管理</a></li>
+    <li><a href="#s6">资源管理</a></li>
+    <li><a href="#s7">硬件与服务管理</a></li>
+    <li><a href="#s8">哪些不能删？一张表看明白</a></li>
+    <li><a href="#s9">踩坑了看这里</a></li>
+  </ol>
+</nav>
+
+<section id="s1">
+  <h2 class="sec">1. 先搞清楚：怎么一步步搭起来</h2>
+  <p>系统是个层层套娃：<strong>父频道 → 子频道 → 分类 → 维度配置 → 资源</strong>。建议按这个顺序来：</p>
+  <ol>
+    <li><strong>先建频道</strong>：父频道建好，再在下面挂子频道（最多两层，子频道不能再挂子级）。</li>
+    <li><strong>再建分类</strong>：在子频道下建一级/子分类（最多两层）。一级分类要关联"类目条目"。</li>
+    <li><strong>配维度</strong>：去"条目管理"里，先建分类维度（比如"学段"），再给每个维度建条目（比如"小学""初中"）、子条目、子条目项。</li>
+    <li><strong>上架下发</strong>：频道、分类、维度条目都配好后，分别点"上架"，手机端 App 才能看到。</li>
+    <li><strong>挂资源</strong>：最后到"资源管理"里加资源，选好频道/分类，提交或提交并发布。</li>
+    <li><strong>上硬件/服务</strong>：到"硬件与服务管理 → 智慧硬件与服务"里点"新增"，会打开一个独立的新增页，填好（名称、类型、频道/分类、排序、背景色、字体颜色、简介、详细介绍、详细介绍图片、附件）保存后点"发布"；已发布的项，用户在 App 提交的预约会进"预约记录"，你去那里受理或取消。</li>
+  </ol>
+  <blockquote class="info">小知识：App 已经在用这批数据了。你上架了 App 才看得到，下架了就看不到；下架/删除不改变 App 原来的页面样子。</blockquote>
+</section>
+
+<section id="s2">
+  <h2 class="sec">2. 这些操作到处都一样</h2>
+  <table>
+    <tr><th>操作</th><th>怎么用</th></tr>
+    <tr><td>查询</td><td>改完筛选条件点"查询"（回到第 1 页）；"重置"一键清空</td></tr>
+    <tr><td>新增 / 编辑</td><td>右上角或每行末尾的按钮开弹窗；填错会即时飘红，点"保存/提交"再整体校验一遍</td></tr>
+    <tr><td>上架 / 下架</td><td>行尾按钮，点完二次确认，状态同步到 App</td></tr>
+    <tr><td>删除</td><td>行尾"删除"（单个）或勾选后"批量删除"，都要二次确认</td></tr>
+    <tr><td>级联选择（所属频道 / 所属分类）</td><td>先选爸爸再选儿子；没选到第二级（子频道/子分类）之前不让提交</td></tr>
+    <tr><td>保存中途关弹窗</td><td>会问你"当前修改尚未保存，确认关闭？"，确定就丢掉，取消就留着</td></tr>
+  </table>
+  <blockquote>记住一条：上架 / 下架 / 删除（单条或批量）都会弹二次确认，别慌，看清楚再点确定。</blockquote>
+</section>
+
+<section id="s3">
+  <h2 class="sec">3. 频道管理</h2>
+  <p><span class="tag">入口</span> 类目管理 → 频道管理</p>
+
+  <h3 class="sub">3.1 查频道</h3>
+  <ul>
+    <li>按"频道名称（模糊）""是否在资源中心展示"筛选。</li>
+    <li>列表是树形：父频道在上，子频道缩进挂在下面。</li>
+    <li>排序先按"排序"升序，同排序再按"修改时间"倒序。</li>
+    <li>没数据会提示"暂无频道，请点击右上角新增"。</li>
+  </ul>
+  <div class="shot"><b>📷 截图占位</b>频道管理列表页（树形 + 筛选栏）</div>
+
+  <h3 class="sub">3.2 新增父频道</h3>
+  <p>点右上角"<strong>新增父频道</strong>"：</p>
+  <table>
+    <tr><th>字段</th><th>必填</th><th>规则</th></tr>
+    <tr><td>频道名称</td><td>是</td><td>最多 20 字</td></tr>
+    <tr><td>频道图标</td><td>是</td><td>68×68，≤100KB</td></tr>
+    <tr><td>频道图片</td><td>是</td><td>≤300KB</td></tr>
+    <tr><td>是否在资源中心展示</td><td>是</td><td>默认"否"</td></tr>
+    <tr><td>排序</td><td>是</td><td>非负整数</td></tr>
+    <tr><td>频道描述</td><td>否</td><td>最多 200 字</td></tr>
+  </table>
+  <blockquote class="info">保存成功会自动跳到新那条；保存失败会保留你填的内容并顶部报错。</blockquote>
+  <div class="shot"><b>📷 截图占位</b>新增父频道弹窗（带必填标记）</div>
+
+  <h3 class="sub">3.3 添加子频道</h3>
+  <p>父频道行尾点"<strong>添加子频道</strong>"：父频道信息自动带上且只读，其余规则同父频道（频道图片除外：新增子频道时频道图片选填，大小限制在 5M 内，不传也行）。子频道不能再挂子级。</p>
+
+  <h3 class="sub">3.4 编辑频道</h3>
+  <p>行尾点"编辑"：所有字段都能改；图标/图片可替换；子频道的"父频道"是只读的。</p>
+
+  <h3 class="sub">3.5 删除频道</h3>
+  <ul>
+    <li><strong>单个删</strong>：行尾"删除" → 二次确认"确认删除频道？"
+      <ul>
+        <li>被分类引用了不能删，会提示"频道 X 已被分类引用，不可删除"。</li>
+        <li>父频道下还有子频道也不能删，得先删光子频道，提示"父频道 X 下存在子频道，请先删除全部子频道"。</li>
+      </ul>
+    </li>
+    <li><strong>批量删</strong>：勾选后点"批量删除"，引用中或有子频道的会被跳过，最后告诉你哪些没删成。</li>
+  </ul>
+  <div class="shot"><b>📷 截图占位</b>删除频道二次确认弹窗 + 引用拦截提示</div>
+</section>
+
+<section id="s4">
+  <h2 class="sec">4. 分类管理</h2>
+  <p><span class="tag">入口</span> 类目管理 → 分类管理</p>
+
+  <h3 class="sub">4.1 查分类</h3>
+  <ul>
+    <li>按"所属频道（父→子）""分类名称（模糊）""上架状态"筛选。</li>
+    <li>列表可展开/收起，符合条件的节点会自动展开。</li>
+  </ul>
+  <div class="shot"><b>📷 截图占位</b>分类管理列表（树形 + 状态标签）</div>
+
+  <h3 class="sub">4.2 新增一级分类</h3>
+  <p>点右上角"<strong>新增一级分类</strong>"：</p>
+  <ol>
+    <li>先选"所属频道"（级联到子频道，必选）。</li>
+    <li>如果这子频道下有<strong>已上架的类目条目</strong>，就会出现"<strong>类目及类目条目</strong>"一栏（必填，至少勾一个）：
+      <ul>
+        <li>按类目一行行列出条目，逐个勾。</li>
+        <li><strong>关键点</strong>：勾了某个条目后，如果它下面有"已上架"的子条目，会自动把对应子条目展开让你继续勾（只显示已上架的；没勾的条目不会显示它的子条目）。</li>
+      </ul>
+    </li>
+    <li>如果这子频道下压根没有类目条目，那"类目及类目条目"整栏都不出现。</li>
+  </ol>
+  <table>
+    <tr><th>字段</th><th>必填</th><th>规则</th></tr>
+    <tr><td>所属频道</td><td>是</td><td>必须选到子频道</td></tr>
+    <tr><td>分类名称</td><td>是</td><td>最多 20 字</td></tr>
+    <tr><td>分类编码</td><td>是</td><td>最多 10 字，不能填中文</td></tr>
+    <tr><td>排序</td><td>是</td><td>非负整数</td></tr>
+    <tr><td>分类图标</td><td>否</td><td>图片上传，1 张；.jpg/.jpeg/.png；≤2MB；传错了可以"移除"重传；不传也能保存，App 端就不显示图标</td></tr>
+    <tr><td>分类封面</td><td>否</td><td>图片上传，1 张；.jpg/.jpeg/.png；≤5MB；传错了可以"移除"重传；不传也能保存，App 端用默认封面</td></tr>
+    <tr><td>按钮文字</td><td>否</td><td>最多 10 字，App 端分类入口按钮上显示的文案；留空则不展示按钮</td></tr>
+    <tr><td>类目及类目条目</td><td>看情况</td><td>有已上架类目条目时必填</td></tr>
+    <tr><td>分类描述</td><td>否</td><td>最多 200 字</td></tr>
+  </table>
+  <div class="shot"><b>📷 截图占位</b>新增一级分类弹窗——勾选条目后展开子条目勾选区</div>
+
+  <h3 class="sub">4.3 添加子分类</h3>
+  <p>某分类行尾点"<strong>添加子分类</strong>"：父分类、所属频道自动继承且只读，<strong>不出现类目条目那栏</strong>（子分类只挂父分类）；分类图标、分类封面、按钮文字同样可以填，都是选填。</p>
+
+  <h3 class="sub">4.4 编辑分类</h3>
+  <p>行尾点"编辑"：</p>
+  <ul>
+    <li>所属频道 / 父分类能改；改所属频道会弹"将同时移动其子分类，是否继续？"</li>
+    <li>一级分类会<strong>把已勾的条目和子条目都回填</strong>进来；子分类没这栏。</li>
+    <li>分类图标、分类封面、按钮文字都会回填，可直接替换或"移除"重传。</li>
+    <li>编码撞车会在表单顶部提示并保留你填的内容。</li>
+  </ul>
+
+  <h3 class="sub">4.5 上架 / 下架分类</h3>
+  <ul>
+    <li><strong>上架</strong>：二次确认"确认上架分类？" → 状态变"已上架"，App 能看到。</li>
+    <li><strong>下架</strong>：二次确认"确认下架分类？" → 变"未上架"，App 看不到了（它下面已上架的条目各自保留状态，只是不再跟着分类下发）。</li>
+  </ul>
+
+  <h3 class="sub">4.6 删除分类</h3>
+  <ul>
+    <li><strong>单个删</strong>：行尾"删除" → 二次确认"确认删除分类？删除后不可恢复。已上架分类不允许删除。"
+      <ul><li>已上架时删除按钮是灰的，悬停会提示"请先下架再删除"。</li></ul>
+    </li>
+    <li><strong>批量删</strong>：已上架的会被跳过，最后列出没删成的。</li>
+    <li>删一级分类会顺带把它下面所有子分类一起删（确认框里会额外提醒）。</li>
+  </ul>
+  <div class="shot"><b>📷 截图占位</b>分类上架状态标签 + 删除置灰态</div>
+</section>
+
+<section id="s5">
+  <h2 class="sec">5. 条目管理</h2>
+  <p><span class="tag">入口</span> 类目管理 → 条目管理，有两个 Tab：</p>
+  <ul>
+    <li><strong>分类管理 Tab</strong>：维护分类维度（比如"学段/年级/学科"）</li>
+    <li><strong>分类条目管理 Tab</strong>：维护维度下的维度条目、子条目、子条目项</li>
+  </ul>
+  <div class="shot"><b>📷 截图占位</b>条目管理两个 Tab 切换 + 归属维度选择器</div>
+
+  <h3 class="sub">5.1 分类管理 Tab（分类维度）</h3>
+  <table>
+    <tr><th>操作</th><th>说明</th></tr>
+    <tr><td>查询</td><td>按所属频道、维度名称（模糊）、上架状态筛</td></tr>
+    <tr><td>新增分类维度</td><td>点"新增分类维度"，填所属频道、维度名称（≤20）、排序（非负整数）；<strong>新增不显示上架状态，提交默认"下架"</strong></td></tr>
+    <tr><td>编辑</td><td>行尾"编辑"，都能改</td></tr>
+    <tr><td>批量上架/下架/删除</td><td>勾选后点顶部按钮；有维度条目的维度删不掉，会列出</td></tr>
+    <tr><td>删除维度</td><td>单个删二次确认"确认删除分类维度？…维度下存在维度条目时不允许删除，请先清空关联数据"；有条目时按钮灰</td></tr>
+  </table>
+
+  <h3 class="sub">5.2 分类条目管理 Tab（维度条目）</h3>
+  <p><strong>前提</strong>：顶部必须先选"<strong>归属维度</strong>"整表才出来；没选会提示"请先选择归属维度"。</p>
+
+  <h4 class="mini">5.2.1 新增维度条目</h4>
+  <p>点"新增维度条目"：归属维度默认带当前值但可改；不显示上架状态，提交默认"<strong>未上架</strong>"。</p>
+  <table>
+    <tr><th>字段</th><th>必填</th><th>规则</th></tr>
+    <tr><td>归属维度</td><td>是</td><td>只显示已上架的维度</td></tr>
+    <tr><td>条目名称</td><td>是</td><td>最多 20 字</td></tr>
+    <tr><td>条目排序</td><td>是</td><td>非负整数</td></tr>
+    <tr><td>上架状态</td><td>仅编辑有</td><td>新增默认未上架</td></tr>
+  </table>
+
+  <h4 class="mini">5.2.2 新增子条目</h4>
+  <p>维度条目行尾点"<strong>新增子条目</strong>"：</p>
+  <ol>
+    <li>"当前条目名称"自动带上，只读。</li>
+    <li>填子条目名称（必填，≤20）、子条目排序（必填，非负整数）。</li>
+    <li>点"<strong>新增子条目项</strong>"加若干子条目项，每项填：
+      <ul>
+        <li>条目名称（必填，≤20）</li>
+        <li>排序（必填，非负整数）</li>
+        <li>上架状态（<strong>默认"未上架"</strong>，保存后能在列表上下架）</li>
+      </ul>
+    </li>
+    <li>保存后该维度条目自动展开，子条目是第二层，子条目项挂在子条目下面。</li>
+  </ol>
+  <blockquote>只有两层：子条目那一行<strong>没有</strong>"新增子条目"按钮（子条目下面不能再建子条目）。</blockquote>
+  <div class="shot"><b>📷 截图占位</b>新增子条目弹窗（含子条目项列表 + 上架状态）</div>
+
+  <h4 class="mini">5.2.3 上架 / 下架</h4>
+  <ul>
+    <li><strong>维度条目</strong>和<strong>子条目</strong>：行尾"上架/下架"，二次确认；只有"已上架"的才在 App 渲染。</li>
+    <li><strong>子条目项</strong>：行内"上架/下架"，二次确认；只有"已上架"的子条目项才在 App 渲染。</li>
+  </ul>
+
+  <h4 class="mini">5.2.4 删除（注意会连坐）</h4>
+  <table>
+    <tr><th>删谁</th><th>二次确认文案</th><th>删不掉的情况</th></tr>
+    <tr><td>维度条目</td><td>"确认删除条目？删除后不可恢复。若条目下存在子条目，则条目无法删除"</td><td>已上架 / 下面还有子条目（先下架 / 先删子条目）</td></tr>
+    <tr><td>子条目</td><td>"确认删除子条目？删除后该子条目及其下所有子条目项将一并移除，且不可恢复。被其他分类引用的子条目不可删除。"</td><td>已上架 / <strong>被别的分类引用</strong>（先下架 / 先解除引用）；确认后会把下面所有子条目项一起删</td></tr>
+    <tr><td>子条目项</td><td>"确认删除该子条目项？删除后不可恢复"</td><td>已上架（先下架）</td></tr>
+  </table>
+  <blockquote>删失败的话列表不会变。</blockquote>
+  <div class="shot"><b>📷 截图占位</b>子条目删除二次确认弹窗（含级联/引用提示）</div>
+</section>
+
+<section id="s6">
+  <h2 class="sec">6. 资源管理</h2>
+  <p><span class="tag">入口</span> 资源管理 → 资源管理</p>
+
+  <h3 class="sub">6.1 查资源</h3>
+  <p>按"资源标题（模糊）""所属频道（级联）""所属分类""状态（草稿 / 未审批 / 已驳回 / 未发布 / 已发布）"筛选。</p>
+  <blockquote class="info">数据范围：<strong>桂教通超管看到的是全量资源</strong>，包括各机构人员创建的草稿、未审批、已驳回这些还没过审的数据，方便掌握全平台内容；<strong>机构人员只看得到自己创建的资源</strong>（列表标题旁有一行小字注明当前数据范围）。</blockquote>
+  <div class="shot"><b>📷 截图占位</b>资源管理列表（状态标签 + 行级操作）</div>
+
+  <h3 class="sub">6.2 资源列表行级操作</h3>
+  <table>
+    <tr><th>操作</th><th>说明</th></tr>
+    <tr><td>预览</td><td>打开一个模拟 App 详情页</td></tr>
+    <tr><td>编辑</td><td>超管的"草稿 / 未发布"行、机构人员的"草稿 / 已驳回 / 未发布"行才有这个按钮，进编辑页三步表单自动回填；"已发布"行不显示，要先"下架"</td></tr>
+    <tr><td>上架 / 发布</td><td>只有"未发布"能点（仅超管）；二次确认后变"已发布"（App 可获取）</td></tr>
+    <tr><td>下架</td><td>只有"已发布"能点，<strong>超管和机构人员都行</strong>（机构只能下架自己创建的资源）；二次确认后变"未发布"，<strong>同时取消推荐</strong>。机构下架就是为了调整已审核资源的内容——下架完点"编辑"改完再"提交"，会重新生成审批，回到"未审批"等超管再批</td></tr>
+    <tr><td>设为推荐 / 取消推荐</td><td>只有"已发布"行才有这个按钮（仅超管）；未推荐时显示"设为推荐"，已推荐时显示"取消推荐"，都要二次确认；推荐的资源在列表"推荐"列有红色标签，App 推荐位展示</td></tr>
+    <tr><td>删除</td><td>超管的"草稿 / 已驳回 / 未发布"行、机构人员的"草稿 / 已驳回"行才有这个按钮，二次确认删；"已发布"行不显示，要先"下架"</td></tr>
+  </table>
+
+  <h3 class="sub">6.3 批量操作（勾选左侧复选框，表头可全选）</h3>
+  <table>
+    <tr><th>按钮</th><th>说明</th></tr>
+    <tr><td>批量上架</td><td>把勾选里的"未发布"都置为"已发布"；已经是"已发布"的保持不变</td></tr>
+    <tr><td>批量下架</td><td>把勾选里的"已发布"都置为"未发布"，并同步取消推荐</td></tr>
+    <tr><td>批量推荐</td><td>只把勾选里的"已发布"设为推荐；"未发布"的不支持推荐会被跳过，确认框里会告诉你跳过几条</td></tr>
+    <tr><td>批量取消推荐</td><td>把勾选里"是否推荐=是"的都改成"否"，本来就没推荐的不动；不受上架状态限制</td></tr>
+    <tr><td>批量删除</td><td>已发布的会被跳过，最后列出没删的</td></tr>
+  </table>
+  <blockquote class="info">一个都没勾时，这四个按钮都是灰的；批量操作只有超管能看，机构人员没有这部分按钮。</blockquote>
+
+  <h3 class="sub">6.4 机构资源的审批流程（要改"已发布"资源的看这里）</h3>
+  <ol>
+    <li>机构人员新建资源，可以先"保存草稿"；内容填完点"提交"，资源变"<strong>未审批</strong>"，系统自动生成一条审批记录。</li>
+    <li>桂教通超管去"审批管理"审批：<strong>通过</strong> → 资源自动变"已发布"，App 能获取；<strong>驳回</strong> → 资源变"已驳回"（机构人员改完内容再"提交"，重新生成审批，回到"未审批"）。</li>
+    <li><strong>已发布的资源要改内容</strong>：机构人员先对这条资源点"<strong>下架</strong>"（变"未发布"），再点"<strong>编辑</strong>"调整内容，最后"<strong>提交</strong>"——重新生成一条审批记录，资源回到"<strong>未审批</strong>"，超管再批一次：通过就重新"已发布"，驳回就继续"已驳回"（还能再改再提交）。</li>
+    <li>"审批管理"列表右上角有"<strong>查看审批流程</strong>"，点开就是上面这条完整流程图，忘了随时看。</li>
+  </ol>
+
+  <h3 class="sub">6.5 新增 / 编辑资源（三步走）</h3>
+  <p>步骤条：<strong>基本信息 → 资源正文 → 发布设置</strong>，每步"下一步"会校验这步的必填项。</p>
+
+  <h4 class="mini">第一步 · 基本信息</h4>
+  <table>
+    <tr><th>字段</th><th>必填</th><th>规则</th></tr>
+    <tr><td>所属频道</td><td>是</td><td>父→子，存子频道ID</td></tr>
+    <tr><td>资源标题</td><td>是</td><td>最多 30 字</td></tr>
+    <tr><td>资源简介</td><td>否</td><td>最多 200 字</td></tr>
+    <tr><td>封面</td><td>否</td><td>.jpg/.jpeg/.png，245×143，≤3MB</td></tr>
+    <tr><td>所属分类</td><td>是</td><td>按子频道过滤出一级分类</td></tr>
+    <tr><td>排序</td><td>是</td><td>非负整数</td></tr>
+    <tr><td>是否在移动端展示</td><td>是</td><td>开关，默认"是"</td></tr>
+  </table>
+  <div class="shot"><b>📷 截图占位</b>资源新增-第一步基本信息</div>
+
+  <h4 class="mini">第二步 · 资源正文</h4>
+  <ul>
+    <li>内容展示方式（必填）：富文本 / 文件·视频 / 应用和链接 / 链接，切换时表单整体变。</li>
+    <li><strong>收费方式（必填）</strong>：免费 / 收费，默认"免费"；内容展示方式选了"链接"时<strong>不显示这一项</strong>。</li>
+    <li><strong>权益（收费时出现，选填）</strong>：只要收费方式选了"收费"就会出现（选"应用和链接"也会出现），<strong>内容展示方式="链接"时不显示</strong>。要填就先填<strong>数量</strong>（数字，支持小数，如 7、3），再在右边的下拉里选<strong>单位</strong>：天 / 次（默认"天"），例如"7 天""3 次"——天表示权益有效时长，次表示权益可用次数；<strong>不填也能保存</strong>，表示不限制权益。填了数量但不是大于 0 的数字（比如填 0 或填文字）才会被拦住。</li>
+    <li><strong>购买引导（应用选择 / PC端链接 / 移动端链接）</strong>：只有"收费方式=收费"<strong>且</strong>"内容展示方式不是应用和链接、也不是链接"时才出现；出现后<strong>只有应用选择必填</strong>（搜索下拉），<strong>PC端链接 / 移动端链接改成选填</strong>（最长 200 字），不填也能保存，只是不会给 App 用户的购买跳转入口，用户去商城购买页 fallback。
+      <ul>
+        <li>内容展示方式就是"应用和链接"时不重复出现，系统按你选的那个应用是否收费自动判定。</li>
+        <li>付费方式、价格仍然不在后台录，由商城/应用侧维护。</li>
+      </ul>
+    </li>
+    <li>按展示方式填内容：
+      <ul>
+        <li><strong>富文本</strong>：内容详情（必填）、附件（选填）。</li>
+        <li><strong>文件·视频</strong>：是否开启小节（默认"否"，必填）；加文件（.mp4/.doc/.docx/.xls/.xlsx/.ppt/.pptx/.pdf，最多 50 个，文档≤50MB、视频≤500MB）。</li>
+        <li><strong>应用和链接</strong>：应用（必填）+ 移动端/PC端链接（选填）。</li>
+        <li><strong>链接</strong>：移动端链接、PC端链接（都必填，≤200 字）；<strong>链接方式下不显示收费方式、权益和购买引导</strong>，系统按免费资源保存。</li>
+      </ul>
+    </li>
+  </ul>
+  <div class="shot"><b>📷 截图占位</b>资源新增-第二步正文（四种内容方式）</div>
+
+  <h4 class="mini">第三步 · 发布设置</h4>
+  <table>
+    <tr><th>字段</th><th>必填</th><th>规则</th></tr>
+    <tr><td>资源来源机构</td><td>是</td><td>最多 30 字</td></tr>
+    <tr><td>资源作者</td><td>否</td><td>最多 30 字</td></tr>
+  </table>
+  <div class="shot"><b>📷 截图占位</b>资源新增-第三步发布设置</div>
+
+  <h4 class="mini">提交</h4>
+  <ul>
+    <li><strong>提交</strong>：先跑一遍机器敏感词过滤（标题/简介/正文）；中不命中都存成"未发布"；命中了会在顶部提示你得改完才能发布。</li>
+    <li><strong>提交并发布</strong>：也先过滤；<strong>只有过滤通过才让发布</strong>（变"已发布"），命中就拒绝并列出违规词，你可以先"提交"存成未发布。</li>
+  </ul>
+</section>
+
+<section id="s7">
+  <h2 class="sec">7. 硬件与服务管理</h2>
+  <p><span class="tag">入口</span> 硬件与服务管理 → 智慧硬件与服务 / 预约记录</p>
+
+  <h3 class="sub">7.1 查硬件/服务</h3>
+  <p>按"名称（模糊）""频道（级联父→子）""分类（按频道过滤）""状态（全部/未发布/已发布/已下架）"筛选。</p>
+  <div class="shot"><b>📷 截图占位</b>智慧硬件与服务列表（类型标签 + 状态标签 + 行级操作）</div>
+
+  <h3 class="sub">7.2 列表行级操作</h3>
+  <table>
+    <tr><th>操作</th><th>说明</th></tr>
+    <tr><td>编辑</td><td>打开"新增/编辑页"并回填当前值，保存即生效；编辑不改变状态</td></tr>
+    <tr><td>发布</td><td>"未发布""已下架"能点；二次确认后变"已发布"，App 可见且用户可预约</td></tr>
+    <tr><td>下架</td><td>只有"已发布"能点；二次确认后变"已下架"，App 不再展示（已有预约记录保留）</td></tr>
+    <tr><td>删除</td><td>"已发布"是灰的不能删（先下架）；"未发布""已下架"二次确认删</td></tr>
+  </table>
+
+  <h3 class="sub">7.3 批量发布 / 批量下架</h3>
+  <p>勾选左侧复选框（表头可全选当前页）后点"批量发布"或"批量下架"，二次确认并提示所选条数；已是"已发布"的项在批量发布时保持不变。一个都没勾时，两个按钮是灰的。</p>
+
+  <h3 class="sub">7.4 新增 / 编辑硬件或服务（独立页面）</h3>
+  <p>点列表右上角"新增"，或行末"编辑"，会<strong>打开一个新页面</strong>（不是弹窗）：新增时标题是"新增硬件/服务"，编辑时是"编辑硬件/服务"并回填当前值。</p>
+  <table>
+    <tr><th>字段</th><th>必填</th><th>规则</th></tr>
+    <tr><td>名称</td><td>是</td><td>最长 30 字符</td></tr>
+    <tr><td>类型</td><td>是</td><td>智慧硬件 / 定制服务，默认"智慧硬件"</td></tr>
+    <tr><td>所属频道</td><td>是</td><td>父→子，必须选到子频道；换频道会清空已选分类</td></tr>
+    <tr><td>所属分类</td><td>条件必填</td><td>按所属频道过滤；该频道下有分类就必填，没有就不填</td></tr>
+    <tr><td>排序</td><td>是</td><td>非负整数，越小越靠前</td></tr>
+    <tr><td>背景色</td><td>是</td><td>文本输入，十六进制色值，如 #ffffff（也认 #fff）；输对了右边有色块预览</td></tr>
+    <tr><td>字体颜色</td><td>是</td><td>同上，如 #1f2329</td></tr>
+    <tr><td>简介</td><td>是</td><td>最长 50 字符</td></tr>
+    <tr><td>详细介绍</td><td>是</td><td>最长 200 字符</td></tr>
+    <tr><td>详细介绍图片</td><td>是</td><td>图片上传，支持一次传多张；.jpg/.jpeg/.png；单张 ≤10MB；传错了可以"移除"</td></tr>
+    <tr><td>附件上传</td><td>否</td><td>最多 5 个；单个 ≤20MB；.doc/.docx/.xls/.xlsx/.ppt/.pptx/.pdf</td></tr>
+  </table>
+  <p>页面底部"保存" / "取消"，右上角还有"返回列表"：</p>
+  <ul>
+    <li><strong>保存</strong>：逐项校验，哪一项没填或格式不对会直接告诉你原因（例如"背景色格式不正确，请输入 #ffffff 形式的十六进制色值"）；通过后自动回到列表页</li>
+    <li><strong>取消 / 返回列表</strong>：放弃这次修改回到列表页</li>
+    <li>新增保存后状态是"未发布"，记得回列表点"发布"</li>
+    <li>编辑"已发布"的项再保存，状态不变，不用重新发布</li>
+  </ul>
+
+  <h3 class="sub">7.5 预约记录</h3>
+  <table>
+    <tr><th>操作</th><th>说明</th></tr>
+    <tr><td>查</td><td>按"名称（模糊）""预约人（模糊）""状态（全部/待处理/已受理/已完成/已取消）"筛选</td></tr>
+    <tr><td>看详情</td><td>点"查看"弹窗，看预约人、联系方式、预约时间、预约说明等</td></tr>
+    <tr><td>受理</td><td>只有"待处理"能点；二次确认后变"已受理"，记得线下联系预约人</td></tr>
+    <tr><td>取消</td><td>"待处理""已受理"能点；二次确认后变"已取消"</td></tr>
+  </table>
+  <blockquote class="info">预约是用户在 App 提交的，后台<strong>不能新增也不能删</strong>，只能查看、受理、取消。</blockquote>
+</section>
+
+<section id="s8">
+  <h2 class="sec">8. 哪些不能删？一张表看明白</h2>
+  <table>
+    <tr><th>对象</th><th>删不掉的情况</th><th>连带影响</th></tr>
+    <tr><td>频道</td><td>被分类引用了；下面还有子频道</td><td>先删子频道 / 先解除分类引用</td></tr>
+    <tr><td>分类</td><td>已上架</td><td>先下架；删一级分类会连子分类一起删</td></tr>
+    <tr><td>分类维度</td><td>下面还有维度条目</td><td>先清空维度条目</td></tr>
+    <tr><td>维度条目</td><td>已上架；下面还有子条目</td><td>先下架 / 先删子条目</td></tr>
+    <tr><td>子条目</td><td>已上架；<strong>被别的分类引用</strong></td><td>先下架 / 先解除引用；删时连子条目项一起删</td></tr>
+    <tr><td>子条目项</td><td>已上架</td><td>先下架</td></tr>
+    <tr><td>资源</td><td>已发布</td><td>先下架</td></tr>
+    <tr><td>硬件/服务</td><td>已发布</td><td>先下架</td></tr>
+    <tr><td>预约记录</td><td>一律不能删</td><td>只能查看、受理、取消</td></tr>
+  </table>
+  <blockquote class="info"><strong>上架同步规则</strong>：频道、分类、维度条目、子条目、子条目项的上架状态都同步到 App 可见性；只有"已上架"的维度条目及其子条目、子条目项才在 App 渲染。</blockquote>
+</section>
+
+<section id="s9">
+  <h2 class="sec">9. 踩坑了看这里</h2>
+  <table>
+    <tr><th>现象</th><th>为啥 / 咋办</th></tr>
+    <tr><td>分类删除按钮是灰的</td><td>分类"已上架"，先"下架"再删</td></tr>
+    <tr><td>子条目删除按钮是灰的</td><td>子条目已上架（先下架），或被别的分类引用了（先解除引用）</td></tr>
+    <tr><td>新增一级分类看不到"类目条目"栏</td><td>这子频道下还没有已上架类目条目；或者你还没选到子频道</td></tr>
+    <tr><td>勾了条目却没看到子条目</td><td>这条目下没有"已上架"的子条目；没勾的条目不会显示它的子条目</td></tr>
+    <tr><td>维度条目删不掉</td><td>已上架，或下面还有子条目；先下架并删光子条目</td></tr>
+    <tr><td>父频道删不掉</td><td>还被分类引用，或下面还有子频道；先处理</td></tr>
+    <tr><td>资源发布被拒</td><td>标题/简介/正文踩了敏感词；可以先"提交"存未发布，改完再发</td></tr>
+    <tr><td>批量操作有些没生效</td><td>已上架 / 被引用 / 有子级的会被跳过，结果会告诉你哪些没处理</td></tr>
+    <tr><td>"批量上架 / 批量下架 / 批量推荐"按钮是灰的</td><td>还没勾选任何行；先勾左侧复选框</td></tr>
+    <tr><td>找不到"设为推荐"按钮</td><td>只有"已发布"的资源才有，先"上架"再设</td></tr>
+    <tr><td>批量推荐有几条没设上</td><td>未上架的资源不支持推荐，会被跳过，确认框里会写跳过几条</td></tr>
+    <tr><td>资源下架后推荐没了</td><td>正常：下架会同时取消推荐，重新上架后要再设一次</td></tr>
+    <tr><td>硬件/服务删不掉或按钮是灰的</td><td>状态是"已发布"，先"下架"再删</td></tr>
+    <tr><td>预约记录想新增或删除</td><td>不支持，预约只能由 App 端提交，后台只能查看、受理、取消</td></tr>
+  </table>
+  <blockquote>敏感词范围：涉政、色情低俗、暴恐、赌博、诈骗广告、辱骂、隐私泄露、虚假医疗、未成年人保护等。所有文字输入落库和发布前都会过一遍。</blockquote>
+</section>
+
+<footer>
+  资源中心管理后台操作手册（一期） · 内部使用 · 内容以最新 PRD / 功能清单 / 设计基线为准
+</footer>
+
+</div>
+</body>
+</html>

@@ -67,31 +67,21 @@
       text-transform: uppercase; letter-spacing: 0.04em;
     }
     .shell-main { padding: 0; background: var(--shell-bg); }
-    .shell-tabbar {
-      min-height: 64px; display: flex; align-items: center; gap: 18px;
-      padding: 0 26px; background: #fff; border-bottom: 1px solid #f0f0f0;
+    /* 面包屑导航（替代页签） */
+    .shell-crumb {
+      min-height: 56px; display: flex; align-items: center; flex-wrap: wrap;
+      gap: 10px; padding: 0 26px; background: #f7f8fa;
+      border-bottom: 1px solid #eef0f3;
     }
-    .shell-tabbar-toggle {
-      width: 26px; height: 26px; display: inline-flex; align-items: center;
-      justify-content: center; color: #4e5969; border-radius: 6px; flex: 0 0 auto;
+    .shell-crumb-item {
+      font-size: 14px; color: #86909c; white-space: nowrap;
+      line-height: 20px; transition: color .2s;
     }
-    .shell-tabbar-tabs { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; overflow: hidden; }
-    .shell-tabbar-tab {
-      display: inline-flex; align-items: center; gap: 8px;
-      min-width: 148px; max-width: 260px; height: 32px; padding: 0 16px;
-      border: 1px solid #e7ebf2; border-radius: 8px;
-      background: #f7f8fa; color: #4e5969; cursor: pointer;
-    }
-    .shell-tabbar-tab.is-active {
-      background: #fff; color: var(--shell-text); border-color: #d7e4ff;
-      box-shadow: 0 2px 8px rgba(47, 125, 246, 0.08);
-    }
-    .shell-tabbar-label {
-      flex: 1; min-width: 0; white-space: nowrap; overflow: hidden;
-      text-overflow: ellipsis; font-size: 14px; font-weight: 500;
-    }
-    .shell-tabbar-close { color: #a1a7b3; font-size: 12px; line-height: 1; }
-    .shell-main-body { padding: 18px 22px 24px; }
+    .shell-crumb-item.is-link { color: #4e5969; cursor: pointer; }
+    .shell-crumb-item.is-link:hover { color: var(--shell-primary); }
+    .shell-crumb-item.is-current { color: #1f2329; font-weight: 600; }
+    .shell-crumb-sep { color: #c9cdd4; font-size: 13px; user-select: none; }
+    .shell-main-body { padding: 20px 24px 28px; }
     .shell-workbench { display: flex; flex-direction: column; gap: 16px; }
 
     /* 业务区 */
@@ -118,11 +108,11 @@
 
     .biz-card {
       background: #fff; border-radius: var(--shell-radius);
-      box-shadow: var(--shell-shadow); padding: 16px 20px;
+      box-shadow: var(--shell-shadow); padding: 18px 22px 20px;
     }
     .biz-card-head {
       display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
     }
     .biz-card-title { font-size: 15px; font-weight: 600; }
     .biz-card-actions { display: flex; align-items: center; gap: 8px; }
@@ -146,6 +136,27 @@
     .biz-table tbody tr:hover { background: #fafcff; }
     .biz-table .col-check { width: 40px; }
     .biz-table .col-actions { width: 320px; white-space: nowrap; }
+    /* 资源列表：操作列固定，其余列横向滚动 */
+    .table-scroll { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
+    .table-scroll > .biz-table { min-width: 1360px; }
+    .biz-table th.col-sticky-right,
+    .biz-table td.col-sticky-right {
+      position: sticky; right: 0; z-index: 2;
+      background: #fff;
+      box-shadow: -8px 0 10px -8px rgba(0, 0, 0, .22);
+    }
+    .biz-table thead th.col-sticky-right { background: #f7f8fa; z-index: 3; }
+    .biz-table tbody tr:hover td.col-sticky-right { background: #fafcff; }
+    .table-tip {
+      margin: 0 0 8px; padding: 7px 12px; border-radius: 6px;
+      background: #f4f8ff; border: 1px solid #e3edff;
+      color: #4e5969; font-size: 12px; line-height: 1.6;
+    }
+    .res-reject-banner {
+      margin: 0 0 14px; padding: 10px 14px; border-radius: 8px;
+      background: #fff5f5; border: 1px solid #ffd8d8;
+      color: #cb2634; font-size: 13px; line-height: 1.7;
+    }
     .biz-icon-thumb {
       width: 32px; height: 32px; border-radius: 6px;
       background: linear-gradient(135deg, #dce7ff, #eef4ff);
@@ -291,6 +302,87 @@
     .page-head-title { font-size: 16px; font-weight: 600; color: #1f2329; }
     .preview-form { max-width: 760px; background: #fff; border: 1px solid #e6ecf5; border-radius: 8px; padding: 20px 24px 4px; }
     .preview-form .el-form-item { margin-bottom: 14px; }
+    /* 审批页（P31）：资源详情表单 + 正文 + 审批信息 + 审批历史 */
+    .apl-page { display: flex; flex-direction: column; gap: 16px; }
+    .apl-card {
+      background: #fff; border-radius: var(--shell-radius);
+      box-shadow: var(--shell-shadow); padding: 22px 26px 24px;
+    }
+    .apl-card-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding-bottom: 14px; margin-bottom: 20px; border-bottom: 1px solid #f2f4f7;
+    }
+    .apl-card-title {
+      position: relative; padding-left: 12px;
+      font-size: 15px; font-weight: 600; color: #1f2329; line-height: 22px;
+    }
+    .apl-card-title::before {
+      content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+      width: 4px; height: 14px; border-radius: 2px; background: var(--shell-primary);
+    }
+    .apl-card-head.is-toggle { cursor: pointer; user-select: none; }
+    .apl-card-head.is-toggle:hover .apl-card-title { color: var(--shell-primary); }
+    .apl-card-right { display: flex; align-items: center; gap: 12px; }
+    .apl-card-sub { font-size: 12px; color: #86909c; }
+    .apl-caret {
+      display: inline-block; font-size: 13px; line-height: 1; color: #86909c;
+      transition: transform .2s ease;
+    }
+    .apl-caret.is-collapsed { transform: rotate(-90deg); }
+    .apl-badge {
+      margin-left: 8px; padding: 1px 7px; border-radius: 4px;
+      font-size: 11px; font-weight: 500; color: var(--shell-primary); background: #e8f1fe;
+      vertical-align: 2px;
+    }
+    .apl-media { margin-top: 0; }
+    .apl-media .preview-player-screen { height: 300px; }
+    .apl-text {
+      border: 1px solid #ebeef5; border-radius: 8px; background: #fcfdff;
+      padding: 16px 20px; font-size: 14px; line-height: 1.9; color: #4e5969;
+      word-break: break-all; white-space: pre-wrap;
+    }
+    .apl-text p { margin: 0 0 8px; }
+    .apl-text p:last-child { margin-bottom: 0; }
+    .apl-form .el-form-item { margin-bottom: 8px; }
+    .apl-form .el-form-item__label { color: #86909c; font-weight: 400; padding-right: 8px; }
+    .apl-form .el-form-item__content {
+      color: #1f2329; line-height: 22px; word-break: break-all; padding-right: 12px;
+    }
+    .apl-section { margin-top: 18px; padding-top: 18px; border-top: 1px dashed #eef0f3; }
+    .apl-section-title { font-size: 14px; font-weight: 600; color: #1f2329; margin-bottom: 12px; }
+    .apl-rich {
+      border: 1px solid #ebeef5; border-radius: 8px; background: #fcfdff;
+      padding: 18px 20px; max-height: 420px; overflow: auto;
+      font-size: 14px; line-height: 1.85; color: #4e5969;
+    }
+    .apl-rich h3 { margin: 0 0 12px; font-size: 16px; color: #1f2329; }
+    .apl-rich p { margin: 0 0 10px; }
+    .apl-rich ul, .apl-rich ol { margin: 0 0 10px; padding-left: 20px; }
+    .apl-rich li { margin-bottom: 4px; }
+    .apl-attach-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
+    .apl-attach-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border: 1px solid #eef0f3; border-radius: 8px; background: #fbfcfe;
+    }
+    .apl-attach-type {
+      flex: 0 0 auto; font-size: 11px; font-weight: 600; color: var(--shell-primary);
+      background: #e8f1fe; border-radius: 4px; padding: 2px 6px;
+    }
+    .apl-attach-name {
+      flex: 1; min-width: 0; font-size: 13px; color: #1f2329;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .apl-attach-size { font-size: 12px; color: #86909c; }
+    .apl-form-actions {
+      padding-top: 16px; margin-top: 8px; border-top: 1px dashed #eef0f3;
+      display: flex; gap: 10px; justify-content: center;
+    }
+    .apl-table th { background: #f7f9fc; }
+    .apl-empty {
+      padding: 28px 0; text-align: center; font-size: 13px; color: #86909c;
+      background: #fbfcfe; border: 1px dashed #e5e9f0; border-radius: 8px;
+    }
+    .apl-pagination { display: flex; justify-content: flex-end; margin-top: 16px; }
     /* 资源预览弹窗（按内容展示方式分流） */
     .preview-head { padding-bottom: 10px; border-bottom: 1px solid #e6ecf5; }
     .preview-title { font-size: 18px; font-weight: 600; color: #1f2329; }
@@ -679,20 +771,12 @@
         </aside>
 
         <el-main class="shell-main">
-          <div class="shell-tabbar">
-            <span class="shell-tabbar-toggle">
-              <el-icon><Operation /></el-icon>
-            </span>
-            <div class="shell-tabbar-tabs">
-              <div v-for="tab in openTabs" :key="tab.id"
-                   :class="['shell-tabbar-tab', { 'is-active': tab.id === currentPage.id }]"
-                   @click="switchTab(tab.id)">
-                <span class="shell-tabbar-label">{{ tab.label }}</span>
-                <span class="shell-tabbar-close" @click.stop="closeTab(tab.id)">
-                  <el-icon><Close /></el-icon>
-                </span>
-              </div>
-            </div>
+          <div class="shell-crumb">
+            <template v-for="(c, i) in breadcrumbs" :key="i">
+              <span v-if="i > 0" class="shell-crumb-sep">/</span>
+              <span :class="['shell-crumb-item', i === breadcrumbs.length - 1 ? 'is-current' : (c.pageId && c.pageId !== currentPage.id ? 'is-link' : '')]"
+                    @click="c.pageId && c.pageId !== currentPage.id && switchTab(c.pageId)">{{ c.label }}</span>
+            </template>
           </div>
 
           <div class="shell-main-body">
@@ -1125,10 +1209,7 @@
 
                 <div class="biz-card">
                   <div class="biz-card-head">
-                    <div class="biz-card-title">资源列表
-                      <span v-if="isSuper" style="font-size:12px;color:#909399;font-weight:normal;margin-left:10px;">数据范围：全量数据（含各机构人员创建的草稿、未审批、已驳回等全部状态）</span>
-                      <span v-else style="font-size:12px;color:#909399;font-weight:normal;margin-left:10px;">数据范围：仅本人创建的数据</span>
-                    </div>
+                   
                     <div class="biz-card-actions">
                       <template v-if="isSuper">
                         <el-button :disabled="!resSelectedRows.length" @click="batchPublishRes">批量上架</el-button>
@@ -1142,6 +1223,11 @@
                       <el-button type="primary" @click="openResForm('create')">新增资源</el-button>
                     </div>
                   </div>
+                  <div class="table-tip">
+                    操作列已固定，其余列内容可横向滚动 / 拖动查看
+                    <span v-if="!isSuper">；未审批资源可「撤回审核」，驳回 / 下架资源可重新编辑后提交</span>
+                  </div>
+                  <div class="table-scroll">
                   <table class="biz-table">
                     <thead>
                       <tr>
@@ -1151,12 +1237,13 @@
                         <th>创建人</th>
                         <th>所属频道</th>
                         <th>所属分类</th>
+                        <th>内容展示方式</th>
                         <th>排序</th>
                         <th>查看次数</th>
                         <th>状态</th>
                         <th>推荐</th>
                         <th>更新时间</th>
-                        <th class="col-actions">操作</th>
+                        <th class="col-actions col-sticky-right">操作</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1164,9 +1251,10 @@
                         <td v-if="isSuper"><input type="checkbox" v-model="row.checked"></td>
                         <td>{{ row.title }}</td>
                         <td>{{ row.org }}</td>
-                        <td>{{ row.author || '平台运营' }}</td>
+                        <td>{{ row.creator || '平台运营' }}</td>
                         <td>{{ subChannelName(row.channelName) }}</td>
                         <td>{{ row.categoryName }}</td>
+                        <td>{{ row.contentType || '—' }}</td>
                         <td>{{ row.order }}</td>
                         <td>{{ row.viewCount }}</td>
                         <td>
@@ -1181,7 +1269,7 @@
                           <span v-else style="color:#c0c4cc;">—</span>
                         </td>
                         <td>{{ row.updatedAt }}</td>
-                        <td style="white-space:nowrap;">
+                        <td class="col-sticky-right" style="white-space:nowrap;">
                           <el-button v-if="row.status === '已发布'" size="small" text type="primary" @click="openPreview(row)">预览</el-button>
                           <template v-if="isSuper">
                             <el-button v-if="row.status === '草稿' || row.status === '未发布'" size="small" text type="primary" @click="openResForm('edit', row)">编辑</el-button>
@@ -1192,16 +1280,19 @@
                             <el-button v-if="row.status === '草稿' || row.status === '未发布'" size="small" text type="danger" @click="showConfirm('确认删除该资源？', '删除后不可恢复')">删除</el-button>
                           </template>
                           <template v-else>
-                            <!-- 机构人员：草稿/已驳回/未发布（下架后的已审核资源）可编辑；编辑后提交将重新生成审批并进入"未审批" -->
-                            <el-button v-if="row.status === '草稿' || row.status === '已驳回' || row.status === '未发布'" size="small" text type="primary" @click="openResForm('edit', row)">编辑</el-button>
+                            <!-- 机构人员：草稿可编辑；超管驳回/下架后可重新编辑并提交（复用原审批记录）；未审批可撤回审核 -->
+                            <el-button v-if="row.status === '草稿' || row.status === '未发布'" size="small" text type="primary" @click="openResForm('edit', row)">编辑</el-button>
+                            <el-button v-if="row.status === '已驳回'" size="small" text type="primary" @click="openResForm('edit', row)">重新编辑</el-button>
+                            <el-button v-if="row.status === '未审批'" size="small" text type="warning" @click="withdrawApproval(row)">撤回审核</el-button>
                             <el-button v-if="row.status === '已发布'" size="small" text type="warning" @click="unpublishRes(row)">下架</el-button>
                             <el-button v-if="row.status === '草稿' || row.status === '已驳回'" size="small" text type="danger" @click="showConfirm('确认删除该资源？', '删除后不可恢复')">删除</el-button>
                           </template>
                         </td>
                       </tr>
-                      <tr v-if="!visibleResRows.length"><td :colspan="isSuper ? 11 : 10" class="biz-empty">暂无资源，请点击右上角新增</td></tr>
+                      <tr v-if="!visibleResRows.length"><td :colspan="isSuper ? 13 : 12" class="biz-empty">暂无资源，请点击右上角新增</td></tr>
                     </tbody>
                   </table>
+                  </div>
                   <div class="biz-pagination">
                     <span>共 {{ visibleResRows.length }} 条</span>
                     <button>&lt;</button><span>1</span><button>&gt;</button>
@@ -1219,6 +1310,9 @@
                       <el-button @click="goResList">返回列表</el-button>
                     </div>
                   </div>
+
+                  <!-- 驳回重提交提示 -->
+                  <div v-if="resRejectBanner" class="res-reject-banner">{{ resRejectBanner }}</div>
 
                   <!-- 步骤条 -->
                   <div class="res-steps">
@@ -1514,7 +1608,7 @@
                     <div class="preview-files-title">{{ previewRow.title }}</div>
                     <div v-for="(f, i) in previewFiles(previewRow)" :key="i" class="preview-file-item">
                       <div class="preview-file-name">
-                        <span class="preview-file-icon">{{ f.type === 'folder' ? '📂' : (f.type === 'video' ? '🎬' : (f.type === 'pdf' ? '📕' : '📄')) }}</span>
+                        <span class="preview-file-icon">{{ f.type === 'folder' ? '📂' : (f.type === 'video' ? '🎬' : (f.type === 'audio' ? '🎵' : (f.type === 'pdf' ? '📕' : '📄'))) }}</span>
                         {{ f.name }}
                       </div>
                       <div v-if="f.children" class="preview-file-children">
@@ -1873,6 +1967,7 @@
                         <th>资源名称</th>
                         <th>所属频道</th>
                         <th>所属分类</th>
+                        <th>内容展示方式</th>
                         <th>提交人</th>
                         <th>审核状态</th>
                         <th>提交时间</th>
@@ -1885,6 +1980,7 @@
                         <td>{{ row.resourceName }}</td>
                         <td>{{ subChannelName(row.channelName) }}</td>
                         <td>{{ row.categoryName }}</td>
+                        <td>{{ row.contentType || '—' }}</td>
                         <td>{{ row.submitter }}</td>
                         <td>
                           <el-tag v-if="row.status === '审批通过'" type="success">审批通过</el-tag>
@@ -1900,75 +1996,178 @@
                           <el-button v-else size="small" text type="info" @click="openApprovalPage(row, 'view')">查看</el-button>
                         </td>
                       </tr>
-                      <tr v-if="!visibleApprovalRows.length"><td colspan="8" class="biz-empty">暂无审批记录</td></tr>
+                      <tr v-if="!visibleApprovalRows.length"><td colspan="9" class="biz-empty">暂无审批记录</td></tr>
                     </tbody>
                   </table>
-                  <div class="biz-pagination">
-                    <span>共 {{ visibleApprovalRows.length }} 条</span>
-                    <button>&lt;</button><span>1</span><button>&gt;</button>
-                    <span>20 条/页</span>
+                  <div class="apl-pagination">
+                    <el-pagination background size="small" layout="total, prev, pager, next"
+                                   :total="visibleApprovalRows.length" :page-size="20"></el-pagination>
                   </div>
                 </div>
               </template>
 
               <!-- ============= P31 审批页/查看页 ============= -->
               <template v-if="currentPage.id === 'P31'">
-                <div class="biz-card">
-                  <div class="biz-card-head">
-                    <div class="biz-card-title">{{ approvalPage.mode === 'approve' ? '资源审批' : '审批详情' }}</div>
-                    <div class="biz-card-actions">
-                      <el-button @click="backApprovalList">返回列表</el-button>
+                <div class="apl-page">
+                  <!-- 资源详情（可展开收起，含资源正文） -->
+                  <div class="apl-card">
+                    <div class="apl-card-head is-toggle" @click="toggleApprovalSection('detail')">
+                      <div class="apl-card-title">资源详情</div>
+                      <div class="apl-card-right">
+                        <span class="apl-card-sub">提交人 {{ approvalCurrent.submitter }} · 资源 ID {{ approvalPage.row ? approvalPage.row.resourceId : '—' }}</span>
+                        <span :class="['apl-caret', { 'is-collapsed': !approvalCollapse.detail }]">▾</span>
+                      </div>
                     </div>
+                    <el-collapse-transition>
+                      <div v-show="approvalCollapse.detail">
+                        <el-form label-width="104px" label-suffix="：" label-position="right" class="apl-form">
+                          <el-row :gutter="8">
+                            <el-col :span="8"><el-form-item label="资源标题">{{ approvalCurrent.title }}</el-form-item></el-col>
+                            <el-col :span="8"><el-form-item label="所属机构">{{ approvalCurrent.org }}</el-form-item></el-col>
+                            <el-col :span="8"><el-form-item label="所属频道">{{ approvalCurrent.channel }}</el-form-item></el-col>
+                            <el-col :span="8"><el-form-item label="所属分类">{{ approvalCurrent.category }}</el-form-item></el-col>
+                            <el-col :span="8"><el-form-item label="内容展示方式">{{ approvalCurrent.contentType }}</el-form-item></el-col>
+                            <el-col :span="8"><el-form-item label="资源来源机构">{{ approvalCurrent.sourceOrg }}</el-form-item></el-col>
+                            <el-col :span="8"><el-form-item label="资源作者">{{ approvalCurrent.author }}</el-form-item></el-col>
+                            <el-col :span="8"><el-form-item label="创建人">{{ approvalCurrent.creator }}</el-form-item></el-col>
+                            <el-col :span="8"><el-form-item label="课时">{{ approvalCurrent.duration }}</el-form-item></el-col>
+                            <el-col :span="8"><el-form-item label="收费方式">{{ approvalCurrent.chargeType }}</el-form-item></el-col>
+                            <el-col :span="8" v-if="approvalCurrent.appName"><el-form-item label="应用选择">{{ approvalCurrent.appName }}</el-form-item></el-col>
+                            <el-col :span="8" v-if="approvalCurrent.price"><el-form-item label="价格">{{ approvalCurrent.price }}</el-form-item></el-col>
+                            <el-col :span="8"><el-form-item label="移动端展示">{{ approvalCurrent.showOnMobile }}</el-form-item></el-col>
+                            <el-col :span="24"><el-form-item label="资源简介">{{ approvalCurrent.intro }}</el-form-item></el-col>
+                          </el-row>
+                        </el-form>
+
+                        <div class="apl-section">
+                          <div class="apl-section-title">
+                            资源正文内容
+                            <span class="apl-badge">{{ approvalCurrent.contentType }}</span>
+                          </div>
+
+                          <!-- 富文本：富文本正文 -->
+                          <div v-if="approvalCurrent.contentType === '富文本'" class="apl-rich" v-html="approvalContentHtml"></div>
+
+                          <!-- 视频 / 文件·视频：与资源预览一致的播放器 + 文件列表 -->
+                          <div v-else-if="approvalIsMedia" class="preview-body preview-flex apl-media">
+                            <div class="preview-player">
+                              <div class="preview-player-screen">▶</div>
+                              <div class="preview-player-bar">
+                                <span>00:00</span>
+                                <div class="preview-progress"></div>
+                                <span>{{ approvalPreviewDuration }}</span>
+                              </div>
+                            </div>
+                            <div class="preview-files">
+                              <div class="preview-files-title">{{ approvalCurrent.title }}</div>
+                              <div v-for="(f, i) in previewFiles(approvalPreview)" :key="i" class="preview-file-item">
+                                <div class="preview-file-name">
+                                  <span class="preview-file-icon">{{ f.type === 'folder' ? '📂' : (f.type === 'video' ? '🎬' : (f.type === 'audio' ? '🎵' : (f.type === 'pdf' ? '📕' : '📄'))) }}</span>
+                                  {{ f.name }}
+                                </div>
+                                <div v-if="f.children" class="preview-file-children">
+                                  <div v-for="(c, j) in f.children" :key="j" class="preview-file-child" :class="{ 'is-playing': j === 0 }">{{ j === 0 ? '▶' : '　' }} {{ c }}</div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- 其他展示方式（应用和链接 / 链接）：文本呈现正文内容 -->
+                          <div v-else class="apl-text">
+                            <p v-for="(t, i) in approvalTextLines" :key="i">{{ t }}</p>
+                          </div>
+                        </div>
+
+                        <div class="apl-section" v-if="!approvalIsMedia && approvalCurrent.attachments.length">
+                          <div class="apl-section-title">资源附件（{{ approvalCurrent.attachments.length }}）</div>
+                          <div class="apl-attach-list">
+                            <div v-for="(f, i) in approvalCurrent.attachments" :key="i" class="apl-attach-item">
+                              <span class="apl-attach-type">{{ (f.type || 'FILE').toUpperCase() }}</span>
+                              <span class="apl-attach-name">{{ f.name }}</span>
+                              <span class="apl-attach-size">{{ f.size }}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </el-collapse-transition>
                   </div>
 
-                  <!-- 资源详情区（只读） -->
-                  <div class="biz-detail-block">
-                    <div class="biz-detail-title">资源详情</div>
-                    <el-descriptions :column="2" border>
-                      <el-descriptions-item label="资源标题">{{ approvalPage.row.title }}</el-descriptions-item>
-                      <el-descriptions-item label="所属机构">{{ approvalPage.row.org }}</el-descriptions-item>
-                      <el-descriptions-item label="所属频道">{{ subChannelName(approvalPage.row.channelName) }}</el-descriptions-item>
-                      <el-descriptions-item label="所属分类">{{ approvalPage.row.categoryName }}</el-descriptions-item>
-                      <el-descriptions-item label="内容展示方式">{{ approvalPage.row.contentType }}</el-descriptions-item>
-                      <el-descriptions-item label="资源来源机构">{{ approvalPage.row.org }}</el-descriptions-item>
-                      <el-descriptions-item label="资源作者">{{ approvalPage.row.author }}</el-descriptions-item>
-                      <el-descriptions-item label="创建人">{{ approvalPage.row.creator }}</el-descriptions-item>
-                      <el-descriptions-item label="排序">{{ approvalPage.row.order }}</el-descriptions-item>
-                      <el-descriptions-item label="资源简介" :span="2">{{ approvalPage.row.intro }}</el-descriptions-item>
-                      <el-descriptions-item label="资源正文内容" :span="2">{{ approvalPage.row.contentType === '富文本' || approvalPage.row.contentType === '文件·视频' ? '（此处展示资源正文内容预览）' : approvalPage.row.contentType }}</el-descriptions-item>
-                    </el-descriptions>
+                  <!-- 审批历史（可展开收起，分页 5 条/页） -->
+                  <div class="apl-card">
+                    <div class="apl-card-head is-toggle" @click="toggleApprovalSection('history')">
+                      <div class="apl-card-title">审批历史</div>
+                      <div class="apl-card-right">
+                        <span class="apl-card-sub" v-if="approvalHistoryTotal">共 {{ approvalHistoryTotal }} 轮审批 · 每页 5 条</span>
+                        <span :class="['apl-caret', { 'is-collapsed': !approvalCollapse.history }]">▾</span>
+                      </div>
+                    </div>
+                    <el-collapse-transition>
+                      <div v-show="approvalCollapse.history">
+                        <table v-if="approvalHistoryTotal" class="biz-table apl-table">
+                          <thead>
+                            <tr>
+                              <th style="width:88px;">轮次</th>
+                              <th style="width:170px;">提交时间</th>
+                              <th style="width:96px;">审批结果</th>
+                              <th>审批意见</th>
+                              <th style="width:140px;">审批人</th>
+                              <th style="width:170px;">审批时间</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr v-for="(h, i) in pagedApprovalHistory" :key="i">
+                              <td>第 {{ (approvalHistoryPage - 1) * 5 + i + 1 }} 轮</td>
+                              <td>{{ h.submittedAt || '—' }}</td>
+                              <td>
+                                <el-tag v-if="h.result === '通过'" type="success" size="small">通过</el-tag>
+                                <el-tag v-else-if="h.result === '驳回'" type="danger" size="small">驳回</el-tag>
+                                <el-tag v-else type="info" size="small">—</el-tag>
+                              </td>
+                              <td>{{ h.comment || '—' }}</td>
+                              <td>{{ h.approver || '—' }}</td>
+                              <td>{{ h.approvedAt || '—' }}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <div v-else class="apl-empty">暂无审批历史（首次提交，等待桂教通超管审批）</div>
+                        <div class="apl-pagination" v-if="approvalHistoryTotal">
+                          <el-pagination background size="small" layout="total, prev, pager, next"
+                                         :total="approvalHistoryTotal" :page-size="5"
+                                         :current-page="approvalHistoryPage"
+                                         @current-change="onApprovalHistoryPageChange"></el-pagination>
+                        </div>
+                      </div>
+                    </el-collapse-transition>
                   </div>
 
-                  <!-- 审批信息区（仅桂教通超管审批模式） -->
-                  <div v-if="approvalPage.mode === 'approve'" class="biz-detail-block">
-                    <div class="biz-detail-title">审批信息</div>
-                    <el-form label-width="100px">
-                      <el-form-item label="审批结果" required>
-                        <el-radio-group v-model="approvalPage.result">
-                          <el-radio value="通过">通过</el-radio>
-                          <el-radio value="驳回">驳回</el-radio>
-                        </el-radio-group>
-                      </el-form-item>
-                      <el-form-item label="审批意见">
-                        <el-input v-model="approvalPage.comment" type="textarea" rows="3" maxlength="200" show-word-limit placeholder="选填，最多 200 字符"></el-input>
-                      </el-form-item>
-                      <el-form-item>
-                        <el-button type="primary" @click="submitApproval">提交</el-button>
-                        <el-button @click="backApprovalList">取消</el-button>
-                      </el-form-item>
-                    </el-form>
-                  </div>
-
-                  <!-- 审批历史区（查看模式） -->
-                  <div v-else class="biz-detail-block">
-                    <div class="biz-detail-title">审批历史</div>
-                    <el-descriptions :column="2" border>
-                      <el-descriptions-item label="审核状态">{{ approvalPage.row.status }}</el-descriptions-item>
-                      <el-descriptions-item label="审批结果">{{ approvalPage.row.result || '—' }}</el-descriptions-item>
-                      <el-descriptions-item label="审批意见" :span="2">{{ approvalPage.row.comment || '—' }}</el-descriptions-item>
-                      <el-descriptions-item label="审批人">{{ approvalPage.row.approver || '—' }}</el-descriptions-item>
-                      <el-descriptions-item label="审批时间">{{ approvalPage.row.approvedAt || '—' }}</el-descriptions-item>
-                    </el-descriptions>
+                  <!-- 审批信息（仅审批模式，位于最下方） -->
+                  <div v-if="approvalPage.mode === 'approve'" class="apl-card">
+                    <div class="apl-card-head is-toggle" @click="toggleApprovalSection('form')">
+                      <div class="apl-card-title">审批信息</div>
+                      <div class="apl-card-right">
+                        <span class="apl-card-sub">审批结论提交后同步写入审批历史</span>
+                        <span :class="['apl-caret', { 'is-collapsed': !approvalCollapse.form }]">▾</span>
+                      </div>
+                    </div>
+                    <el-collapse-transition>
+                      <div v-show="approvalCollapse.form">
+                        <el-form label-width="104px" label-suffix="：" label-position="right" class="apl-form">
+                          <el-form-item label="审批结果" required>
+                            <el-radio-group v-model="approvalPage.result">
+                              <el-radio value="通过">通过</el-radio>
+                              <el-radio value="驳回">驳回</el-radio>
+                            </el-radio-group>
+                          </el-form-item>
+                          <el-form-item label="审批意见">
+                            <el-input v-model="approvalPage.comment" type="textarea" rows="4" maxlength="200" show-word-limit placeholder="选填，最多 200 字符"></el-input>
+                          </el-form-item>
+                        </el-form>
+                        <div class="apl-form-actions">
+                          <el-button type="primary" @click="submitApproval">提交审批</el-button>
+                          <el-button @click="backApprovalList">取消</el-button>
+                        </div>
+                      </div>
+                    </el-collapse-transition>
                   </div>
                 </div>
               </template>
@@ -2047,6 +2246,7 @@
                 </div>
               </template>
 
+            </div>
           </div>
         </el-main>
       </el-container>
@@ -2843,7 +3043,7 @@
              · 新增文件（add-file）：开启小节时显示且必填，否则不显示
              · 编辑章节（edit-section）：始终显示且必填 -->
         <el-form-item v-if="showSectionField" label="章节名称" required>
-          <el-input v-model="fileDialog.data.section" maxlength="30" show-word-limit class="res-input" placeholder="请输入章节名称"></el-input>
+          <el-input v-model="fileDialog.data.section" maxlength="20" show-word-limit class="res-input" placeholder="请输入章节名称（最多 20 字符）"></el-input>
         </el-form-item>
 
         <!-- 文件上传：新增文件 / 编辑文件 时展示；上传描述文案放到按钮下方 -->
@@ -3041,7 +3241,7 @@
         <div class="flow-node flow-node-org">③ 资源下架
           <span class="flow-tag">状态置为"未发布"，应用端不再获取；随后可【编辑】调整内容并重新提交</span>
         </div>
-        <div class="flow-arrow">↓ 编辑后提交，状态重新置为"未审批"，重新生成一条审批记录</div>
+        <div class="flow-arrow">↓ 编辑后提交，状态重新置为"未审批"，复用同一条审批记录并进入新一轮审批</div>
         <div class="flow-role">桂教通超管</div>
         <div class="flow-node flow-node-admin">④ 再次审批
           <span class="flow-tag">通过 → 重新"已发布"；驳回 → "已驳回"，可再次编辑提交</span>
@@ -3194,15 +3394,59 @@
           resFilter: { title: '', parentChannelId: '', subChannelId: '', categoryId: '', status: '' },
           // ===== 审批管理（P30 审批列表 / P31 审批页）=====
           approvalFilter: { org: '', resourceName: '', status: '' },
+          // 审批记录：同一资源唯一一条（resourceId 唯一），驳回后重新提交复用同一条，多轮审批明细记入 history
           approvalRows: [
-            { id: 'AP20260620001', resourceId: 'RES021', org: '实验小学', resourceName: '小学二年级数学·乘法口诀微课', channelName: '教学资源 / 小学教学', categoryName: '语文', submitter: '李梅梅', status: '未审批', result: '', comment: '', approver: '', approvedAt: '', submittedAt: '2026-06-20 10:12:00', title: '小学二年级数学·乘法口诀微课', intro: '通过动画与口诀歌帮助二年级学生掌握乘法口诀，配套课堂练习与课后巩固微课。', contentType: '文件·视频', author: '李梅梅', creator: '李梅梅', order: 210 },
-            { id: 'AP20260621002', resourceId: 'RES025', org: '文渊教育', resourceName: '初中物理·力学实验演示合集', channelName: '教学资源 / 初中教学', categoryName: '数学', submitter: '张丹丹', status: '审批通过', result: '通过', comment: '内容完整，同意发布。', approver: '桂教通超管 A', approvedAt: '2026-06-21 09:30:00', submittedAt: '2026-06-21 08:45:00', title: '初中物理·力学实验演示合集', intro: '覆盖初中物理力学核心实验的演示视频合集，支持课堂投屏与课后复看。', contentType: '文件·视频', author: '张丹丹', creator: '张丹丹', order: 250 },
-            { id: 'AP20260622003', resourceId: 'RES027', org: '思维学堂', resourceName: '奥数思维·行程问题专项', channelName: '教学资源 / 初中教学', categoryName: '数学', submitter: '王强', status: '已驳回', result: '驳回', comment: '封面缺失，资源正文不完整，请补充后重新提交。', approver: '桂教通超管 A', approvedAt: '2026-06-22 15:20:00', submittedAt: '2026-06-22 14:05:00', title: '奥数思维·行程问题专项', intro: '行程问题专项训练，含相遇、追及、流水行船等典型模型讲解。', contentType: '富文本', author: '王强', creator: '王强', order: 270 },
-            { id: 'AP20260623004', resourceId: 'RES022', org: '实验小学', resourceName: '小学语文·识字卡片（可打印）', channelName: '教学资源 / 小学教学', categoryName: '语文', submitter: '李梅梅', status: '未审批', result: '', comment: '', approver: '', approvedAt: '', submittedAt: '2026-06-23 11:40:00', title: '小学语文·识字卡片（可打印）', intro: '一年级识字卡片 PDF，可直接打印用于课堂识字游戏与课后复习。', contentType: '文件·视频', author: '李梅梅', creator: '李梅梅', order: 220 },
-            { id: 'AP20260624005', resourceId: 'RES026', org: '实验小学', resourceName: '小学语文·古诗诵读音频课', channelName: '教学资源 / 小学教学', categoryName: '语文', submitter: '李梅梅', status: '审批通过', result: '通过', comment: '内容规范，同意发布。', approver: '桂教通超管 A', approvedAt: '2026-06-24 16:20:00', submittedAt: '2026-06-24 15:02:00', title: '小学语文·古诗诵读音频课', intro: '精选 20 首小学生必背古诗的朗诵音频，配套注释与赏析。', contentType: '文件·视频', author: '李梅梅', creator: '李梅梅', order: 260 },
-            { id: 'AP20260720006', resourceId: 'RES023', org: '实验小学', resourceName: '小学科学·观察日记模板包', channelName: '教学资源 / 小学教学', categoryName: '语文', submitter: '李梅梅', status: '已驳回', result: '驳回', comment: '正文内容不完整，请补充示例后重新提交。', approver: '桂教通超管 A', approvedAt: '2026-07-20 14:05:00', submittedAt: '2026-07-19 16:30:00', title: '小学科学·观察日记模板包', intro: '小学科学观察日记模板包，含植物、动物、天气三类观察记录表。', contentType: '富文本', author: '李梅梅', creator: '李梅梅', order: 230 }
+            { id: 'AP20260620001', resourceId: 'RES021', org: '实验小学', resourceName: '小学二年级数学·乘法口诀微课', channelName: '教学资源 / 小学教学', categoryName: '语文', submitter: '李梅梅', status: '未审批', result: '', comment: '', approver: '', approvedAt: '', submittedAt: '2026-06-20 10:12:00', title: '小学二年级数学·乘法口诀微课', intro: '通过动画与口诀歌帮助二年级学生掌握乘法口诀，配套课堂练习与课后巩固微课。', contentType: '视频', author: '李梅梅', creator: '李梅梅', order: 210, duration: '8', durationUnit: '分钟',
+              attachments: [
+                { id: 'AT101', name: '乘法口诀微课·完整版.mp4', type: 'mp4', size: '128 MB' },
+                { id: 'AT102', name: '课堂练习.pdf', type: 'pdf', size: '1.2 MB' }
+              ],
+              history: [
+                { result: '驳回', comment: '视频附件缺失，请补充微课视频后重新提交。', approver: '桂教通超管 A', approvedAt: '2026-06-18 16:40:00', submittedAt: '2026-06-18 09:20:00' }
+              ] },
+            { id: 'AP20260621002', resourceId: 'RES025', org: '文渊教育', resourceName: '初中物理·力学实验演示合集', channelName: '教学资源 / 初中教学', categoryName: '数学', submitter: '张丹丹', status: '审批通过', result: '通过', comment: '内容完整，同意发布。', approver: '桂教通超管 A', approvedAt: '2026-06-21 09:30:00', submittedAt: '2026-06-21 08:45:00', title: '初中物理·力学实验演示合集', intro: '覆盖初中物理力学核心实验的演示视频合集，支持课堂投屏与课后复看。', contentType: '文件·视频', author: '张丹丹', creator: '张丹丹', order: 250,
+              attachments: [
+                { id: 'AT201', name: '力的合成与分解·实验演示.mp4', type: 'mp4', size: '186 MB' },
+                { id: 'AT202', name: '牛顿第二定律·实验演示.mp4', type: 'mp4', size: '204 MB' },
+                { id: 'AT203', name: '实验配套教案.pdf', type: 'pdf', size: '3.6 MB' }
+              ],
+              history: [
+                { result: '通过', comment: '内容完整，同意发布。', approver: '桂教通超管 A', approvedAt: '2026-06-21 09:30:00', submittedAt: '2026-06-21 08:45:00' }
+              ] },
+            { id: 'AP20260622003', resourceId: 'RES027', org: '思维学堂', resourceName: '奥数思维·行程问题专项', channelName: '教学资源 / 初中教学', categoryName: '数学', submitter: '王强', status: '已驳回', result: '驳回', comment: '封面缺失，资源正文不完整，请补充后重新提交。', approver: '桂教通超管 A', approvedAt: '2026-06-22 15:20:00', submittedAt: '2026-06-22 14:05:00', title: '奥数思维·行程问题专项', intro: '行程问题专项训练，含相遇、追及、流水行船等典型模型讲解。', contentType: '富文本', author: '王强', creator: '王强', order: 270,
+              contentHtml: '<h3>奥数思维·行程问题专项</h3><p>本专项围绕行程问题三大核心模型展开，适合小学高年级与初中低年级思维训练使用。</p><p><b>一、核心模型</b></p><ul><li>相遇问题：两人相向而行，路程和 = 速度和 × 相遇时间</li><li>追及问题：同向而行，追及路程 = 速度差 × 追及时间</li><li>流水行船：顺水速度 = 船速 + 水速，逆水速度 = 船速 − 水速</li></ul><p><b>二、例题精讲</b></p><p>例：甲、乙两地相距 360 千米，两车同时从两地相向开出，甲车每小时 65 千米，乙车每小时 55 千米，几小时后两车相遇？</p><p>解：速度和 = 65 + 55 = 120（千米/时），相遇时间 = 360 ÷ 120 = 3（小时）。</p><p><b>三、配套练习</b></p><ul><li>基础题 12 道：直接套用公式求解</li><li>提升题 8 道：含中途变速、往返相遇</li><li>拓展题 5 道：结合环形跑道与列车过桥</li></ul>',
+              history: [
+                { result: '驳回', comment: '封面缺失，资源正文不完整，请补充后重新提交。', approver: '桂教通超管 A', approvedAt: '2026-06-22 15:20:00', submittedAt: '2026-06-22 14:05:00' }
+              ] },
+            { id: 'AP20260623004', resourceId: 'RES022', org: '实验小学', resourceName: '小学语文·识字卡片（可打印）', channelName: '教学资源 / 小学教学', categoryName: '语文', submitter: '李梅梅', status: '未审批', result: '', comment: '', approver: '', approvedAt: '', submittedAt: '2026-06-23 11:40:00', title: '小学语文·识字卡片（可打印）', intro: '一年级识字卡片 PDF，可直接打印用于课堂识字游戏与课后复习。', contentType: '文件·视频', author: '李梅梅', creator: '李梅梅', order: 220,
+              attachments: [{ id: 'AT301', name: '识字卡片-可打印版.pdf', type: 'pdf', size: '2.4 MB' }],
+              history: [] },
+            { id: 'AP20260624005', resourceId: 'RES026', org: '实验小学', resourceName: '小学语文·古诗诵读音频课', channelName: '教学资源 / 小学教学', categoryName: '语文', submitter: '李梅梅', status: '审批通过', result: '通过', comment: '已补充音频附件，内容规范，同意发布。', approver: '桂教通超管 A', approvedAt: '2026-06-24 16:20:00', submittedAt: '2026-06-24 15:02:00', title: '小学语文·古诗诵读音频课', intro: '精选 20 首小学生必背古诗的朗诵音频，配套注释与赏析。', contentType: '文件·视频', author: '李梅梅', creator: '李梅梅', order: 260,
+              attachments: [
+                { id: 'AT301', name: '古诗诵读·第一辑.mp3', type: 'mp3', size: '42 MB' },
+                { id: 'AT302', name: '古诗诵读·第二辑.mp3', type: 'mp3', size: '45 MB' },
+                { id: 'AT303', name: '诵读注释与赏析.pdf', type: 'pdf', size: '2.1 MB' }
+              ],
+              history: [
+                { result: '驳回', comment: '缺少朗诵音频附件，请补充后重新提交。', approver: '桂教通超管 A', approvedAt: '2026-06-23 10:15:00', submittedAt: '2026-06-23 09:00:00' },
+                { result: '通过', comment: '已补充音频附件，内容规范，同意发布。', approver: '桂教通超管 A', approvedAt: '2026-06-24 16:20:00', submittedAt: '2026-06-24 15:02:00' }
+              ] },
+            { id: 'AP20260720006', resourceId: 'RES023', org: '实验小学', resourceName: '小学科学·观察日记模板包', channelName: '教学资源 / 小学教学', categoryName: '语文', submitter: '李梅梅', status: '已驳回', result: '驳回', comment: '正文内容不完整，请补充示例后重新提交。', approver: '桂教通超管 A', approvedAt: '2026-07-20 14:05:00', submittedAt: '2026-07-19 16:30:00', title: '小学科学·观察日记模板包', intro: '小学科学观察日记模板包，含植物、动物、天气三类观察记录表。', contentType: '富文本', author: '李梅梅', creator: '李梅梅', order: 230,
+              contentHtml: '<h3>小学科学·观察日记模板包</h3><p>面向小学三至六年级科学课程，提供可直接打印使用的观察日记模板，帮助学生建立“观察—记录—分析—结论”的科学探究习惯。</p><p><b>一、模板类型</b></p><ul><li>植物观察表：记录植株高度、叶片数量、开花结果情况，按周填写</li><li>动物观察表：记录进食、活动、生长变化，支持连续 30 天跟踪</li><li>天气观察表：记录气温、风向、降水与云量，配合简易气象观测</li></ul><p><b>二、使用建议</b></p><ul><li>每份模板可安排 1 课时完成填写说明，课后作为长期作业</li><li>配套评分量规，便于教师批量批阅与展示优秀作品</li></ul>',
+              history: [
+                { result: '驳回', comment: '缺少封面与资源简介，请补充后重新提交。', approver: '桂教通超管 A', approvedAt: '2026-06-28 10:10:00', submittedAt: '2026-06-27 09:30:00' },
+                { result: '驳回', comment: '正文缺少模板使用说明，请补充。', approver: '桂教通超管 A', approvedAt: '2026-07-02 15:30:00', submittedAt: '2026-07-01 14:20:00' },
+                { result: '驳回', comment: '观察记录表图片不清晰，请重新上传。', approver: '桂教通超管 A', approvedAt: '2026-07-06 11:05:00', submittedAt: '2026-07-05 10:40:00' },
+                { result: '驳回', comment: '缺少观察记录示例，请补充后重新提交。', approver: '桂教通超管 A', approvedAt: '2026-07-11 09:20:00', submittedAt: '2026-07-10 10:00:00' },
+                { result: '驳回', comment: '正文排版层级混乱，请按模板要求调整。', approver: '桂教通超管 A', approvedAt: '2026-07-16 16:50:00', submittedAt: '2026-07-15 15:10:00' },
+                { result: '驳回', comment: '正文内容不完整，请补充示例后重新提交。', approver: '桂教通超管 A', approvedAt: '2026-07-20 14:05:00', submittedAt: '2026-07-19 16:30:00' }
+              ] },
+            { id: 'AP20260722007', resourceId: 'RES028', org: '实验小学', resourceName: '小学英语·自然拼读入门', channelName: '教学资源 / 小学教学', categoryName: '英语', submitter: '李梅梅', status: '未审批', result: '', comment: '', approver: '', approvedAt: '', submittedAt: '2026-07-22 09:15:00', title: '小学英语·自然拼读入门', intro: '面向小学低年级的自然拼读入门课程，配套 26 个字母及常见字母组合的发音规则、示范音频与互动练习，可在智慧课堂应用中直接使用。', contentType: '应用和链接', author: '李梅梅', creator: '李梅梅', order: 280, appName: '智慧课堂', pcUrl: 'https://www.gxedu.cn/app/phonics', mobileUrl: 'https://m.gxedu.cn/app/phonics', history: [] }
           ],
           approvalPage: { mode: 'approve', row: null, result: '', comment: '' },
+          approvalHistoryPage: 1,
+          // 审批页三个区块的展开状态
+          approvalCollapse: { detail: true, history: true, form: true },
           // ===== 配置管理（P40 配置列表 / P41 配置新增/编辑）=====
           configFilter: { kw: '', org: '', status: '' },
           orgOptions: ['实验小学', '文渊教育', '思维学堂', '家校联盟'],
@@ -3226,8 +3470,8 @@
           // org、likes、tags：门户卡片展示的机构、点赞数、标签
           // attachments：查看页右侧附件列表；overview：富文本/视频的简介
           resRows: [
-            { id: 'RES001', title: '小学一年级语文·汉语拼音教学课件', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 10, viewCount: 128, likes: 32, org: '实验小学', tags: ['语文', '一年级'], zone: 'ai', icon: '📘', tone: 1, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '45', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-20 09:12:00'  },
-            { id: 'RES002', title: '初中语文·古诗词赏析合集', channelId: 'CH001-2', channelName: '教学资源 / 初中教学', categoryId: 'CT004', categoryName: '数学', order: 20, viewCount: 45, likes: 12, org: '文渊教育', tags: ['语文', '古诗词'], zone: 'teaching', icon: '📖', tone: 2, contentType: '应用和链接', appName: '智慧课堂', chargeType: '收费', payType: '机构', price: '299', duration: '2', durationUnit: '小时', status: '已发布', updatedAt: '2026-06-21 15:08:00',
+            { id: 'RES001', title: '小学一年级语文·汉语拼音教学课件', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 10, viewCount: 128, likes: 32, org: '实验小学', tags: ['语文', '一年级'], zone: 'ai', icon: '📘', tone: 1, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '45', durationUnit: '分钟', status: '已发布', creator: '平台运营', updatedAt: '2026-06-20 09:12:00'  },
+            { id: 'RES002', title: '初中语文·古诗词赏析合集', channelId: 'CH001-2', channelName: '教学资源 / 初中教学', categoryId: 'CT004', categoryName: '数学', order: 20, viewCount: 45, likes: 12, org: '文渊教育', tags: ['语文', '古诗词'], zone: 'teaching', icon: '📖', tone: 2, contentType: '应用和链接', appName: '智慧课堂', chargeType: '收费', payType: '机构', price: '299', duration: '2', durationUnit: '小时', status: '已发布', creator: '平台运营', updatedAt: '2026-06-21 15:08:00',
               // 商城购买页所需字段
               mallIntro: '面向初中学段的古诗词赏析课程包，覆盖课内必背与课外延伸篇目，配合智慧课堂应用提供原文朗读、注释对照、典故解读、AI 赏析批注等能力。',
               mallRichIntro: '<p>本课程包包含 <b>80 篇</b>古诗词，分主题单元编排：咏物、抒情、边塞、山水、哲理；每篇配套：原文、注释、译文、典故、AI 赏析、思考题、朗读音频。</p><ul><li>原文 + 拼音 + 注释，支持中英文双语切换</li><li>AI 智能批注：作者生平、写作背景、典故来源一键呈现</li><li>朗读音频由真人主播录制，支持跟读对比</li><li>配套课后练习题与单元测试，教师可一键下发</li></ul>',
@@ -3239,7 +3483,7 @@
                 { name: '基础版', price: '79', desc: '适用于个人教师；含 1 个教师账号 + 30 个学生账号；有效期 6 个月' }
               ],
               validity: '1 年' },
-            { id: 'RES003', title: '数学思维训练营·PDF讲义', channelId: 'CH001-2', channelName: '教学资源 / 初中教学', categoryId: 'CT004', categoryName: '数学', order: 30, viewCount: 302, likes: 88, org: '思维学堂', tags: ['数学', '思维训练'], zone: 'ai', icon: '🧮', tone: 3, contentType: '文件·视频', appName: '', chargeType: '收费', payType: '机构', price: '199.9', duration: '2', durationUnit: '小时', status: '已发布', updatedAt: '2026-06-22 11:44:00',
+            { id: 'RES003', title: '数学思维训练营·PDF讲义', channelId: 'CH001-2', channelName: '教学资源 / 初中教学', categoryId: 'CT004', categoryName: '数学', order: 30, viewCount: 302, likes: 88, org: '思维学堂', tags: ['数学', '思维训练'], zone: 'ai', icon: '🧮', tone: 3, contentType: '文件·视频', appName: '', chargeType: '收费', payType: '机构', price: '199.9', duration: '2', durationUnit: '小时', status: '已发布', creator: '平台运营', updatedAt: '2026-06-22 11:44:00',
               mallIntro: '面向小学高年级与初中学段的数学思维训练营，PDF 讲义配套讲解视频，帮助学生建立数学思维方法论。',
               mallRichIntro: '<p>课程共 <b>40 节</b>，分四个主题模块：数与运算、图形与几何、应用题、逻辑推理。每节配套 PDF 讲义、配套习题、视频精讲。</p><ul><li>训练营班主任全程答疑</li><li>学情报告按月推送</li><li>完成全部课程可获得结业证书</li></ul>',
               mallIntroVideoName: '训练营介绍.mp4',
@@ -3257,7 +3501,7 @@
                 { id: 'AT104', name: '逻辑推理·讲义.pdf', type: 'pdf', size: '4.1 MB' },
                 { id: 'AT105', name: '思维训练·入门讲解.mp4', type: 'mp4', size: '186 MB' }
               ] },
-            { id: 'RES004', title: 'AI 教育应用前沿与实践', channelId: 'CH001-2', channelName: '教学资源 / 初中教学', categoryId: 'CT004', categoryName: '数学', order: 40, viewCount: 512, likes: 156, org: '教科所', tags: ['AI', '前沿'], zone: 'ai', icon: '🤖', tone: 4, contentType: '应用和链接', appName: '学情分析', chargeType: '收费', payType: '个人', price: '99', duration: '1.5', durationUnit: '小时', status: '已发布', updatedAt: '2026-06-23 10:00:00',
+            { id: 'RES004', title: 'AI 教育应用前沿与实践', channelId: 'CH001-2', channelName: '教学资源 / 初中教学', categoryId: 'CT004', categoryName: '数学', order: 40, viewCount: 512, likes: 156, org: '教科所', tags: ['AI', '前沿'], zone: 'ai', icon: '🤖', tone: 4, contentType: '应用和链接', appName: '学情分析', chargeType: '收费', payType: '个人', price: '99', duration: '1.5', durationUnit: '小时', status: '已发布', creator: '平台运营', updatedAt: '2026-06-23 10:00:00',
               mallIntro: '教科所联合出品，AI 教育应用前沿与实践课，结合学情分析应用帮助教师建立数据驱动的精准教学能力。',
               mallRichIntro: '<p>本课程聚焦 AI 在教学中的落地场景，包含 <b>12 大主题</b>：AI 备课、AI 出题、AI 批改、学情诊断、个性化推荐、课堂行为分析、语音评测、作文评分等。</p><ul><li>配套学情分析应用账号，开通即可在班级试用</li><li>32 节视频课 + 6 次直播答疑</li><li>提供 5 个真实教学场景的 AI 应用案例与数据样本</li></ul>',
               mallIntroVideoName: '课程简介.mp4',
@@ -3267,8 +3511,8 @@
                 { name: '院校版', price: '1499', desc: '20 个教师账号 + 200 个学生账号；含集中培训；有效期 2 年' }
               ],
               validity: '1 年' },
-            { id: 'RES005', title: '小学语文·看图写话专项训练', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 50, viewCount: 220, likes: 64, org: '实验小学', tags: ['语文', '写作'], zone: 'ai', icon: '✏️', tone: 5, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '30', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-24 09:00:00'  },
-            { id: 'RES006', title: '信息技术·Python 编程入门', channelId: 'CH001-2', channelName: '教学资源 / 初中教学', categoryId: 'CT004', categoryName: '数学', order: 60, viewCount: 486, likes: 132, org: '编程学院', tags: ['信息技术', 'Python'], zone: 'teaching', icon: '💻', tone: 6, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '60', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-25 14:20:00',
+            { id: 'RES005', title: '小学语文·看图写话专项训练', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 50, viewCount: 220, likes: 64, org: '实验小学', tags: ['语文', '写作'], zone: 'ai', icon: '✏️', tone: 5, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '30', durationUnit: '分钟', status: '已发布', creator: '平台运营', updatedAt: '2026-06-24 09:00:00'  },
+            { id: 'RES006', title: '信息技术·Python 编程入门', channelId: 'CH001-2', channelName: '教学资源 / 初中教学', categoryId: 'CT004', categoryName: '数学', order: 60, viewCount: 486, likes: 132, org: '编程学院', tags: ['信息技术', 'Python'], zone: 'teaching', icon: '💻', tone: 6, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '60', durationUnit: '分钟', status: '已发布', creator: '平台运营', updatedAt: '2026-06-25 14:20:00',
               overview: '《初识人工智能》面向初中信息技术课堂，系统介绍人工智能的基本概念、典型应用与基础原理。配套课件 AI.docx、课程导论.pdf、讲解视频与拓展视频，支持教师课堂教学与学生课后自学。',
               attachments: [
                 { id: 'AT001', name: '初探AI.docx', type: 'docx', size: '2.4 MB' },
@@ -3276,28 +3520,28 @@
                 { id: 'AT003', name: '人工智能通识课-初探人工智能.mp4', type: 'mp4', size: '128 MB' },
                 { id: 'AT004', name: '扑燕姿大场.mp4', type: 'mp4', size: '186 MB' }
               ] },
-            { id: 'RES007', title: '职业生涯规划·教师成长路径', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT001', categoryName: '语文', order: 70, viewCount: 96, likes: 28, org: '教师发展中心', tags: ['职业', '规划'], zone: 'teaching', icon: '🧭', tone: 2, contentType: '文件·视频', appName: '', chargeType: '收费', payType: '个人', price: '59.9', duration: '40', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-26 11:00:00'  },
-            { id: 'RES008', title: '美育·色彩基础与鉴赏', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT002', categoryName: '现代文', order: 80, viewCount: 174, likes: 47, org: '艺术学院', tags: ['美育', '色彩'], zone: 'teaching', icon: '🎨', tone: 3, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '35', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-27 16:30:00'  },
-            { id: 'RES009', title: '学之者·经典诵读课程包', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT002', categoryName: '现代文', order: 90, viewCount: 305, likes: 91, org: '文渊教育', tags: ['经典', '诵读'], zone: 'special', icon: '📜', tone: 4, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '50', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-28 08:40:00'  },
-            { id: 'RES010', title: '听说写·表达能力训练', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT002', categoryName: '现代文', order: 100, viewCount: 158, likes: 39, org: '语言工作室', tags: ['听说写', '表达'], zone: 'special', icon: '🎙️', tone: 5, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '45', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-29 10:10:00'  },
-            { id: 'RES011', title: '显示证·项目成果展示集', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 110, viewCount: 88, likes: 21, org: '教科所', tags: ['成果', '展示'], zone: 'special', icon: '🏆', tone: 6, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '25', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-30 15:00:00'  },
-            { id: 'RES012', title: '专题探究·科学实验合集', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 120, viewCount: 142, likes: 44, org: '科学中心', tags: ['科学', '实验'], zone: 'special', icon: '🔬', tone: 1, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '55', durationUnit: '分钟', status: '已发布', updatedAt: '2026-07-01 09:30:00'  },
-            { id: 'RES013', title: '师德师风·典型案例分析', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 130, viewCount: 263, likes: 76, org: '教师发展中心', tags: ['师德', '案例'], zone: 'teacher', icon: '🌱', tone: 2, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '40', durationUnit: '分钟', status: '已发布', updatedAt: '2026-07-02 14:00:00'  },
-            { id: 'RES014', title: '课堂研究·观察与诊断方法', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 140, viewCount: 131, likes: 35, org: '教研院', tags: ['课堂', '研究'], zone: 'teacher', icon: '🔍', tone: 3, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '48', durationUnit: '分钟', status: '已发布', updatedAt: '2026-07-03 11:20:00'  },
-            { id: 'RES015', title: '教研联动·校本研修实操', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 150, viewCount: 97, likes: 26, org: '教研院', tags: ['教研', '研修'], zone: 'teacher', icon: '🤝', tone: 4, contentType: '应用和链接', appName: '在线作业', chargeType: '免费', payType: '个人', price: '', duration: '1', durationUnit: '小时', status: '已发布', updatedAt: '2026-07-04 16:10:00'  },
-            { id: 'RES016', title: '教师成长·进阶训练营', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 160, viewCount: 208, likes: 58, org: '教师发展中心', tags: ['成长', '进阶'], zone: 'teacher', icon: '🚀', tone: 5, contentType: '文件·视频', appName: '', chargeType: '收费', payType: '个人', price: '129', duration: '3', durationUnit: '小时', status: '已发布', updatedAt: '2026-07-05 09:00:00'  },
-            { id: 'RES017', title: '家校共育·沟通技巧专题', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 170, viewCount: 189, likes: 52, org: '家校联盟', tags: ['家校', '沟通'], zone: 'family', icon: '🏠', tone: 6, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '35', durationUnit: '分钟', status: '已发布', updatedAt: '2026-07-06 10:40:00'  },
-            { id: 'RES018', title: '研学课堂·设计与实施', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 180, viewCount: 121, likes: 33, org: '研学中心', tags: ['研学', '设计'], zone: 'family', icon: '🎒', tone: 1, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '42', durationUnit: '分钟', status: '已发布', updatedAt: '2026-07-07 15:20:00'  },
-            { id: 'RES019', title: '常规选课·指导手册', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 190, viewCount: 76, likes: 18, org: '教务中心', tags: ['选课', '指导'], zone: 'family', icon: '📋', tone: 2, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '20', durationUnit: '分钟', status: '未发布', updatedAt: '2026-07-08 08:50:00'  },
-            { id: 'RES020', title: '家庭教育·亲子共读指南', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 200, viewCount: 145, likes: 41, org: '家校联盟', tags: ['亲子', '阅读'], zone: 'family', icon: '👨‍👩‍👧', tone: 3, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '30', durationUnit: '分钟', status: '未发布', updatedAt: '2026-07-09 13:30:00'  },
-            { id: 'RES021', title: '小学二年级数学·乘法口诀微课', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 210, viewCount: 0, likes: 0, org: '实验小学', tags: ['数学', '微课'], zone: 'ai', icon: '✖️', tone: 2, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '15', durationUnit: '分钟', status: '未审批', updatedAt: '2026-06-20 10:12:00', intro: '通过动画与口诀歌帮助二年级学生掌握乘法口诀，配套课堂练习与课后巩固微课。', author: '李梅梅' },
-            { id: 'RES022', title: '小学语文·识字卡片（可打印）', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 220, viewCount: 0, likes: 0, org: '实验小学', tags: ['语文', '识字'], zone: 'ai', icon: '🔤', tone: 4, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '10', durationUnit: '分钟', status: '未审批', updatedAt: '2026-06-23 11:40:00', intro: '一年级识字卡片 PDF，可直接打印用于课堂识字游戏与课后复习。', author: '李梅梅' },
-            { id: 'RES023', title: '小学科学·观察日记模板包', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 230, viewCount: 0, likes: 0, org: '实验小学', tags: ['科学', '模板'], zone: 'teaching', icon: '🔎', tone: 5, contentType: '富文本', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '', durationUnit: '分钟', status: '已驳回', updatedAt: '2026-07-20 14:05:00', intro: '小学科学观察日记模板包，含植物、动物、天气三类观察记录表。', author: '李梅梅' },
-            { id: 'RES024', title: '初中化学·实验安全微课', channelId: 'CH001-2', channelName: '教学资源 / 初中教学', categoryId: 'CT004', categoryName: '数学', order: 240, viewCount: 0, likes: 0, org: '文渊教育', tags: ['化学', '安全'], zone: 'teaching', icon: '⚗️', tone: 6, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '20', durationUnit: '分钟', status: '未发布', updatedAt: '2026-07-21 08:40:00', intro: '初中化学实验安全微课，覆盖常见危险操作与应急处理。', author: '张丹丹' },
-            { id: 'RES025', title: '初中物理·力学实验演示合集', channelId: 'CH001-2', channelName: '教学资源 / 初中教学', categoryId: 'CT004', categoryName: '数学', order: 250, viewCount: 86, likes: 12, org: '文渊教育', tags: ['物理', '实验'], zone: 'ai', icon: '🧲', tone: 1, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '25', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-21 09:30:00', intro: '覆盖初中物理力学核心实验的演示视频合集，支持课堂投屏与课后复看。', author: '张丹丹' },
-            { id: 'RES026', title: '小学语文·古诗诵读音频课', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 260, viewCount: 152, likes: 45, org: '实验小学', tags: ['语文', '古诗'], zone: 'ai', icon: '🎧', tone: 3, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '8', durationUnit: '分钟', status: '已发布', updatedAt: '2026-06-24 16:20:00', intro: '精选 20 首小学生必背古诗的朗诵音频，配套注释与赏析。', author: '李梅梅' },
-            { id: 'RES027', title: '奥数思维·行程问题专项', channelId: 'CH001-2', channelName: '教学资源 / 初中教学', categoryId: 'CT004', categoryName: '数学', order: 270, viewCount: 0, likes: 0, org: '思维学堂', tags: ['奥数', '行程'], zone: 'teaching', icon: '🚗', tone: 4, contentType: '富文本', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '', durationUnit: '分钟', status: '已驳回', updatedAt: '2026-06-22 15:20:00', intro: '行程问题专项训练，含相遇、追及、流水行船等典型模型讲解。', author: '王强' },
-            { id: 'RES028', title: '小学英语·自然拼读入门', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 280, viewCount: 0, likes: 0, org: '实验小学', tags: ['英语', '拼读'], zone: 'ai', icon: '🔠', tone: 5, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '12', durationUnit: '分钟', status: '草稿', updatedAt: '2026-07-22 09:00:00', intro: '通过字母音与拼读规则帮助低年级学生入门英语自然拼读。', author: '李梅梅' }
+            { id: 'RES007', title: '职业生涯规划·教师成长路径', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT001', categoryName: '语文', order: 70, viewCount: 96, likes: 28, org: '教师发展中心', tags: ['职业', '规划'], zone: 'teaching', icon: '🧭', tone: 2, contentType: '文件·视频', appName: '', chargeType: '收费', payType: '个人', price: '59.9', duration: '40', durationUnit: '分钟', status: '已发布', creator: '平台运营', updatedAt: '2026-06-26 11:00:00'  },
+            { id: 'RES008', title: '美育·色彩基础与鉴赏', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT002', categoryName: '现代文', order: 80, viewCount: 174, likes: 47, org: '艺术学院', tags: ['美育', '色彩'], zone: 'teaching', icon: '🎨', tone: 3, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '35', durationUnit: '分钟', status: '已发布', creator: '平台运营', updatedAt: '2026-06-27 16:30:00'  },
+            { id: 'RES009', title: '学之者·经典诵读课程包', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT002', categoryName: '现代文', order: 90, viewCount: 305, likes: 91, org: '文渊教育', tags: ['经典', '诵读'], zone: 'special', icon: '📜', tone: 4, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '50', durationUnit: '分钟', status: '已发布', creator: '平台运营', updatedAt: '2026-06-28 08:40:00'  },
+            { id: 'RES010', title: '听说写·表达能力训练', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT002', categoryName: '现代文', order: 100, viewCount: 158, likes: 39, org: '语言工作室', tags: ['听说写', '表达'], zone: 'special', icon: '🎙️', tone: 5, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '45', durationUnit: '分钟', status: '已发布', creator: '平台运营', updatedAt: '2026-06-29 10:10:00'  },
+            { id: 'RES011', title: '显示证·项目成果展示集', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 110, viewCount: 88, likes: 21, org: '教科所', tags: ['成果', '展示'], zone: 'special', icon: '🏆', tone: 6, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '25', durationUnit: '分钟', status: '已发布', creator: '平台运营', updatedAt: '2026-06-30 15:00:00'  },
+            { id: 'RES012', title: '专题探究·科学实验合集', channelId: 'CH002-1', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 120, viewCount: 142, likes: 44, org: '科学中心', tags: ['科学', '实验'], zone: 'special', icon: '🔬', tone: 1, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '55', durationUnit: '分钟', status: '已发布', creator: '平台运营', updatedAt: '2026-07-01 09:30:00'  },
+            { id: 'RES013', title: '师德师风·典型案例分析', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 130, viewCount: 263, likes: 76, org: '教师发展中心', tags: ['师德', '案例'], zone: 'teacher', icon: '🌱', tone: 2, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '40', durationUnit: '分钟', status: '已发布', creator: '平台运营', updatedAt: '2026-07-02 14:00:00'  },
+            { id: 'RES014', title: '课堂研究·观察与诊断方法', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 140, viewCount: 131, likes: 35, org: '教研院', tags: ['课堂', '研究'], zone: 'teacher', icon: '🔍', tone: 3, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '48', durationUnit: '分钟', status: '已发布', creator: '平台运营', updatedAt: '2026-07-03 11:20:00'  },
+            { id: 'RES015', title: '教研联动·校本研修实操', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 150, viewCount: 97, likes: 26, org: '教研院', tags: ['教研', '研修'], zone: 'teacher', icon: '🤝', tone: 4, contentType: '应用和链接', appName: '在线作业', chargeType: '免费', payType: '个人', price: '', duration: '1', durationUnit: '小时', status: '已发布', creator: '平台运营', updatedAt: '2026-07-04 16:10:00'  },
+            { id: 'RES016', title: '教师成长·进阶训练营', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 160, viewCount: 208, likes: 58, org: '教师发展中心', tags: ['成长', '进阶'], zone: 'teacher', icon: '🚀', tone: 5, contentType: '文件·视频', appName: '', chargeType: '收费', payType: '个人', price: '129', duration: '3', durationUnit: '小时', status: '已发布', creator: '平台运营', updatedAt: '2026-07-05 09:00:00'  },
+            { id: 'RES017', title: '家校共育·沟通技巧专题', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 170, viewCount: 189, likes: 52, org: '家校联盟', tags: ['家校', '沟通'], zone: 'family', icon: '🏠', tone: 6, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '35', durationUnit: '分钟', status: '已发布', creator: '平台运营', updatedAt: '2026-07-06 10:40:00'  },
+            { id: 'RES018', title: '研学课堂·设计与实施', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 180, viewCount: 121, likes: 33, org: '研学中心', tags: ['研学', '设计'], zone: 'family', icon: '🎒', tone: 1, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '42', durationUnit: '分钟', status: '已发布', creator: '平台运营', updatedAt: '2026-07-07 15:20:00'  },
+            { id: 'RES019', title: '常规选课·指导手册', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 190, viewCount: 76, likes: 18, org: '教务中心', tags: ['选课', '指导'], zone: 'family', icon: '📋', tone: 2, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '20', durationUnit: '分钟', status: '未发布', creator: '平台运营', updatedAt: '2026-07-08 08:50:00'  },
+            { id: 'RES020', title: '家庭教育·亲子共读指南', channelId: 'CH002', channelName: '拓展阅读 / 经典诵读', categoryId: 'CT003', categoryName: '古诗文', order: 200, viewCount: 145, likes: 41, org: '家校联盟', tags: ['亲子', '阅读'], zone: 'family', icon: '👨‍👩‍👧', tone: 3, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '30', durationUnit: '分钟', status: '未发布', creator: '平台运营', updatedAt: '2026-07-09 13:30:00'  },
+            { id: 'RES021', title: '小学二年级数学·乘法口诀微课', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 210, viewCount: 0, likes: 0, org: '实验小学', tags: ['数学', '微课'], zone: 'ai', icon: '✖️', tone: 2, contentType: '视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '8', durationUnit: '分钟', status: '未审批', creator: '李梅梅', updatedAt: '2026-06-20 10:12:00', intro: '通过动画与口诀歌帮助二年级学生掌握乘法口诀，配套课堂练习与课后巩固微课。', author: '李梅梅' },
+            { id: 'RES022', title: '小学语文·识字卡片（可打印）', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 220, viewCount: 0, likes: 0, org: '实验小学', tags: ['语文', '识字'], zone: 'ai', icon: '🔤', tone: 4, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '10', durationUnit: '分钟', status: '未审批', creator: '李梅梅', updatedAt: '2026-06-23 11:40:00', intro: '一年级识字卡片 PDF，可直接打印用于课堂识字游戏与课后复习。', attachments: [{ id: 'AT301', name: '识字卡片-可打印版.pdf', type: 'pdf', size: '2.4 MB' }], author: '李梅梅' },
+            { id: 'RES023', title: '小学科学·观察日记模板包', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 230, viewCount: 0, likes: 0, org: '实验小学', tags: ['科学', '模板'], zone: 'teaching', icon: '🔎', tone: 5, contentType: '富文本', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '', durationUnit: '分钟', status: '已驳回', creator: '李梅梅', updatedAt: '2026-07-20 14:05:00', intro: '小学科学观察日记模板包，含植物、动物、天气三类观察记录表。', author: '李梅梅' },
+            { id: 'RES024', title: '初中化学·实验安全微课', channelId: 'CH001-2', channelName: '教学资源 / 初中教学', categoryId: 'CT004', categoryName: '数学', order: 240, viewCount: 0, likes: 0, org: '文渊教育', tags: ['化学', '安全'], zone: 'teaching', icon: '⚗️', tone: 6, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '20', durationUnit: '分钟', status: '未发布', creator: '张丹丹', updatedAt: '2026-07-21 08:40:00', intro: '初中化学实验安全微课，覆盖常见危险操作与应急处理。', author: '张丹丹' },
+            { id: 'RES025', title: '初中物理·力学实验演示合集', channelId: 'CH001-2', channelName: '教学资源 / 初中教学', categoryId: 'CT004', categoryName: '数学', order: 250, viewCount: 86, likes: 12, org: '文渊教育', tags: ['物理', '实验'], zone: 'ai', icon: '🧲', tone: 1, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '25', durationUnit: '分钟', status: '已发布', creator: '张丹丹', updatedAt: '2026-06-21 09:30:00', intro: '覆盖初中物理力学核心实验的演示视频合集，支持课堂投屏与课后复看。', author: '张丹丹' },
+            { id: 'RES026', title: '小学语文·古诗诵读音频课', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 260, viewCount: 152, likes: 45, org: '实验小学', tags: ['语文', '古诗'], zone: 'ai', icon: '🎧', tone: 3, contentType: '文件·视频', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '8', durationUnit: '分钟', status: '已发布', creator: '李梅梅', updatedAt: '2026-06-24 16:20:00', intro: '精选 20 首小学生必背古诗的朗诵音频，配套注释与赏析。', author: '李梅梅' },
+            { id: 'RES027', title: '奥数思维·行程问题专项', channelId: 'CH001-2', channelName: '教学资源 / 初中教学', categoryId: 'CT004', categoryName: '数学', order: 270, viewCount: 0, likes: 0, org: '思维学堂', tags: ['奥数', '行程'], zone: 'teaching', icon: '🚗', tone: 4, contentType: '富文本', appName: '', chargeType: '免费', payType: '个人', price: '', duration: '', durationUnit: '分钟', status: '已驳回', creator: '王强', updatedAt: '2026-06-22 15:20:00', intro: '行程问题专项训练，含相遇、追及、流水行船等典型模型讲解。', author: '王强' },
+            { id: 'RES028', title: '小学英语·自然拼读入门', channelId: 'CH001-1', channelName: '教学资源 / 小学教学', categoryId: 'CT001', categoryName: '语文', order: 280, viewCount: 0, likes: 0, org: '实验小学', tags: ['英语', '拼读'], zone: 'ai', icon: '🔠', tone: 5, contentType: '应用和链接', appName: '智慧课堂', pcUrl: 'https://www.gxedu.cn/app/phonics', mobileUrl: 'https://m.gxedu.cn/app/phonics', chargeType: '免费', payType: '个人', price: '', duration: '12', durationUnit: '分钟', status: '未审批', creator: '李梅梅', updatedAt: '2026-07-22 09:00:00', intro: '面向小学低年级的自然拼读入门课程，配套 26 个字母及常见字母组合的发音规则、示范音频与互动练习，可在智慧课堂应用中直接使用。', author: '李梅梅' }
           ],
           resSteps: ['基本信息', '资源正文', '发布设置'],
           // ===== 硬件与服务管理（P20 智慧硬件与服务 / P21 预约记录）=====
@@ -3533,6 +3777,124 @@
             return true;
           });
         },
+        // 面包屑：一级=顶级模块，二级=模块页面，三级=子页面（新增/编辑/审批/预览）
+        breadcrumbs() {
+          const page = this.currentPage || {};
+          const items = [{ label: page.topModule || '资源中心' }];
+          const parentId = this.crumbParentId;
+          items.push({ label: page.moduleName || '', pageId: parentId });
+          if (this.subPageLabel) items.push({ label: this.subPageLabel });
+          return items;
+        },
+        crumbParentId() {
+          const map = { P11: 'P10', P15: 'P10', P22: 'P20', P31: 'P30' };
+          return map[this.currentPage.id] || '';
+        },
+        subPageLabel() {
+          switch (this.currentPage.id) {
+            case 'P31':
+              return this.approvalPage.mode === 'approve' ? '资源审批' : '审批详情';
+            case 'P11':
+              return this.resForm.mode === 'edit' ? '编辑资源' : '新增资源';
+            case 'P15':
+              return '资源预览';
+            case 'P22':
+              return this.hardwareForm.mode === 'edit' ? '编辑硬件/服务' : '新增硬件/服务';
+            default:
+              return '';
+          }
+        },
+        // 审批详情：合并审批记录与关联资源的完整字段
+        approvalCurrent() {
+          const row = this.approvalPage.row || {};
+          const res = this.resRows.find(r => r.id === row.resourceId) || {};
+          return {
+            title: row.title || res.title || '—',
+            org: row.org || res.org || '—',
+            channel: (row.channelName || res.channelName) ? this.subChannelName(row.channelName || res.channelName) : '—',
+            category: row.categoryName || res.categoryName || '—',
+            contentType: row.contentType || res.contentType || '—',
+            author: row.author || res.author || '—',
+            creator: row.creator || res.creator || '—',
+            order: row.order != null && row.order !== '' ? row.order : (res.order != null ? res.order : '—'),
+            status: row.status || '—',
+            submitter: row.submitter || '—',
+            submittedAt: row.submittedAt || '—',
+            updatedAt: res.updatedAt || '—',
+            sourceOrg: res.sourceOrg || row.org || '—',
+            showOnMobile: res.showOnMobile === false ? '否' : '是',
+            duration: res.duration ? res.duration + ' ' + (res.durationUnit || '分钟') : '—',
+            chargeType: res.chargeType || '免费',
+            payType: res.payType || '',
+            price: res.price || '',
+            appName: res.appName || '',
+            links: [res.pcUrl ? 'PC：' + res.pcUrl : '', res.mobileUrl ? '移动端：' + res.mobileUrl : ''].filter(Boolean).join('；'),
+            intro: row.intro || res.overview || res.mallIntro || '—',
+            attachments: (row.attachments && row.attachments.length ? row.attachments : (res.attachments || []))
+          };
+        },
+        // 资源正文内容（富文本 HTML），优先使用记录/资源的正文，缺失时按内容展示方式生成说明
+        approvalContentHtml() {
+          const row = this.approvalPage.row || {};
+          const res = this.resRows.find(r => r.id === row.resourceId) || {};
+          if (row.contentHtml) return row.contentHtml;
+          if (res.mallRichIntro) return res.mallRichIntro;
+          if (res.contentHtml) return res.contentHtml;
+          if (res.overview) return '<p>' + res.overview + '</p>';
+          const intro = row.intro || res.mallIntro || '';
+          const ct = row.contentType || res.contentType || '富文本';
+          if (ct === '富文本') {
+            return '<h3>' + (row.title || '') + '</h3>'
+              + (intro ? '<p>' + intro + '</p>' : '')
+              + '<p>本资源为富文本资源，正文由机构人员编辑提交，审批时需核对内容完整性、准确性、合规性与版权风险。</p>'
+              + '<ul><li>章节层级清晰，正文结构完整</li><li>图片、表格等素材可正常展示</li><li>无违规表述与侵权素材</li></ul>';
+          }
+          return '<h3>' + (row.title || '') + '</h3>'
+            + (intro ? '<p>' + intro + '</p>' : '')
+            + '<p>本资源为「' + ct + '」类型，正文以附件形式提交，可在下方「资源附件」中查看文件清单；审批时需核对附件是否齐全、是否可正常打开。</p>';
+        },
+        // 审批页正文渲染：合并审批记录与关联资源，供预览式渲染使用
+        approvalPreview() {
+          const row = this.approvalPage.row || {};
+          const res = this.resRows.find(r => r.id === row.resourceId) || {};
+          return Object.assign({}, res, {
+            title: row.title || res.title || '',
+            contentType: row.contentType || res.contentType || '富文本',
+            intro: row.intro || res.intro || res.overview || '',
+            overview: res.overview || '',
+            attachments: (row.attachments && row.attachments.length) ? row.attachments : (res.attachments || [])
+          });
+        },
+        approvalIsMedia() {
+          const ct = this.approvalCurrent.contentType;
+          return ct === '视频' || ct === '文件·视频';
+        },
+        approvalPreviewDuration() {
+          const p = this.approvalPreview;
+          return p.duration ? p.duration + ' ' + (p.durationUnit || '分钟') : '30:00';
+        },
+        // 非富文本、非视频类（应用和链接 / 链接）：以文本方式呈现正文内容
+        approvalTextLines() {
+          const p = this.approvalPreview;
+          const lines = [];
+          if (p.contentType === '应用和链接') {
+            if (p.appName) lines.push('应用名称：' + p.appName);
+            if (p.pcUrl) lines.push('PC 端链接：' + p.pcUrl);
+            if (p.mobileUrl) lines.push('移动端链接：' + p.mobileUrl);
+          }
+          if (p.intro) lines.push(p.intro);
+          if (p.overview && p.overview !== p.intro) lines.push(p.overview);
+          if (!lines.length) lines.push('该资源暂未填写正文内容，请在编辑资源中补充后重新提交审批。');
+          return lines;
+        },
+        pagedApprovalHistory() {
+          const list = this.approvalHistory(this.approvalPage.row);
+          const start = (this.approvalHistoryPage - 1) * 5;
+          return list.slice(start, start + 5);
+        },
+        approvalHistoryTotal() {
+          return this.approvalHistory(this.approvalPage.row).length;
+        },
         // 配置列表（P40）：仅超管可见，按筛选条件过滤
         visibleConfigRows() {
           const f = this.configFilter;
@@ -3603,6 +3965,15 @@
           return this.resForm.data.chargeType === '收费'
             && this.resForm.data.contentType !== '应用和链接'
             && this.resForm.data.contentType !== '链接';
+        },
+        resRejectBanner() {
+          // 编辑「超管已驳回」资源时的提示：驳回意见 + 重新提交规则
+          if (this.resForm.mode !== 'edit' || !this.resForm.editingId) return '';
+          const row = this.resRows.find(r => r.id === this.resForm.editingId);
+          if (!row || row.status !== '已驳回') return '';
+          const rec = this.approvalRows.find(r => r.resourceId === row.id) || {};
+          const comment = rec.comment ? '（驳回意见：' + rec.comment + '）' : '';
+          return '该资源已被桂教通超管驳回' + comment + '。可重新编辑内容，修改后点击“提交”将复用原审批记录并进入新一轮审批。';
         },
         dimsOfCurrentCategory() {
           const cid = this.resForm.data.categoryId;
@@ -4148,11 +4519,23 @@
           // 桂教通超管与机构人员均可下架（机构仅能操作本人数据，列表已过滤）；机构下架多为"调整已审核资源内容"
           const tip = this.isSuper
             ? '下架后状态置为“未发布”，应用端不再获取；已推荐的资源将同时取消推荐'
-            : '下架后状态置为“未发布”，应用端不再获取；已推荐的资源将同时取消推荐；如需调整内容，可编辑后重新提交，将重新生成审批并进入“未审批”';
+            : '下架后状态置为“未发布”，应用端不再获取；已推荐的资源将同时取消推荐；如需调整内容，可重新编辑后提交，将复用原审批记录并进入新一轮审批';
           this.showConfirm('确认下架该资源？', '「' + row.title + '」' + tip, () => {
             row.status = '未发布';
             row.recommended = '否';
             row.updatedAt = this.nowText();
+          });
+        },
+        withdrawApproval(row) {
+          // 机构人员撤回审核：仅“未审批”可撤回；撤回后审批列表移除该记录，资源回到“草稿”可修改后重新提交
+          this.showConfirm('确认撤回审核？', '撤回后「' + row.title + '」的审批记录（含历次审批明细）将从审批列表移除，'
+            + '资源状态回到“草稿”，可修改后重新提交审批', () => {
+            this.approvalRows = this.approvalRows.filter(r => r.resourceId !== row.id);
+            row.status = '草稿';
+            row.updatedAt = this.nowText();
+            if (this.approvalPage.row && this.approvalPage.row.resourceId === row.id) {
+              this.approvalPage = { mode: 'view', row: null, result: '', comment: '' };
+            }
           });
         },
         toggleRecommend(row, next) {
@@ -4356,6 +4739,7 @@
               order: d.order, status: status, updatedAt: t,
               contentType: d.contentType, chargeType: d.chargeType,
               org: d.org || row.org, author: d.author,
+              creator: row.creator || (this.isSuper ? '平台运营' : this.currentPerson),
               checked: row.checked || false
             });
             return row;
@@ -4368,23 +4752,43 @@
             order: d.order, viewCount: 0, likes: 0, org: d.org || this.currentOrg, tags: [],
             zone: 'ai', icon: '📄', tone: 1, contentType: d.contentType, chargeType: d.chargeType,
             payType: '个人', price: '', status: status, recommended: '否', updatedAt: t, checked: false,
-            author: d.author
+            author: d.author, creator: this.isSuper ? '平台运营' : this.currentPerson
           };
           this.resRows.push(created);
           return created;
         },
         createApprovalRecord(resRow) {
-          // 机构人员提交资源时自动生成审批记录
+          // 同一资源只保留一条审批记录：驳回后重新提交复用该记录，多轮明细累计到 history
           const now = this.nowText();
+          const exist = this.approvalRows.find(r => r.resourceId === resRow.id);
+          if (exist) {
+            Object.assign(exist, {
+              org: resRow.org, resourceName: resRow.title, title: resRow.title,
+              channelName: resRow.channelName, categoryName: resRow.categoryName,
+              submitter: resRow.author || this.currentOrg, status: '未审批',
+              result: '', comment: '', approver: '', approvedAt: '', submittedAt: now,
+              intro: resRow.intro || '', contentType: resRow.contentType,
+              author: resRow.author, creator: resRow.creator || resRow.author, order: resRow.order
+            });
+            if (!Array.isArray(exist.history)) this.$set(exist, 'history', []);
+            return exist;
+          }
           const id = 'AP' + now.replace(/[^0-9]/g, '').slice(0, 14);
-          this.approvalRows.unshift({
+          const row = {
             id, resourceId: resRow.id, org: resRow.org, resourceName: resRow.title,
             channelName: resRow.channelName, categoryName: resRow.categoryName,
             submitter: resRow.author || this.currentOrg, status: '未审批', result: '', comment: '',
             approver: '', approvedAt: '', submittedAt: now,
             title: resRow.title, intro: resRow.intro || '', contentType: resRow.contentType,
-            author: resRow.author, creator: resRow.author, order: resRow.order
-          });
+            author: resRow.author, creator: resRow.creator || resRow.author, order: resRow.order,
+            history: []
+          };
+          this.approvalRows.unshift(row);
+          return row;
+        },
+        approvalHistory(row) {
+          // 审批历史明细（按轮次正序）
+          return row && Array.isArray(row.history) ? row.history : [];
         },
         ensureItemMapSlots() {
           const dims = this.dimsOfCurrentCategory;
@@ -4407,8 +4811,16 @@
         // ===== 审批管理（P30 / P31）=====
         openApprovalPage(row, mode) {
           this.approvalPage = { mode: mode, row: row, result: '', comment: '' };
+          this.approvalHistoryPage = 1;
+          this.approvalCollapse = { detail: true, history: true, form: true };
           this.currentPage = PAGE_MAP.P31;
           if (!this.openTabs.find(t => t.id === 'P31')) this.openTabs.push(PAGE_MAP.P31);
+        },
+        onApprovalHistoryPageChange(p) {
+          this.approvalHistoryPage = p;
+        },
+        toggleApprovalSection(key) {
+          this.approvalCollapse[key] = !this.approvalCollapse[key];
         },
         backApprovalList() {
           this.currentPage = PAGE_MAP.P30;
@@ -4422,12 +4834,22 @@
           const row = this.approvalPage.row;
           const now = this.nowText();
           const pass = this.approvalPage.result === '通过';
+          const approver = '桂教通超管 A';
+          // 追加本轮审批明细（同一资源共用一条审批记录）
+          if (!Array.isArray(row.history)) this.$set(row, 'history', []);
+          row.history.push({
+            result: this.approvalPage.result,
+            comment: this.approvalPage.comment,
+            approver: approver,
+            approvedAt: now,
+            submittedAt: row.submittedAt
+          });
           // 更新审批记录
           Object.assign(row, {
             status: pass ? '审批通过' : '已驳回',
             result: this.approvalPage.result,
             comment: this.approvalPage.comment,
-            approver: '桂教通超管 A',
+            approver: approver,
             approvedAt: now
           });
           // 触发关联资源状态迁移：通过→已发布，驳回→已驳回
@@ -4450,7 +4872,15 @@
           this.currentPage = PAGE_MAP.P10;
         },
         previewFiles(row) {
-          // 模拟文件·视频类资源的附件列表（含章节分组）
+          // 有真实附件时按附件清单渲染（视频/音频/PDF/文档），否则回退为模拟章节结构
+          const list = (row && row.attachments) || [];
+          if (list.length) {
+            return list.map(f => ({
+              name: f.name,
+              type: /\.(mp4|mov|avi|mkv|flv)$/i.test(f.name) ? 'video'
+                : (/\.(mp3|wav|m4a)$/i.test(f.name) ? 'audio' : (/\.pdf$/i.test(f.name) ? 'pdf' : 'doc'))
+            }));
+          }
           const base = (row.title || '资源').slice(0, 10);
           return [
             { name: base + '：配套讲义.docx', type: 'doc' },
@@ -4540,7 +4970,7 @@
             { title: '导入资源·校园安全微课', channel: inScopeCh, category: inScopeCat, contentType: '视频' },
             { title: '导入资源·跨学科示范课', channel: outChLabel || inScopeCh, category: inScopeCat, contentType: '富文本' },
             { title: '导入资源·缺失分类资源', channel: inScopeCh, category: '不存在的分类', contentType: '富文本' },
-            { title: '', channel: inScopeCh, category: inScopeCat, contentType: '图文' }
+            { title: '', channel: inScopeCh, category: inScopeCat, contentType: '富文本' }
           ];
           const baseOrder = this.resRows.reduce((m, r) => Math.max(m, Number(r.order) || 0), 0);
           let success = 0, fail = 0, videoCount = 0;
@@ -4560,7 +4990,7 @@
                 order: baseOrder + (success) * 10,
                 viewCount: 0, likes: 0, status: target, recommended: '否',
                 updatedAt: t, contentType: r.contentType,
-                org: org, author: author, intro: '（批量导入创建的基本内容）'
+                org: org, author: author, creator: author, intro: '（批量导入创建的基本内容）'
               });
             }
             detailRows.push({ line: i + 2, title: r.title || '（空）', channel: r.channel, category: r.category, contentType: r.contentType, errors: errs });
@@ -5049,6 +5479,7 @@
           // 1. 编辑章节：章节名 + 排序
           if (mode === 'edit-section') {
             if (!d.section) { this.showConfirm('请填写章节名称', '章节名称为必填项'); return; }
+            if (d.section.length > 20) { this.showConfirm('章节名称超出长度', '章节名称最多 20 字符'); return; }
             const sec = this.resForm.data.sections.find(s => s.id === d.editingSectionId);
             if (sec) {
               sec.name = d.section;
@@ -5068,6 +5499,7 @@
             let sectionId = '';
             if (this.resForm.data.sectionOn === '是') {
               if (!d.section) { this.showConfirm('请填写章节名称', '开启小节时，章节名称为必填项'); return; }
+              if (d.section.length > 20) { this.showConfirm('章节名称超出长度', '章节名称最多 20 字符'); return; }
               // 同名章节复用，否则新建（排序按创建顺序自增，编辑时展示为友好序号）
               const existing = this.resForm.data.sections.find(s => s.name === d.section);
               if (existing) {
