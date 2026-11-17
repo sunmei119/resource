@@ -1330,7 +1330,7 @@
                           v-model="resForm.data.channelId"
                           :options="channelCascaderOptions"
                           :props="{ emitPath: false, expandTrigger: 'hover' }"
-                          @change="resForm.data.categoryId = ''"
+                          @change="onResChannelChange"
                           placeholder="请选择所属频道（级联到子频道）"
                           clearable
                           class="res-input"></el-cascader>
@@ -1345,6 +1345,20 @@
                         <el-button>选择图片</el-button>
                         <span style="margin-left:8px;color:#86909c;font-size:12px;">.jpg/.jpeg/.png，245×143，≤3MB</span>
                       </el-form-item>
+                      <el-form-item label="类目条目" v-if="!resForm.data.channelId || channelDimGroups.length">
+                        <el-select
+                          v-model="resForm.data.dimItemId"
+                          :disabled="!resForm.data.channelId"
+                          :placeholder="resForm.data.channelId ? '非必填，可先选类目条目再选所属分类' : '请先选择所属频道'"
+                          filterable
+                          clearable
+                          class="res-input">
+                          <el-option-group v-for="grp in channelDimGroups" :key="grp.dimId" :label="grp.dimName">
+                            <el-option v-for="it in grp.items" :key="it.id" :label="it.name" :value="it.id"></el-option>
+                          </el-option-group>
+                        </el-select>
+                        <span style="color:#86909c;font-size:12px;margin-left:8px;">非必填，单选；随所属频道带出该类目下的条目，选定后所属分类仅可选管理该条目的分类</span>
+                      </el-form-item>
                       <el-form-item label="所属分类" :required="categoryRequired">
                         <el-cascader
                           v-model="resForm.data.categoryId"
@@ -1355,17 +1369,6 @@
                           clearable
                           class="res-input"></el-cascader>
                         <span v-if="!categoryRequired" style="color:#86909c;font-size:12px;">该所属频道下暂无分类，此为非必填</span>
-                      </el-form-item>
-                      <el-form-item label="类目及类目条目" v-if="resForm.data.categoryId && dimsOfCurrentCategory.length">
-                        <div style="width:100%;">
-                          <div v-for="dim in dimsOfCurrentCategory" :key="dim.id" style="margin-bottom:8px;">
-                            <div style="color:#4e5969;font-size:13px;margin-bottom:4px;">{{ dim.name }}</div>
-                            <el-checkbox-group v-model="resForm.data.itemMap[dim.id]">
-                              <el-checkbox v-for="it in itemsOfDim(dim.id)" :key="it.id" :value="it.id" :disabled="isItemLockedByCategory(dim.id, it.id)">{{ it.name }}</el-checkbox>
-                            </el-checkbox-group>
-                          </div>
-                          <div style="color:#86909c;font-size:12px;margin-top:4px;">展示所属分类所在子频道下全部类目及类目条目；该分类已关联的类目条目默认勾选且不可取消（R-CH-23）</div>
-                        </div>
                       </el-form-item>
                       <el-form-item label="排序" required>
                         <el-input v-model="resForm.data.order" class="res-input"></el-input>
@@ -3120,7 +3123,7 @@
       <el-form label-width="120px">
         <el-form-item label="导入模板">
           <el-button @click="downloadResImportTemplate">下载导入模板</el-button>
-          <div class="cfg-tip">模板字段：资源标题、所属频道（子频道）、所属分类、内容展示方式、排序、课时、收费方式、资源简介、资源来源机构、资源作者；模板的「所属频道」枚举仅限你当前可配置的频道（配置管理决定），「所属分类」为对应频道下的一级分类（R-RES-15）</div>
+          <div class="cfg-tip">模板字段：资源标题、所属频道（子频道）、所属分类、类目条目（非必填）、内容展示方式、排序、课时、收费方式、资源简介、资源来源机构、资源作者；模板的「所属频道」枚举仅限你当前可配置的频道（配置管理决定），「所属分类」为对应频道下的一级分类（R-RES-15），「类目条目」填写该频道下已上架的类目条目名称，填了条目时所属分类须为管理该条目的分类</div>
         </el-form-item>
         <el-form-item label="导入文件" required>
           <el-button @click="mockPickImportFile">选择文件</el-button>
@@ -3130,7 +3133,8 @@
         <el-form-item label="导入规则">
           <div class="cfg-tip" style="margin-top:0;line-height:1.8;">
             1. 桂教通超管导入的资源状态为"未发布"，机构人员导入的资源状态为"草稿"（提交审批后走正常审批流）<br>
-            2. 导入仅创建资源基本内容；内容展示方式=视频/文件·视频时，需进入编辑页手动上传对应附件后才能发布
+            2. 导入仅创建资源基本内容；内容展示方式=视频/文件·视频时，需进入编辑页手动上传对应附件后才能发布<br>
+            3. 「类目条目」非必填，为空则按所属频道下全部一级分类校验「所属分类」；填写时须为该频道下已上架的条目名称，且「所属分类」须管理该条目
           </div>
         </el-form-item>
       </el-form>
@@ -3190,6 +3194,7 @@
             <th>资源标题</th>
             <th>所属频道</th>
             <th>所属分类</th>
+            <th>类目条目</th>
             <th>内容展示方式</th>
             <th>导入错误信息</th>
           </tr>
@@ -3200,6 +3205,7 @@
             <td>{{ r.title }}</td>
             <td>{{ r.channel || '—' }}</td>
             <td>{{ r.category || '—' }}</td>
+            <td>{{ r.item || '—' }}</td>
             <td>{{ r.contentType || '—' }}</td>
             <td style="color:#f53f3f;">{{ r.errors.length ? r.errors.join('；') : '—' }}</td>
           </tr>
@@ -3627,8 +3633,8 @@
             mode: 'create', step: 0, editingId: '',
             audit: { checked: false, pass: false, hits: [] },
             data: {
-              parentChannelId: '', channelId: '', title: '', intro: '', categoryId: '',
-              itemMap: {}, order: '', showOnMobile: true,
+              parentChannelId: '', channelId: '', title: '', intro: '', dimItemId: '', categoryId: '',
+              order: '', showOnMobile: true,
               contentType: '富文本', richText: '',
               appName: '', mobileUrl: '', pcUrl: '',
               sectionOn: '否',
@@ -3944,9 +3950,11 @@
         },
         categoryCascaderOptions() {
           // 构建「一级分类 → 二级分类」级联树；末端节点（无子分类）方可选中
-          // 候选一级分类按当前所属频道（子频道）过滤
+          // 候选一级分类按当前所属频道（子频道）过滤；已选类目条目时，仅保留管理该类目条目的分类
           const subChannelId = this.resForm.data.channelId;
-          const roots = this.categoryRows.filter(c => c.level === 0 && (!subChannelId || c.subChannelId === subChannelId));
+          const dimItemId = this.resForm.data.dimItemId;
+          let roots = this.categoryRows.filter(c => c.level === 0 && (!subChannelId || c.subChannelId === subChannelId));
+          if (dimItemId) roots = roots.filter(r => this.categoryManagesItem(r, dimItemId));
           return roots.map(root => {
             const children = this.categoryRows.filter(c => c.parentId === root.id);
             const node = { value: root.id, label: root.name };
@@ -3975,14 +3983,13 @@
           const comment = rec.comment ? '（驳回意见：' + rec.comment + '）' : '';
           return '该资源已被桂教通超管驳回' + comment + '。可重新编辑内容，修改后点击“提交”将复用原审批记录并进入新一轮审批。';
         },
-        dimsOfCurrentCategory() {
-          const cid = this.resForm.data.categoryId;
-          if (!cid) return [];
-          // 类目按分类所属「子频道」筛选：由所选分类回溯其所属子频道
-          const cat = this.categoryRows.find(c => c.id === cid);
-          const subChannelId = cat ? cat.subChannelId : '';
+        channelDimGroups() {
+          // 类目条目候选：按所属频道（子频道）带出该类目下的条目标签（仅已上架），按类目分组
+          const subChannelId = this.resForm.data.channelId;
           if (!subChannelId) return [];
-          return this.dimRows.filter(d => d.subChannelId === subChannelId && d.status === '上架');
+          return this.dimsOfSubChannel(subChannelId).map(dim => ({
+            dimId: dim.id, dimName: dim.name, items: this.itemsOfDim(dim.id)
+          })).filter(g => g.items.length);
         },
         sectionTree() {
           // 只保留一层：章节 → 附件
@@ -4074,18 +4081,13 @@
         }
       },
       watch: {
-        'resForm.data.categoryId'() {
-          // 选定所属分类后：若该分类已关联对应类目条目则默认勾选，未关联则不勾选（R-CH-23）
-          const cat = this.categoryRows.find(c => c.id === this.resForm.data.categoryId);
-          const assoc = cat && cat.dimItemMap ? cat.dimItemMap : {};
-          const map = {};
-          this.dimsOfCurrentCategory.forEach(d => {
-            const preset = Array.isArray(assoc[d.id]) ? assoc[d.id].slice() : [];
-            // 仅保留当前类目下仍有效（已上架）的条目
-            const validIds = this.itemsOfDim(d.id).map(it => it.id);
-            map[d.id] = preset.filter(id => validIds.includes(id));
-          });
-          this.resForm.data.itemMap = map;
+        'resForm.data.dimItemId'() {
+          // 选定类目条目后，所属分类候选收窄为管理该条目的分类；当前分类不在候选中时清空
+          const cid = this.resForm.data.categoryId;
+          if (!cid) return;
+          const valid = this.categoryCascaderOptions.some(o => o.value === cid
+            || (o.children || []).some(ch => ch.value === cid));
+          if (!valid) this.resForm.data.categoryId = '';
         },
         'categoryForm.data.subChannelId'() {
           // 按当前所属频道下的类目重建条目/子条目多选槽位：
@@ -4425,13 +4427,6 @@
           const parts = s.split('/').map(x => x.trim()).filter(Boolean);
           return parts.length > 1 ? parts[parts.length - 1] : s;
         },
-        isItemLockedByCategory(dimId, itemId) {
-          // 所属分类已关联的类目条目在资源表单中默认勾选且只读（R-CH-23）
-          const cat = this.categoryRows.find(c => c.id === this.resForm.data.categoryId);
-          if (!cat || !cat.dimItemMap) return false;
-          const assoc = cat.dimItemMap[dimId] || [];
-          return assoc.includes(itemId);
-        },
         categoryNameOf(categoryId) {
           const c = this.categoryRows.find(x => x.id === categoryId);
           return c ? (this.subChannelPathOf(c.subChannelId) + ' / ' + c.name) : '—';
@@ -4621,7 +4616,7 @@
             this.resForm.data = {
               parentChannelId: sub ? (sub.parentId || '') : '',
               channelId: row.channelId, title: row.title, intro: row.intro || '',
-              categoryId: row.categoryId, itemMap: row.itemMap ? { ...row.itemMap } : {},
+              categoryId: row.categoryId, dimItemId: row.dimItemId || '',
               order: row.order,
               showOnMobile: row.showOnMobile !== undefined ? row.showOnMobile : true,
               contentType: row.contentType || '富文本', richText: row.richText || '',
@@ -4641,8 +4636,8 @@
             };
           } else {
             this.resForm.data = {
-              parentChannelId: '', channelId: '', title: '', intro: '', categoryId: '',
-              itemMap: {}, order: '', showOnMobile: true,
+              parentChannelId: '', channelId: '', title: '', intro: '', dimItemId: '', categoryId: '',
+              order: '', showOnMobile: true,
               contentType: '富文本', richText: '',
               appName: '', mobileUrl: '', pcUrl: '',
               sectionOn: '否',
@@ -4657,7 +4652,6 @@
             };
           }
           this.resForm.audit = { checked: false, pass: false, hits: [] };
-          this.ensureItemMapSlots();
           this.currentPage = PAGE_MAP.P11;
           if (!this.openTabs.find(t => t.id === 'P11')) this.openTabs.push(PAGE_MAP.P11);
         },
@@ -4686,9 +4680,13 @@
             missing.push('权益数量（选填，填写时须为大于 0 的数字）');
           }
           if (this.resNeedBuyGuide && !d.buyApp) missing.push('应用选择');
+          // 基础必填：所属频道、资源标题、所属分类（该频道下有分类时必填）；类目条目非必填
+          if (!d.channelId) missing.push('所属频道');
+          if (!d.title || !String(d.title).trim()) missing.push('资源标题');
+          if (this.categoryRequired && !d.categoryId) missing.push('所属分类');
           if (missing.length) {
-            this.showConfirm('表单未填写完整', '收费资源的'
-              + missing.join('、') + '需要补充或修正，请处理后重新提交');
+            this.showConfirm('表单未填写完整', '以下字段需要补充或修正：'
+              + missing.join('、'));
             return;
           }
           const audit = this.auditResourceContent();
@@ -4730,12 +4728,14 @@
           const d = this.resForm.data;
           const t = this.nowText();
           const cat = this.categoryRows.find(c => c.id === d.categoryId) || {};
+          const dimItem = this.dimItemRows.find(x => x.id === d.dimItemId) || {};
           const row = this.resForm.editingId ? this.resRows.find(r => r.id === this.resForm.editingId) : null;
           if (row) {
             Object.assign(row, {
               title: d.title, intro: d.intro, channelId: d.channelId,
               channelName: this.subChannelPathOf(d.channelId) || d.channelId,
               categoryId: d.categoryId, categoryName: cat.name || '',
+              dimItemId: d.dimItemId || '', dimItemName: dimItem.name || '',
               order: d.order, status: status, updatedAt: t,
               contentType: d.contentType, chargeType: d.chargeType,
               org: d.org || row.org, author: d.author,
@@ -4749,6 +4749,7 @@
             id, title: d.title || '未命名资源', intro: d.intro, channelId: d.channelId,
             channelName: this.subChannelPathOf(d.channelId) || d.channelId,
             categoryId: d.categoryId, categoryName: cat.name || '',
+            dimItemId: d.dimItemId || '', dimItemName: dimItem.name || '',
             order: d.order, viewCount: 0, likes: 0, org: d.org || this.currentOrg, tags: [],
             zone: 'ai', icon: '📄', tone: 1, contentType: d.contentType, chargeType: d.chargeType,
             payType: '个人', price: '', status: status, recommended: '否', updatedAt: t, checked: false,
@@ -4790,13 +4791,15 @@
           // 审批历史明细（按轮次正序）
           return row && Array.isArray(row.history) ? row.history : [];
         },
-        ensureItemMapSlots() {
-          const dims = this.dimsOfCurrentCategory;
-          dims.forEach(d => {
-            if (!Array.isArray(this.resForm.data.itemMap[d.id])) {
-              this.resForm.data.itemMap[d.id] = [];
-            }
-          });
+        onResChannelChange() {
+          // 切换所属频道：类目条目与所属分类的候选随之变化，已选值清空
+          this.resForm.data.dimItemId = '';
+          this.resForm.data.categoryId = '';
+        },
+        categoryManagesItem(cat, itemId) {
+          // 分类是否管理（关联）该类目条目：分类的 dimItemMap 中任一类目包含该条目
+          const map = cat && cat.dimItemMap ? cat.dimItemMap : {};
+          return Object.keys(map).some(k => Array.isArray(map[k]) && map[k].includes(itemId));
         },
         goResList() {
           this.currentPage = PAGE_MAP.P10;
@@ -4898,24 +4901,31 @@
         },
         downloadResImportTemplate() {
           // 模板频道/分类枚举按当前人员可配置范围生成（R-RES-15）
-          const headers = ['资源标题', '所属频道（子频道）', '所属分类', '内容展示方式', '排序', '课时', '收费方式', '资源简介', '资源来源机构', '资源作者'];
+          const headers = ['资源标题', '所属频道（子频道）', '所属分类', '类目条目', '内容展示方式', '排序', '课时', '收费方式', '资源简介', '资源来源机构', '资源作者'];
           const chLabels = this.myChannelOptions.map(c => c.label);
           const catNames = this.myCategoryOptions.map(c => c.name);
+          // 类目条目枚举：各可配置频道下已上架的类目条目（非必填）
+          const itemNames = [];
+          this.myChannelIds.forEach(id => this.dimsOfSubChannel(id).forEach(dm => {
+            this.itemsOfDim(dm.id).forEach(it => itemNames.push(it.name));
+          }));
           // 模板示例行：取第一个可配置频道与分类，便于填写人员参照
           const sample = this.myChannelOptions.length && this.myCategoryOptions.length
             ? [this.myChannelOptions[0].label, this.myCategoryOptions[0].name]
             : ['', ''];
           const rows = [
             headers,
-            ['示例资源标题', sample[0], sample[1], '富文本', '10', '30', '免费', '示例简介', this.isSuper ? '桂教通平台' : this.currentOrg, this.isSuper ? '平台运营' : this.currentPerson],
-            ['', '', '', '', '', '', '', '', '', '']
+            ['示例资源标题', sample[0], sample[1], itemNames[0] || '', '富文本', '10', '30', '免费', '示例简介', this.isSuper ? '桂教通平台' : this.currentOrg, this.isSuper ? '平台运营' : this.currentPerson],
+            ['', '', '', '', '', '', '', '', '', '', '']
           ];
           this.downloadCsv('资源批量导入模板.csv', rows);
           const scope = this.isSuper
             ? '全部频道'
             : (chLabels.length ? chLabels.join('、') : '（无，请先在配置管理中为该人员配置频道）');
           const cats = catNames.length ? catNames.join('、') : '（无）';
-          this.showConfirm('模板已下载', '资源批量导入模板.csv 已下载；模板频道枚举仅限你当前可配置的频道：' + scope + '；所属分类枚举为对应频道下的一级分类：' + cats + '（单次最多导入 100 条）');
+          const items = itemNames.length ? itemNames.slice(0, 20).join('、') + (itemNames.length > 20 ? ' 等' : '') : '（无）';
+          this.showConfirm('模板已下载', '资源批量导入模板.csv 已下载；模板频道枚举仅限你当前可配置的频道：' + scope + '；所属分类枚举为对应频道下的一级分类：' + cats
+            + '；类目条目枚举为该频道下已上架的类目条目（非必填）：' + items + '（单次最多导入 100 条）');
         },
         mockPickImportFile() {
           this.resImportDialog.pickedFile = '资源批量导入_' + Date.now() + '.xlsx';
@@ -4938,6 +4948,18 @@
             } else {
               const ok = this.categoryRows.some(c => c.level === 0 && c.subChannelId === cid && c.name === row.category.trim());
               if (!ok) errs.push('所属分类不属于该频道');
+            }
+            // 类目条目非必填；填写时须为该频道下已上架条目，且所属分类须管理该条目
+            const itemName = (row.item || '').trim();
+            if (itemName) {
+              const dimIds = this.dimsOfSubChannel(cid).map(dm => dm.id);
+              const item = this.dimItemRows.find(x => dimIds.includes(x.dimId) && x.status === '已上架' && x.name === itemName);
+              if (!item) {
+                errs.push('类目条目不属于该频道');
+              } else {
+                const cat = this.categoryRows.find(c => c.level === 0 && c.subChannelId === cid && c.name === (row.category || '').trim());
+                if (cat && !this.categoryManagesItem(cat, item.id)) errs.push('所属分类未关联该类目条目');
+              }
             }
           }
           const cts = ['富文本', '文件·视频', '应用和链接', '链接', '视频'];
@@ -4965,12 +4987,19 @@
           const inScopeCat = catOpt.length ? catOpt[0].name : '';
           const outCh = this.channelRows.filter(c => c.parentId && !this.myChannelIds.includes(c.id));
           const outChLabel = outCh.length ? this.subChannelPathOf(outCh[0].id) : '';
+          // 默认频道下已上架的类目条目名称，用于构造合法/非法演示行
+          const inScopeItems = [];
+          this.dimsOfSubChannel(chOpt.length ? chOpt[0].id : '').forEach(dm => {
+            this.itemsOfDim(dm.id).forEach(it => inScopeItems.push(it.name));
+          });
+          const validItem = inScopeItems[0] || '';
           const raw = [
-            { title: '导入资源·消防安全知识手册', channel: inScopeCh, category: inScopeCat, contentType: '富文本' },
-            { title: '导入资源·校园安全微课', channel: inScopeCh, category: inScopeCat, contentType: '视频' },
-            { title: '导入资源·跨学科示范课', channel: outChLabel || inScopeCh, category: inScopeCat, contentType: '富文本' },
-            { title: '导入资源·缺失分类资源', channel: inScopeCh, category: '不存在的分类', contentType: '富文本' },
-            { title: '', channel: inScopeCh, category: inScopeCat, contentType: '富文本' }
+            { title: '导入资源·消防安全知识手册', channel: inScopeCh, category: inScopeCat, item: validItem, contentType: '富文本' },
+            { title: '导入资源·校园安全微课', channel: inScopeCh, category: inScopeCat, item: validItem, contentType: '视频' },
+            { title: '导入资源·跨学科示范课', channel: outChLabel || inScopeCh, category: inScopeCat, item: validItem, contentType: '富文本' },
+            { title: '导入资源·缺失分类资源', channel: inScopeCh, category: '不存在的分类', item: '', contentType: '富文本' },
+            { title: '导入资源·错误类目条目', channel: inScopeCh, category: inScopeCat, item: '不存在的条目', contentType: '富文本' },
+            { title: '', channel: inScopeCh, category: inScopeCat, item: validItem, contentType: '富文本' }
           ];
           const baseOrder = this.resRows.reduce((m, r) => Math.max(m, Number(r.order) || 0), 0);
           let success = 0, fail = 0, videoCount = 0;
@@ -4983,17 +5012,20 @@
               if (r.contentType === '视频') videoCount++;
               const cid = this.myChannelOptions.find(c => c.label === r.channel).id;
               const cat = this.categoryRows.find(c => c.level === 0 && c.subChannelId === cid && c.name === r.category.trim());
+              const dimIds = this.dimsOfSubChannel(cid).map(dm => dm.id);
+              const item = r.item ? this.dimItemRows.find(x => dimIds.includes(x.dimId) && x.status === '已上架' && x.name === r.item.trim()) : null;
               this.resRows.push({
                 id: 'RES' + String(Date.now()).slice(-5) + i,
                 title: r.title, channelId: cid, channelName: r.channel,
                 categoryId: cat ? cat.id : '', categoryName: r.category,
+                dimItemId: item ? item.id : '', dimItemName: item ? item.name : '',
                 order: baseOrder + (success) * 10,
                 viewCount: 0, likes: 0, status: target, recommended: '否',
                 updatedAt: t, contentType: r.contentType,
                 org: org, author: author, creator: author, intro: '（批量导入创建的基本内容）'
               });
             }
-            detailRows.push({ line: i + 2, title: r.title || '（空）', channel: r.channel, category: r.category, contentType: r.contentType, errors: errs });
+            detailRows.push({ line: i + 2, title: r.title || '（空）', channel: r.channel, category: r.category, item: r.item, contentType: r.contentType, errors: errs });
           });
           const rec = {
             id: 'IMP' + String(Date.now()).slice(-6),
@@ -5022,9 +5054,9 @@
           this.importDetailDialog = { visible: true, rec: rec };
         },
         exportImportSource(rec) {
-          const headers = ['行号', '资源标题', '所属频道（子频道）', '所属分类', '内容展示方式', '导入错误信息'];
+          const headers = ['行号', '资源标题', '所属频道（子频道）', '所属分类', '类目条目', '内容展示方式', '导入错误信息'];
           const rows = [headers].concat(rec.rows.map(r => [
-            r.line, r.title, r.channel || '', r.category || '', r.contentType || '',
+            r.line, r.title, r.channel || '', r.category || '', r.item || '', r.contentType || '',
             r.errors.length ? r.errors.join('；') : ''
           ]));
           this.downloadCsv('导入源文件_' + rec.fileName.replace(/\.xlsx$/i, '.csv'), rows);
