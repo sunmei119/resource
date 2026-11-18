@@ -1403,10 +1403,8 @@
                                 style="width:100%;">
                                 <el-option v-for="it in grp.items" :key="it.id" :label="it.name" :value="it.id"></el-option>
                               </el-select>
-                              <div class="dim-picker__hint">共 {{ grp.items.length }} 个条目，可输入关键词搜索</div>
                             </div>
                           </div>
-                          <div class="dim-picker__foot">随所选所属分类带出关联类目及条目；每个类目必选 1 个且仅可选 1 个；该分类下无类目条目不展示本字段</div>
                         </div>
                       </el-form-item>
                       <el-form-item label="排序" required>
